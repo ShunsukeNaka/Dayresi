@@ -39,3 +39,4 @@
 | [0005](0005-update-spec-first.md) | 仕様の変更は実装前に SPEC.md を更新する | 採用 |
 | [0006](0006-japanese-commits-and-prs.md) | コミットメッセージと PR は日本語で書く | 採用 |
 | [0007](0007-approve-new-dependencies.md) | npm パッケージの追加は事前に承認をとる | 採用 |
+| [0008](0008-purpose-in-readme.md) | プロダクトの目的を README.md にまとめる | 採用 |
