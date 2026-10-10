@@ -24,6 +24,7 @@
 
 ## 意思決定の記録
 
-- 選択肢を示してユーザーが決めたときは、その場で `docs/decisions/` に ADR を書き、同じ PR に含める（書き方は [docs/decisions/README.md](docs/decisions/README.md)）
-- ユーザーが述べていない理由は推測で書かず、「理由は記録していない」とする
+- 選択肢を示してユーザーが決めたときは、その場で `docs/decisions/` に ADR を用意し、同じ PR に含める（書き方は [docs/decisions/README.md](docs/decisions/README.md)）
+- ADR の「理由」はユーザーが書く。Claude は理由欄を空けておき、ユーザーに記入を頼む（推測で書かない）
+- ユーザーが選択肢なしで自分で ADR を追加することもある
 - PR の本文から、関係する ADR にリンクする
