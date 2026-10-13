@@ -41,3 +41,4 @@
 | [0007](0007-approve-new-dependencies.md) | npm パッケージの追加は事前に承認をとる | 採用 |
 | [0008](0008-purpose-in-readme.md) | プロダクトの目的を README.md にまとめる | 採用 |
 | [0009](0009-new-design-in-pen.md) | デザインファイルは pen.dev で新しいデザイン案として作る | 採用 |
+| [0010](0010-user-journey-in-docs-research.md) | ユーザージャーニーマップは docs/research/ に Markdown で置く | 採用 |
