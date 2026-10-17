@@ -41,3 +41,7 @@
 | [0007](0007-approve-new-dependencies.md) | npm パッケージの追加は事前に承認をとる | 採用 |
 | [0008](0008-purpose-in-readme.md) | プロダクトの目的を README.md にまとめる | 採用 |
 | [0009](0009-new-design-in-pen.md) | デザインファイルは pen.dev で新しいデザイン案として作る | 採用 |
+| [0010](0010-user-journey-in-docs-research.md) | ユーザージャーニーマップは docs/research/ に Markdown で置く | 採用 |
+| [0011](0011-allow-negative-price.md) | 商品の価格をマイナスにもできるようにする | 採用 |
+| [0012](0012-keep-void-as-is.md) | 会計の間違いは今の取消のままで直す | 採用 |
+| [0013](0013-main-and-sub-targets.md) | 届けたい人は、用意する人をメイン、接客する人をサブのターゲットにする | 採用 |
