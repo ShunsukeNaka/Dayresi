@@ -50,9 +50,10 @@ export function RegisterView({ products, cart, items, total, onChangeQty, onClea
           <span>合計</span>
           <strong>{formatYen(total)}</strong>
         </div>
+        {total < 0 && <p className="cart-warning">合計が0円未満のため、会計できません</p>}
         <div className="cart-actions">
           <button className="secondary" onClick={onClear} disabled={items.length === 0}>クリア</button>
-          <button className="primary" onClick={onCheckout} disabled={items.length === 0}>会計</button>
+          <button className="primary" onClick={onCheckout} disabled={items.length === 0 || total < 0}>会計</button>
         </div>
       </aside>
     </section>

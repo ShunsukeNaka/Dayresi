@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Cart, PaymentMethod } from './types'
+import type { Cart } from './types'
 import { useAppData } from './state'
-import { cartItems, createSale, itemsTotal } from './lib/sales'
+import { canCheckout, cartItems, createSale, itemsTotal } from './lib/sales'
 import { formatYen } from './lib/format'
 import { RegisterView } from './components/RegisterView'
 import { CheckoutDialog } from './components/CheckoutDialog'
@@ -56,19 +56,15 @@ export default function App() {
   }, [])
 
   const openCheckout = () => {
-    if (items.length > 0) setCheckoutOpen(true)
+    if (canCheckout(items)) setCheckoutOpen(true)
   }
 
-  const confirmCheckout = (method: PaymentMethod, paid: number) => {
-    const sale = createSale(items, method, paid, data.sales)
+  const confirmCheckout = (paid: number) => {
+    const sale = createSale(items, paid, data.sales)
     dispatch({ type: 'recordSale', sale })
     setCart({})
     setCheckoutOpen(false)
-    showToast(
-      method === 'cash'
-        ? `会計 ${sale.no} 番を記録しました（おつり ${formatYen(sale.change)}）`
-        : `会計 ${sale.no} 番を記録しました`,
-    )
+    showToast(`会計 ${sale.no} 番を記録しました（おつり ${formatYen(sale.change)}）`)
   }
 
   return (

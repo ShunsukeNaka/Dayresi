@@ -5,8 +5,6 @@ export type Product = {
   price: number
 }
 
-export type PaymentMethod = 'cash' | 'other'
-
 /** 会計時点の商品名・価格を保持する（後で商品を編集・削除しても履歴は変わらない） */
 export type SaleItem = {
   productId: string
@@ -23,7 +21,6 @@ export type Sale = {
   at: string
   items: SaleItem[]
   total: number
-  method: PaymentMethod
   paid: number
   change: number
   voided: boolean

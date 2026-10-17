@@ -1,7 +1,7 @@
 import type { Sale } from '../types'
 import { formatDateTime } from './format'
 
-const HEADER = ['会計番号', '日時', '支払方法', '商品名', '単価', '数量', '小計', '会計合計', 'お預かり', 'おつり', '状態']
+const HEADER = ['会計番号', '日時', '商品名', '単価', '数量', '小計', '会計合計', 'お預かり', 'おつり', '状態']
 
 function escapeField(value: string | number): string {
   let s = String(value)
@@ -19,7 +19,6 @@ export function salesToCsv(sales: Sale[]): string {
       rows.push([
         sale.no,
         formatDateTime(sale.at),
-        sale.method === 'cash' ? '現金' : 'その他',
         item.name,
         item.price,
         item.qty,

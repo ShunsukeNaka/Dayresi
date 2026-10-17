@@ -17,7 +17,7 @@ export function HistoryView({ sales, onVoid }: Props) {
           {newestFirst.map((s) => (
             <li key={s.id} className={s.voided ? 'voided' : ''}>
               <div className="meta">
-                #{s.no}　{formatTime(s.at)}　{s.method === 'cash' ? '現金' : 'その他'}
+                #{s.no}　{formatTime(s.at)}
                 {s.voided && <span className="tag">取消済</span>}
               </div>
               <div className="amount">{formatYen(s.total)}</div>

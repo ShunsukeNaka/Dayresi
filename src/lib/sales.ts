@@ -1,4 +1,4 @@
-import type { Cart, PaymentMethod, Product, Sale, SaleItem } from '../types'
+import type { Cart, Product, Sale, SaleItem } from '../types'
 import { newId } from './format'
 
 export function cartItems(cart: Cart, products: Product[]): SaleItem[] {
@@ -11,24 +11,22 @@ export function itemsTotal(items: SaleItem[]): number {
   return items.reduce((sum, i) => sum + i.price * i.qty, 0)
 }
 
-export function createSale(
-  items: SaleItem[],
-  method: PaymentMethod,
-  paid: number,
-  prevSales: Sale[],
-  now = new Date(),
-): Sale {
+/** 商品が1つ以上あり、合計が0円以上なら会計できる */
+export function canCheckout(items: SaleItem[]): boolean {
+  return items.length > 0 && itemsTotal(items) >= 0
+}
+
+/** 支払方法は分けない。キャッシュレスで受け取った分も、お預かり金額を入れて（または「ちょうど」で）記録する */
+export function createSale(items: SaleItem[], paid: number, prevSales: Sale[], now = new Date()): Sale {
   const total = itemsTotal(items)
-  const actualPaid = method === 'cash' ? paid : total
   return {
     id: newId(),
     no: prevSales.reduce((max, s) => Math.max(max, s.no), 0) + 1,
     at: now.toISOString(),
     items,
     total,
-    method,
-    paid: actualPaid,
-    change: actualPaid - total,
+    paid,
+    change: paid - total,
     voided: false,
   }
 }
