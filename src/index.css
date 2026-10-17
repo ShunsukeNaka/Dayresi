@@ -95,6 +95,7 @@ main { flex: 1; min-height: 0; }
 .sub { min-width: 80px; text-align: right; font-variant-numeric: tabular-nums; }
 .cart-total { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px; border-top: 1px solid var(--border); font-size: 1.1rem; }
 .cart-total strong { font-size: 2rem; font-variant-numeric: tabular-nums; }
+.cart-warning { color: var(--danger); font-size: .9rem; margin: 0; padding: 0 16px 10px; text-align: right; }
 .cart-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; padding: 0 12px 12px; }
 .cart-actions button { padding: 16px; font-size: 1.15rem; }
 
@@ -148,9 +149,6 @@ main { flex: 1; min-height: 0; }
   background: var(--surface); color: var(--text);
 }
 .checkout::backdrop { background: rgba(0, 0, 0, .5); }
-.pay-method { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 16px; }
-.pay-method button { background: var(--surface-2); border: 1px solid var(--border); }
-.pay-method button.active { background: var(--primary); color: var(--primary-text); border-color: var(--primary); font-weight: 700; }
 .pay-rows { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0 0 16px; align-items: baseline; }
 .pay-rows dt { color: var(--muted); }
 .pay-rows dd { margin: 0; text-align: right; font-weight: 700; font-size: 1.6rem; font-variant-numeric: tabular-nums; }

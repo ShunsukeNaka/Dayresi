@@ -16,7 +16,6 @@ function isSale(s: unknown): s is Sale {
     typeof x === 'object' && x !== null &&
     typeof x.id === 'string' && typeof x.no === 'number' && typeof x.at === 'string' &&
     Array.isArray(x.items) && typeof x.total === 'number' &&
-    (x.method === 'cash' || x.method === 'other') &&
     typeof x.paid === 'number' && typeof x.change === 'number' && typeof x.voided === 'boolean'
   )
 }

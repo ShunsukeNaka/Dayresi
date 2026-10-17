@@ -1,8 +1,10 @@
 export const MAX_PRICE = 9_999_999
+/** 割引などをマイナスの価格の商品として登録できる */
+export const MIN_PRICE = -MAX_PRICE
 export const MAX_NAME_LENGTH = 30
 
 export function formatYen(n: number): string {
-  return '¥' + n.toLocaleString('ja-JP')
+  return (n < 0 ? '−¥' : '¥') + Math.abs(n).toLocaleString('ja-JP')
 }
 
 export function formatTime(iso: string): string {
@@ -23,7 +25,15 @@ export function fileStamp(date = new Date()): string {
 }
 
 export function isValidPrice(n: unknown): n is number {
-  return typeof n === 'number' && Number.isInteger(n) && n >= 0 && n <= MAX_PRICE
+  return typeof n === 'number' && Number.isInteger(n) && n >= MIN_PRICE && n <= MAX_PRICE
+}
+
+/** 入力中の文字列を価格に変換する。全角や記号のマイナスも受け付ける。不正なら null */
+export function parsePrice(s: string): number | null {
+  const t = s.trim().replace(/^[−－]/, '-')
+  if (!/^-?\d+$/.test(t)) return null
+  const n = Number(t)
+  return isValidPrice(n) ? n : null
 }
 
 export function isValidName(s: unknown): s is string {

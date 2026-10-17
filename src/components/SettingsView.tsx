@@ -1,7 +1,7 @@
 import { useRef, useState, type Dispatch, type FormEvent } from 'react'
 import type { AppData, Product } from '../types'
 import type { Action } from '../state'
-import { MAX_NAME_LENGTH, MAX_PRICE, fileStamp, isValidName, isValidPrice, newId } from '../lib/format'
+import { MAX_NAME_LENGTH, MAX_PRICE, MIN_PRICE, fileStamp, isValidName, newId, parsePrice } from '../lib/format'
 import { ProductFileError, parseProductFile, productsToFile } from '../lib/productFile'
 import { downloadFile } from '../lib/download'
 import { ExportCsvButton } from './ExportCsvButton'
@@ -10,13 +10,6 @@ type Props = {
   data: AppData
   dispatch: Dispatch<Action>
   onToast: (message: string) => void
-}
-
-/** 入力中の文字列を価格に変換する。不正なら null */
-function parsePrice(s: string): number | null {
-  if (!/^\d+$/.test(s.trim())) return null
-  const n = Number(s.trim())
-  return isValidPrice(n) ? n : null
 }
 
 function ProductRow({ product, index, count, dispatch }: { product: Product; index: number; count: number; dispatch: Dispatch<Action> }) {
@@ -82,7 +75,7 @@ export function SettingsView({ data, dispatch, onToast }: Props) {
     e.preventDefault()
     const price = parsePrice(newPrice)
     if (!isValidName(newName)) return setAddError('商品名を入力してください。')
-    if (price === null) return setAddError(`価格は 0〜${MAX_PRICE.toLocaleString('ja-JP')} の整数で入力してください。`)
+    if (price === null) return setAddError(`価格は ${MIN_PRICE.toLocaleString('ja-JP')}〜${MAX_PRICE.toLocaleString('ja-JP')} の整数で入力してください。`)
     dispatch({ type: 'addProduct', product: { id: newId(), name: newName.trim(), price } })
     setNewName('')
     setNewPrice('')
@@ -121,7 +114,7 @@ export function SettingsView({ data, dispatch, onToast }: Props) {
       <div className="container">
         <div className="panel">
           <h2>商品</h2>
-          <p className="hint">価格は税込で入力してください。</p>
+          <p className="hint">価格は税込で入力してください。割引券は「割引」「-50」のように、マイナスの価格の商品として登録できます。</p>
           {data.products.length > 0 && (
             <ul className="product-editor">
               {data.products.map((p, i) => (
