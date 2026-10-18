@@ -51,3 +51,4 @@
 | [0017](0017-no-expense-profit.md) | 経費の記録・利益の計算を「MVP で扱わないもの」に書く | 採用 |
 | [0018](0018-cash-only-payment.md) | 支払方法は分けず、現金と同じように記録する | 採用 |
 | [0019](0019-school-festival-only.md) | 利用シーンを文化祭の模擬店に絞る | 採用 |
+| [0020](0020-playwright-mcp-for-screen-check.md) | Claude Code の画面確認には Playwright MCP を使う | 採用 |
