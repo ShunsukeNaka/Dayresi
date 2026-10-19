@@ -33,7 +33,9 @@
 
 ## 意思決定の記録
 
-- 選択肢を示してユーザーが決めたときは、その場で `docs/decisions/` に ADR を用意し、同じ PR に含める（書き方は [docs/decisions/README.md](docs/decisions/README.md)）
+- Issue の作業中に選択肢を示してユーザーが決めたときは、ADR ではなく、その Issue にコメントで書く（示した選択肢、決めたこと）。理由はユーザーが書くので、Claude は理由を空けてコメントし、ユーザーに記入を頼む（推測で書かない）
+- ただし、Issue の作業中でも、プロダクト全体にかかわる判断（開発の進め方、プロダクトの思想など）は ADR に書く
+- Issue の外で選択肢を示してユーザーが決めたときは、その場で `docs/decisions/` に ADR を用意し、同じ PR に含める（書き方は [docs/decisions/README.md](docs/decisions/README.md)）
 - ADR の「理由」はユーザーが書く。Claude は理由欄を空けておき、ユーザーに記入を頼む（推測で書かない）
 - ユーザーが選択肢なしで自分で ADR を追加することもある
-- PR の本文から、関係する ADR にリンクする
+- PR の本文から、関係する ADR や、決めたことを書いた Issue のコメントにリンクする
