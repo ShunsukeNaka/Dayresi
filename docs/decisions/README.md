@@ -53,3 +53,5 @@
 | [0019](0019-school-festival-only.md) | 利用シーンを文化祭の模擬店に絞る | 採用 |
 | [0020](0020-playwright-mcp-for-screen-check.md) | Claude Code の画面確認には Playwright MCP を使う | 採用 |
 | [0021](0021-issue-driven-development.md) | Issue 駆動で開発する | 採用 |
+| [0022](0022-rebuild-mvp.md) | MVP を作り直す | 採用 |
+| [0023](0023-decisions-in-issues.md) | Issue の作業中に決めたことは、その Issue にも書く | 採用 |

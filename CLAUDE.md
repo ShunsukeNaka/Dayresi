@@ -36,4 +36,5 @@
 - 選択肢を示してユーザーが決めたときは、その場で `docs/decisions/` に ADR を用意し、同じ PR に含める（書き方は [docs/decisions/README.md](docs/decisions/README.md)）
 - ADR の「理由」はユーザーが書く。Claude は理由欄を空けておき、ユーザーに記入を頼む（推測で書かない）
 - ユーザーが選択肢なしで自分で ADR を追加することもある
+- Issue の作業中に決めたことは、ADR に加えてその Issue にもコメントで書く（示した選択肢、決めたこと、ADR へのリンク）
 - PR の本文から、関係する ADR にリンクする
