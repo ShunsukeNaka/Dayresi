@@ -7,7 +7,6 @@ export type Action =
   | { type: 'updateProduct'; product: Product }
   | { type: 'removeProduct'; id: string }
   | { type: 'moveProduct'; id: string; delta: -1 | 1 }
-  | { type: 'replaceProducts'; products: Product[] }
   | { type: 'recordSale'; sale: Sale }
   | { type: 'voidSale'; id: string }
   | { type: 'resetAll' }
@@ -28,8 +27,6 @@ export function reducer(state: AppData, action: Action): AppData {
       ;[products[i], products[j]] = [products[j], products[i]]
       return { ...state, products }
     }
-    case 'replaceProducts':
-      return { ...state, products: action.products }
     case 'recordSale':
       return { ...state, sales: [...state.sales, action.sale] }
     case 'voidSale':

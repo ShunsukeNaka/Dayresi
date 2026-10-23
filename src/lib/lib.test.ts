@@ -3,7 +3,6 @@ import type { Product, Sale } from '../types'
 import { canCheckout, cartItems, createSale, itemsTotal, summarize } from './sales'
 import { formatYen, isValidPrice, parsePrice } from './format'
 import { salesToCsv } from './csv'
-import { ProductFileError, parseProductFile, productsToFile } from './productFile'
 import { parseData } from './storage'
 import { reducer } from '../state'
 
@@ -71,29 +70,6 @@ describe('csv', () => {
     const sale = createSale([{ productId: 'd', name: '割引', price: -50, qty: 2 }, { productId: 'a', name: '焼きそば', price: 400, qty: 1 }], 300, [])
     const rows = salesToCsv([sale]).split('\r\n')
     expect(rows[1].split(',').slice(2, 6)).toEqual(['割引', '-50', '2', '-100'])
-  })
-})
-
-describe('productFile', () => {
-  it('書き出したファイルを読み込める（IDは振り直す）', () => {
-    const parsed = parseProductFile(productsToFile(products))
-    expect(parsed.map(({ name, price }) => ({ name, price }))).toEqual([
-      { name: '焼きそば', price: 400 },
-      { name: 'ラムネ', price: 150 },
-    ])
-    expect(parsed[0].id).not.toBe('a')
-  })
-
-  it('不正なファイルはわかりやすいエラーにする', () => {
-    expect(() => parseProductFile('not json')).toThrow(ProductFileError)
-    expect(() => parseProductFile('{"app":"other"}')).toThrow(ProductFileError)
-    expect(() => parseProductFile('{"app":"dayresi","type":"products","version":1,"products":[{"name":"","price":1}]}')).toThrow('1 番目')
-    expect(() => parseProductFile('{"app":"dayresi","type":"products","version":1,"products":[{"name":"a","price":1.5}]}')).toThrow(ProductFileError)
-  })
-
-  it('マイナス価格の商品も書き出して読み込める', () => {
-    const parsed = parseProductFile(productsToFile([{ id: 'd', name: '割引', price: -50 }]))
-    expect(parsed.map(({ name, price }) => ({ name, price }))).toEqual([{ name: '割引', price: -50 }])
   })
 })
 

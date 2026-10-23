@@ -1,9 +1,7 @@
 import { useRef, useState, type Dispatch, type FormEvent } from 'react'
 import type { AppData, Product } from '../types'
 import type { Action } from '../state'
-import { MAX_NAME_LENGTH, MAX_PRICE, MIN_PRICE, fileStamp, isValidName, newId, parsePrice } from '../lib/format'
-import { ProductFileError, parseProductFile, productsToFile } from '../lib/productFile'
-import { downloadFile } from '../lib/download'
+import { MAX_NAME_LENGTH, MAX_PRICE, MIN_PRICE, isValidName, newId, parsePrice } from '../lib/format'
 import { ExportCsvButton } from './ExportCsvButton'
 
 type Props = {
@@ -69,7 +67,6 @@ export function SettingsView({ data, dispatch, onToast }: Props) {
   const [newPrice, setNewPrice] = useState('')
   const [addError, setAddError] = useState('')
   const nameInputRef = useRef<HTMLInputElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const addProduct = (e: FormEvent) => {
     e.preventDefault()
@@ -81,24 +78,6 @@ export function SettingsView({ data, dispatch, onToast }: Props) {
     setNewPrice('')
     setAddError('')
     nameInputRef.current?.focus()
-  }
-
-  const exportProducts = () => {
-    downloadFile(`dayresi-products-${fileStamp()}.json`, productsToFile(data.products), 'application/json')
-  }
-
-  const importProducts = async (file: File) => {
-    try {
-      const products = parseProductFile(await file.text())
-      const message = data.products.length > 0
-        ? `${products.length} 件の商品を読み込みます。\n今の商品設定（${data.products.length} 件）は置き換えられます。よろしいですか？`
-        : `${products.length} 件の商品を読み込みますか？`
-      if (!confirm(message)) return
-      dispatch({ type: 'replaceProducts', products })
-      onToast(`${products.length} 件の商品を読み込みました`)
-    } catch (err) {
-      alert(err instanceof ProductFileError ? err.message : 'ファイルの読み込みに失敗しました。')
-    }
   }
 
   const resetAll = () => {
@@ -141,32 +120,6 @@ export function SettingsView({ data, dispatch, onToast }: Props) {
             <button className="primary" type="submit">追加</button>
           </form>
           {addError && <p className="error">{addError}</p>}
-        </div>
-
-        <div className="panel">
-          <h2>商品設定ファイル</h2>
-          <p className="hint">
-            別の端末で作った商品設定を、ファイルでこの端末に移せます。ファイルには売上データは含まれません。
-          </p>
-          <div className="row-actions">
-            <button className="secondary" onClick={exportProducts} disabled={data.products.length === 0}>
-              ファイルに書き出す
-            </button>
-            <button className="secondary" onClick={() => fileInputRef.current?.click()}>
-              ファイルを読み込む
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json,application/json"
-              hidden
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                e.target.value = ''
-                if (file) void importProducts(file)
-              }}
-            />
-          </div>
         </div>
 
         <div className="panel">
