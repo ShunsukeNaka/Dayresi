@@ -1,6 +1,6 @@
 # Dayresi 開発ルール
 
-アプリの概要と仕様は [SPEC.md](SPEC.md)、開発コマンドは [README.md](README.md) を参照。
+アプリの概要と仕様は [SPEC.md](SPEC.md)、MVP の目的とやること・やらないことの理由は [docs/mvp-design-doc.md](docs/mvp-design-doc.md)、開発コマンドは [README.md](README.md) を参照。
 
 ## 仕様
 

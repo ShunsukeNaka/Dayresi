@@ -57,3 +57,4 @@
 | [0023](0023-decisions-in-issues.md) | Issue の作業中に決めたことは、ADR ではなくその Issue に書く | 採用 |
 | [0024](0024-rebuild-layer-by-layer.md) | 作り直しは、層ごとに今のコードを置き換えて進める | 採用 |
 | [0025](0025-rethink-data-formats.md) | データの形式は、今の形式との互換を前提にせずに考え直す | 採用 |
+| [0026](0026-mvp-design-doc.md) | MVP を考えたときの内容を Design Doc にまとめ、docs/ に置く | 採用 |
