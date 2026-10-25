@@ -104,7 +104,26 @@ main { flex: 1; min-height: 0; }
 .product-btn .price { font-size: 16px; font-weight: 500; color: var(--muted); }
 .product-btn .price.minus { color: var(--minus); }
 /* カートに入っている商品（SPEC「会計」）。色を変え、左上にカート内の数量を出す */
-.product-btn.in-cart { background: var(--accent-soft); border: 3px solid var(--accent); }
+.product-btn.in-cart, .coupon-btn.in-cart { background: var(--accent-soft); border: 3px solid var(--accent); }
+/* 割引券のボタン（docs/design/dayresi.pen の K-01）。商品の下に並べる */
+.coupon-head { grid-column: 1 / -1; margin-top: 8px; font-size: 15px; font-weight: 800; color: var(--muted); }
+.coupon-btn {
+  position: relative; min-height: 72px; display: flex; align-items: center; gap: 12px; padding: 8px 16px; text-align: left;
+  background: var(--surface); border: var(--stroke) solid var(--line);
+}
+.coupon-btn:hover { background: var(--subtle); }
+.coupon-icon { flex: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink); border-radius: 4px; font-size: 13px; font-weight: 800; }
+.coupon-text { display: flex; flex-direction: column; min-width: 0; }
+.coupon-text .name { font-size: 16px; font-weight: 700; word-break: break-word; }
+.coupon-text .price { font-family: var(--font-num); font-size: 14px; }
+.minus { color: var(--minus); }
+.cart-coupon .coupon-mark { display: inline-block; margin-right: 6px; color: var(--minus); font-size: 12px; font-weight: 800; }
+.cart-subtotal { margin: 0; padding: 12px 20px 0; border-top: var(--stroke) solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.cart-subtotal div { display: flex; justify-content: space-between; }
+.cart-subtotal dt { font-size: 14px; color: var(--muted); }
+.cart-subtotal dd { margin: 0; font-family: var(--font-num); font-size: 16px; font-weight: 700; }
+.cart-subtotal + .cart-total { border-top: 0; padding-top: 4px; }
+.pay-rows dd.discount-note { min-height: 0; margin-top: 2px; font-family: var(--font-ui); font-size: 12px; font-weight: 500; color: var(--minus); letter-spacing: 0; }
 .qty-badge {
   position: absolute; top: -3px; left: -3px; min-width: 30px; height: 30px; padding: 0 6px;
   display: flex; align-items: center; justify-content: center;
@@ -146,6 +165,10 @@ main { flex: 1; min-height: 0; }
   .product-btn .name { font-size: 15px; }
   .product-btn .price { font-size: 14px; }
   .qty-badge { min-width: 26px; height: 26px; font-size: 13px; }
+  .coupon-btn { min-height: 60px; padding: 6px 12px; gap: 10px; }
+  .coupon-text .name { font-size: 15px; }
+  .coupon-text .price { font-size: 13px; }
+  .cart-subtotal { padding: 10px 16px 0; }
 
   /* .only-narrow の中央寄せより優先させる */
   .register .cart-bar { flex: none; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 10px; padding: 10px 12px 12px; background: var(--surface); border-top: var(--stroke) solid var(--line); }
@@ -396,7 +419,8 @@ main { flex: 1; min-height: 0; }
   .checkout-title { font-size: 18px; margin: 0; }
   .checkout-body { display: flex; flex-direction: column; gap: 10px; }
   .pay-col { gap: 8px; }
-  .pay-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 0 14px; }
+  .pay-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 12px; min-height: 52px; padding: 0 14px; }
+  .pay-rows dd.discount-note { flex-basis: 100%; margin: 0 0 6px; text-align: right; }
   .pay-rows dt { font-size: 13px; }
   .pay-rows dd { margin: 0; min-height: 0; font-size: 26px; }
   .pay-rows dd.placeholder { font-size: 18px; }

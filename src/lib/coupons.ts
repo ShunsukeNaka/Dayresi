@@ -43,3 +43,38 @@ export function addCoupon(coupons: Coupon[], name: string, kind: Coupon['kind'],
 export function couponLabel(c: Pick<Coupon, 'kind' | 'value'>): string {
   return c.kind === 'amount' ? formatYen(-c.value) : `${c.value}%引き`
 }
+
+/**
+ * 割引券のボタンを押したとき（spec-next.md「割引券」、docs/design/dayresi.pen の K-01）
+ * - 金額引き：1 枚増やす（上限 MAX_COUPON_QTY）
+ * - % 引き：使っていれば外し、使っていなければ使う。% 引きは 1 枚までなので、ほかの % 引きは外す
+ */
+export function toggleCartCoupon(cart: CartCoupons, coupons: Coupon[], id: string): CartCoupons {
+  const coupon = coupons.find((c) => c.id === id)
+  if (!coupon) return cart
+  if (coupon.kind === 'amount') return { ...cart, [id]: Math.min((cart[id] ?? 0) + 1, MAX_COUPON_QTY) }
+  if (cart[id]) return removeKey(cart, id)
+  const percentIds = new Set(coupons.filter((c) => c.kind === 'percent').map((c) => c.id))
+  const next = Object.fromEntries(Object.entries(cart).filter(([k]) => !percentIds.has(k)))
+  return { ...next, [id]: 1 }
+}
+
+/** 金額引きの枚数を delta だけ変える。0 以下になったら外し、MAX_COUPON_QTY で止まる */
+export function changeCartCouponQty(cart: CartCoupons, id: string, delta: number): CartCoupons {
+  const qty = Math.min((cart[id] ?? 0) + delta, MAX_COUPON_QTY)
+  return qty > 0 ? { ...cart, [id]: qty } : removeKey(cart, id)
+}
+
+/** 割引券をカートから外す（% 引きの × ボタン） */
+export function removeCartCoupon(cart: CartCoupons, id: string): CartCoupons {
+  return id in cart ? removeKey(cart, id) : cart
+}
+
+/** 1 回の会計で使える、金額引きの割引券の枚数の上限（商品の数量と同じ） */
+export const MAX_COUPON_QTY = 999
+
+function removeKey(cart: CartCoupons, id: string): CartCoupons {
+  const next = { ...cart }
+  delete next[id]
+  return next
+}

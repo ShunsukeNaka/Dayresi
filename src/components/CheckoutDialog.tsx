@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { SaleDiscount } from '../types'
 import { formatYen } from '../lib/format'
 
 /** お預かり金額の入力の上限の桁数（¥9,999,999） */
@@ -7,7 +8,11 @@ const MAX_DIGITS = 7
 const QUICK_BILLS = [1000, 5000, 10000]
 
 type Props = {
+  /** 割引のあとの合計 */
   total: number
+  /** 割引の前の合計と、使った割引券。割引があれば、合計の下に内訳を出す（docs/design/dayresi.pen の K-02） */
+  subtotal?: number
+  discounts?: SaleDiscount[]
   /** お預かり金額。未入力（「ちょうど」）なら null */
   onConfirm: (paid: number | null) => void
   onCancel: () => void
@@ -18,7 +23,7 @@ type Props = {
  * お預かりは金額ボタンとテンキーで入れる（操作はマウスで、キーボードのショートカットは作らない）
  * 「会計確定」で会計を記録し、「戻る」（または Esc）でカートに戻る
  */
-export function CheckoutDialog({ total, onConfirm, onCancel }: Props) {
+export function CheckoutDialog({ total, subtotal = total, discounts = [], onConfirm, onCancel }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   // お預かり金額の入力（数字の文字列）。空のときは「ちょうど」として扱う
   const [input, setInput] = useState('')
@@ -64,6 +69,11 @@ export function CheckoutDialog({ total, onConfirm, onCancel }: Props) {
             <div className="pay-row">
               <dt>合計</dt>
               <dd>{formatYen(total)}</dd>
+              {discounts.length > 0 && (
+                <dd className="discount-note">
+                  小計 {formatYen(subtotal)} − 割引 {formatYen(subtotal - total)}（{discounts.map((d) => (d.kind === 'amount' ? `${d.name}×${d.qty}` : d.name)).join('・')}）
+                </dd>
+              )}
             </div>
             <div className="pay-row paid">
               <dt>お預かり</dt>
