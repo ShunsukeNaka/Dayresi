@@ -1,8 +1,8 @@
 import { useEffect, useReducer, useRef } from 'react'
-import type { Product, SaleItem, Store } from './types'
+import type { Product, Sale, SaleItem, Store } from './types'
 import { addProduct } from './lib/products'
 import { loadStore, saveStore } from './lib/storage'
-import { addRegister, createRegister, deleteRegister, importProducts, switchRegister, updateCurrent } from './lib/registers'
+import { addRegister, createRegister, deleteRegister, importProducts, importSales, switchRegister, updateCurrent } from './lib/registers'
 import { isValidName } from './lib/format'
 import { createSale, voidSale } from './lib/sales'
 
@@ -18,6 +18,7 @@ import { createSale, voidSale } from './lib/sales'
  * - deleteRegister：レジを削除する。最後の 1 つを消したらマイレジを自動で作る
  * - setMyName：今のレジの自分の名前を変える。ルールに合わなければ何もしない
  * - importProducts：配られた商品を取り込む（新しく足すときは自分の名前がルールに合わなければ何もしない）
+ * - importSales：送られた会計を、同じ店の代表者のレジに合算する（そのレジがなければ何もしない）
  */
 export type Action =
   | { type: 'addProduct'; name: string; price: number }
@@ -29,6 +30,7 @@ export type Action =
   | { type: 'deleteRegister'; id: string }
   | { type: 'setMyName'; name: string }
   | { type: 'importProducts'; share: { storeId: string; name: string; products: Product[] }; myName: string }
+  | { type: 'importSales'; share: { storeId: string; by: string; sales: Sale[] } }
 
 /** 何も変わらない操作では同じ状態を返し、保存し直さない */
 export function reducer(state: Store, action: Action): Store {
@@ -45,6 +47,8 @@ export function reducer(state: Store, action: Action): Store {
       if (!existing && !isValidName(action.myName)) return state
       return importProducts(state, action.share, action.myName).store
     }
+    case 'importSales':
+      return importSales(state, action.share).store
   }
   return updateCurrent(state, (register) => {
     switch (action.type) {
