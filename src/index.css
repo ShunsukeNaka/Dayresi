@@ -352,7 +352,6 @@ main { flex: 1; min-height: 0; }
 .pay-rows dd.placeholder { color: var(--muted); font-size: 24px; }
 .pay-rows .change { min-height: 63px; color: var(--positive); font-size: 52px; }
 .pay-rows .change.short { color: var(--danger); font-size: 32px; }
-.pay-hint { font-size: 13px; color: var(--muted); margin: 0; }
 .cash-pad { display: flex; flex-direction: column; gap: 10px; }
 .quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .quick button { height: 52px; padding: 0 4px; font-size: 17px; }
@@ -385,7 +384,6 @@ main { flex: 1; min-height: 0; }
   .pay-rows .change { min-height: 0; font-size: 36px; }
   .pay-rows .change.short { font-size: 22px; }
   .pay-row:last-child { min-height: 60px; }
-  .pay-hint { font-size: 13px; }
   .cash-pad, .quick, .keypad { gap: 8px; }
   .quick button { height: 44px; font-size: 14px; }
   .keypad button { height: 54px; font-size: 22px; }
@@ -432,7 +430,6 @@ main { flex: 1; min-height: 0; }
 .choice:hover { background: var(--accent-soft); border-color: var(--accent); }
 .choice-icon { width: 48px; height: 48px; border-radius: var(--radius); background: var(--key); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; }
 .choice-title { font-size: 19px; font-weight: 800; }
-.choice .hint { margin: 0; }
 
 .steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
 .steps li { counter-increment: step; display: flex; gap: 14px; align-items: flex-start; font-size: 16px; line-height: 1.6; }
@@ -451,7 +448,6 @@ main { flex: 1; min-height: 0; }
 .result-table td { text-align: right; font-family: var(--font-num); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .result-table .strong th, .result-table .strong td { color: var(--text); }
 .result-table .strong td { font-weight: 800; }
-.result-note { margin: 16px 0 0; }
 .modal-actions button.result-ok-button { flex: none; min-width: 160px; }
 
 /* 配られた商品の取り込みの確認（N-06・P-05） */

@@ -80,11 +80,7 @@ export function SettingsView({ data, dispatch }: Props) {
 
         <div className="settings-section">
           <h2 className="page-title">{isMember ? '配られた商品' : '商品'}</h2>
-          {isMember ? (
-            <p className="hint">代表者が配った商品です。このレジでは編集できません。商品が変わったときは、代表者に配り直してもらいます。</p>
-          ) : (
-            <p className="hint">価格は税込で入力してください。割引券は「割引」「-50」のように、マイナスの価格の商品として登録できます。</p>
-          )}
+          {isMember && <p className="hint">代表者が配った商品です。このレジでは編集できません。商品が変わったときは、代表者に配り直してもらいます。</p>}
           {/* 登録フォームを一覧の上に置き、続けて登録しやすくする */}
           {!isMember && <form className="add-product" onSubmit={addProduct}>
             <label className="field">
@@ -141,11 +137,9 @@ export function SettingsView({ data, dispatch }: Props) {
           {/* 売上 CSV の保存（会計がないときは押せない）と全データ消去（商品も会計もないときは押せない）。消す前に確認する */}
           <div className="data-actions">
             <div className="data-action">
-              <p className="hint">売上明細を CSV ファイルに保存します。Excel でそのまま開けます。</p>
               <ExportCsvButton sales={data.sales} ownName={data.myName} />
             </div>
             <div className="data-action">
-              <p className="hint">商品と売上をすべて消します。元には戻せません。</p>
               <button className="danger" onClick={resetAll} disabled={data.products.length === 0 && data.sales.length === 0}>
                 全データを消去
               </button>
@@ -156,7 +150,6 @@ export function SettingsView({ data, dispatch }: Props) {
 
       {shareStep === 'name' && (
         <MyNameDialog
-          hint="履歴や売上 CSV で、誰の会計かを見分けるのに使います。"
           onSubmit={(name) => {
             dispatch({ type: 'setMyName', name })
             startShare()
@@ -169,7 +162,6 @@ export function SettingsView({ data, dispatch }: Props) {
           title="代表者に送る"
           heading={`${data.myName} の会計`}
           sub={salesLabel}
-          hint="代表者に、Dayresi が入ったスマホのカメラで読んでもらいます。離れているときや、代表者が PC のときは、リンクを送ります。"
           url={shareLink}
           onClose={() => setShareStep(null)}
         />
@@ -179,7 +171,6 @@ export function SettingsView({ data, dispatch }: Props) {
           title="商品を配る"
           heading={data.name}
           sub={`商品 ${data.products.length} つ`}
-          hint="会計する人に、スマホのカメラで読んでもらいます。離れている人には、リンクを送ります。"
           url={shareLink}
           onClose={() => setShareStep(null)}
         />

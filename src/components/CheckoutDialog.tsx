@@ -78,7 +78,6 @@ export function CheckoutDialog({ total, onConfirm, onCancel }: Props) {
               </dd>
             </div>
           </dl>
-          <p className="pay-hint">未入力で確定すると「ちょうど」になります</p>
         </div>
 
         <div className="cash-pad">

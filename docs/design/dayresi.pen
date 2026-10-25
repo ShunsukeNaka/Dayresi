@@ -5733,18 +5733,6 @@
                           ]
                         }
                       ]
-                    },
-                    {
-                      "type": "text",
-                      "id": "dJNbA",
-                      "name": "補足",
-                      "fill": "$muted",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "未入力で確定すると「ちょうど」になります",
-                      "fontFamily": "$font-ui",
-                      "fontSize": 13,
-                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -8387,18 +8375,6 @@
                           "fontFamily": "$font-ui",
                           "fontSize": 28,
                           "fontWeight": "800"
-                        },
-                        {
-                          "type": "text",
-                          "id": "us5WA",
-                          "name": "説明",
-                          "fill": "$muted",
-                          "textGrowth": "fixed-width",
-                          "width": "fill_container",
-                          "content": "価格は税込で入力します。割引券は「割引」「-50」のように、マイナスの価格の商品として登録できます。",
-                          "fontFamily": "$font-ui",
-                          "fontSize": 14,
-                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -8917,18 +8893,6 @@
                           "padding": 20,
                           "children": [
                             {
-                              "type": "text",
-                              "id": "xoWN6",
-                              "name": "説明",
-                              "fill": "$muted",
-                              "textGrowth": "fixed-width",
-                              "width": "fill_container",
-                              "content": "売上明細を CSV ファイルに保存します。Excel でそのまま開けます。",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
-                            },
-                            {
                               "type": "frame",
                               "id": "oUwPO",
                               "name": "売上CSVを保存",
@@ -8968,18 +8932,6 @@
                           "gap": 12,
                           "padding": 20,
                           "children": [
-                            {
-                              "type": "text",
-                              "id": "dbBqN",
-                              "name": "説明",
-                              "fill": "$muted",
-                              "textGrowth": "fixed-width",
-                              "width": "fill_container",
-                              "content": "商品と売上をすべて消します。元には戻せません。",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
-                            },
                             {
                               "type": "frame",
                               "id": "EKLiZ",
@@ -11491,18 +11443,6 @@
                           ]
                         }
                       ]
-                    },
-                    {
-                      "type": "text",
-                      "id": "qSjFP",
-                      "name": "補足",
-                      "fill": "$muted",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "未入力で確定すると「ちょうど」になります",
-                      "fontFamily": "$font-ui",
-                      "fontSize": 13,
-                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -14145,18 +14085,6 @@
                           "fontFamily": "$font-ui",
                           "fontSize": 28,
                           "fontWeight": "800"
-                        },
-                        {
-                          "type": "text",
-                          "id": "F6Fqa",
-                          "name": "説明",
-                          "fill": "$muted",
-                          "textGrowth": "fixed-width",
-                          "width": "fill_container",
-                          "content": "価格は税込で入力します。割引券は「割引」「-50」のように、マイナスの価格の商品として登録できます。",
-                          "fontFamily": "$font-ui",
-                          "fontSize": 14,
-                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -14675,18 +14603,6 @@
                           "padding": 20,
                           "children": [
                             {
-                              "type": "text",
-                              "id": "OSaE0",
-                              "name": "説明",
-                              "fill": "$muted",
-                              "textGrowth": "fixed-width",
-                              "width": "fill_container",
-                              "content": "売上明細を CSV ファイルに保存します。Excel でそのまま開けます。",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
-                            },
-                            {
                               "type": "frame",
                               "id": "PpoYk",
                               "name": "売上CSVを保存",
@@ -14726,18 +14642,6 @@
                           "gap": 12,
                           "padding": 20,
                           "children": [
-                            {
-                              "type": "text",
-                              "id": "z57d5s",
-                              "name": "説明",
-                              "fill": "$muted",
-                              "textGrowth": "fixed-width",
-                              "width": "fill_container",
-                              "content": "商品と売上をすべて消します。元には戻せません。",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
-                            },
                             {
                               "type": "frame",
                               "id": "sIE2f",
@@ -18798,19 +18702,6 @@
                       "fontFamily": "$font-ui",
                       "fontSize": 19,
                       "fontWeight": "800"
-                    },
-                    {
-                      "type": "text",
-                      "id": "KYDn9",
-                      "name": "説明",
-                      "fill": "$muted",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "自分が代表者になります。商品を登録して、会計する人に配ります。",
-                      "lineHeight": 1.6,
-                      "fontFamily": "$font-ui",
-                      "fontSize": 14,
-                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -18860,19 +18751,6 @@
                       "fontFamily": "$font-ui",
                       "fontSize": 19,
                       "fontWeight": "800"
-                    },
-                    {
-                      "type": "text",
-                      "id": "DXQdq",
-                      "name": "説明",
-                      "fill": "$muted",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "代表者から配られた商品で会計します。配られた QR やリンクから追加します。",
-                      "lineHeight": 1.6,
-                      "fontFamily": "$font-ui",
-                      "fontSize": 14,
-                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -23615,18 +23493,6 @@
                           "fontFamily": "$font-ui",
                           "fontSize": 28,
                           "fontWeight": "800"
-                        },
-                        {
-                          "type": "text",
-                          "id": "RbNH3",
-                          "name": "説明",
-                          "fill": "$muted",
-                          "textGrowth": "fixed-width",
-                          "width": "fill_container",
-                          "content": "価格は税込で入力します。割引券は「割引」「-50」のように、マイナスの価格の商品として登録できます。",
-                          "fontFamily": "$font-ui",
-                          "fontSize": 14,
-                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -24232,18 +24098,6 @@
                           "padding": 20,
                           "children": [
                             {
-                              "type": "text",
-                              "id": "ip309",
-                              "name": "説明",
-                              "fill": "$muted",
-                              "textGrowth": "fixed-width",
-                              "width": "fill_container",
-                              "content": "売上明細を CSV ファイルに保存します。Excel でそのまま開けます。",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
-                            },
-                            {
                               "type": "frame",
                               "id": "o2ZTpl",
                               "name": "売上CSVを保存",
@@ -24283,18 +24137,6 @@
                           "gap": 12,
                           "padding": 20,
                           "children": [
-                            {
-                              "type": "text",
-                              "id": "A4Zyt",
-                              "name": "説明",
-                              "fill": "$muted",
-                              "textGrowth": "fixed-width",
-                              "width": "fill_container",
-                              "content": "商品と売上をすべて消します。元には戻せません。",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
-                            },
                             {
                               "type": "frame",
                               "id": "U8HM9",
@@ -24591,18 +24433,6 @@
                           "fontFamily": "$font-ui",
                           "fontSize": 28,
                           "fontWeight": "800"
-                        },
-                        {
-                          "type": "text",
-                          "id": "qjjP3",
-                          "name": "説明",
-                          "fill": "$muted",
-                          "textGrowth": "fixed-width",
-                          "width": "fill_container",
-                          "content": "価格は税込で入力します。割引券は「割引」「-50」のように、マイナスの価格の商品として登録できます。",
-                          "fontFamily": "$font-ui",
-                          "fontSize": 14,
-                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -25208,18 +25038,6 @@
                           "padding": 20,
                           "children": [
                             {
-                              "type": "text",
-                              "id": "K2oM1p",
-                              "name": "説明",
-                              "fill": "$muted",
-                              "textGrowth": "fixed-width",
-                              "width": "fill_container",
-                              "content": "売上明細を CSV ファイルに保存します。Excel でそのまま開けます。",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
-                            },
-                            {
                               "type": "frame",
                               "id": "QqIp8",
                               "name": "売上CSVを保存",
@@ -25259,18 +25077,6 @@
                           "gap": 12,
                           "padding": 20,
                           "children": [
-                            {
-                              "type": "text",
-                              "id": "Dtm8H",
-                              "name": "説明",
-                              "fill": "$muted",
-                              "textGrowth": "fixed-width",
-                              "width": "fill_container",
-                              "content": "商品と売上をすべて消します。元には戻せません。",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
-                            },
                             {
                               "type": "frame",
                               "id": "nZN9d",
@@ -27850,19 +27656,6 @@
                           "fontWeight": "normal"
                         }
                       ]
-                    },
-                    {
-                      "type": "text",
-                      "id": "VazRh",
-                      "name": "説明",
-                      "fill": "$muted",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "会計する人に、スマホのカメラで読んでもらいます。離れている人には、リンクを送ります。",
-                      "lineHeight": 1.6,
-                      "fontFamily": "$font-ui",
-                      "fontSize": 14,
-                      "fontWeight": "normal"
                     },
                     {
                       "type": "frame",
@@ -31931,19 +31724,6 @@
                       ]
                     },
                     {
-                      "type": "text",
-                      "id": "IVWrz",
-                      "name": "説明",
-                      "fill": "$muted",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "代表者に、Dayresi が入ったスマホのカメラで読んでもらいます。離れているときは、リンクを送ります。",
-                      "lineHeight": 1.6,
-                      "fontFamily": "$font-ui",
-                      "fontSize": 14,
-                      "fontWeight": "normal"
-                    },
-                    {
                       "type": "frame",
                       "id": "csyUv",
                       "name": "リンクを送る",
@@ -34345,19 +34125,6 @@
               ]
             },
             {
-              "type": "text",
-              "id": "B7DdHn",
-              "name": "説明",
-              "fill": "$muted",
-              "textGrowth": "fixed-width",
-              "width": "fill_container",
-              "content": "研究室の模擬店の売上に合算しました。集計と履歴で確かめられます。",
-              "lineHeight": 1.6,
-              "fontFamily": "$font-ui",
-              "fontSize": 14,
-              "fontWeight": "normal"
-            },
-            {
               "type": "frame",
               "id": "Z5zFmv",
               "name": "操作",
@@ -35694,19 +35461,6 @@
                       "fontFamily": "$font-ui",
                       "fontSize": 18,
                       "fontWeight": "800"
-                    },
-                    {
-                      "type": "text",
-                      "id": "R5yCE",
-                      "name": "説明",
-                      "fill": "$muted",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "自分が代表者になります。商品を登録して、会計する人に配ります。",
-                      "lineHeight": 1.6,
-                      "fontFamily": "$font-ui",
-                      "fontSize": 14,
-                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -35765,19 +35519,6 @@
                       "fontFamily": "$font-ui",
                       "fontSize": 18,
                       "fontWeight": "800"
-                    },
-                    {
-                      "type": "text",
-                      "id": "v96Mm",
-                      "name": "説明",
-                      "fill": "$muted",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "代表者から配られた商品で会計します。配られた QR やリンクから追加します。",
-                      "lineHeight": 1.6,
-                      "fontFamily": "$font-ui",
-                      "fontSize": 14,
-                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -39524,19 +39265,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "type": "text",
-              "id": "ceS1J",
-              "name": "説明",
-              "fill": "$muted",
-              "textGrowth": "fixed-width",
-              "width": "fill_container",
-              "content": "代表者に、Dayresi が入ったスマホのカメラで読んでもらいます。離れているときは、リンクを送ります。",
-              "lineHeight": 1.6,
-              "fontFamily": "$font-ui",
-              "fontSize": 14,
-              "fontWeight": "normal"
             }
           ]
         },
@@ -42143,19 +41871,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "type": "text",
-              "id": "Ux8aW",
-              "name": "説明",
-              "fill": "$muted",
-              "textGrowth": "fixed-width",
-              "width": "fill_container",
-              "content": "会計する人に、スマホのカメラで読んでもらいます。商品を足したときは、配り直してください。",
-              "lineHeight": 1.6,
-              "fontFamily": "$font-ui",
-              "fontSize": 14,
-              "fontWeight": "normal"
             }
           ]
         },
@@ -42467,19 +42182,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "type": "text",
-              "id": "U8z0D",
-              "name": "説明",
-              "fill": "$muted",
-              "textGrowth": "fixed-width",
-              "width": "fill_container",
-              "content": "研究室の模擬店の売上に合算しました。集計と履歴で確かめられます。",
-              "lineHeight": 1.6,
-              "fontFamily": "$font-ui",
-              "fontSize": 14,
-              "fontWeight": "normal"
             }
           ]
         },
@@ -45064,19 +44766,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "type": "text",
-              "id": "S6VOk",
-              "name": "説明",
-              "fill": "$muted",
-              "textGrowth": "fixed-width",
-              "width": "fill_container",
-              "content": "未入力で確定すると「ちょうど」になります",
-              "lineHeight": 1.6,
-              "fontFamily": "$font-ui",
-              "fontSize": 13,
-              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -47816,19 +47505,6 @@
               "fontWeight": "800"
             },
             {
-              "type": "text",
-              "id": "x0F4h5",
-              "name": "説明",
-              "fill": "$muted",
-              "textGrowth": "fixed-width",
-              "width": "fill_container",
-              "content": "価格は税込で入力してください。割引券は「割引」「-50」のように、マイナスの価格の商品として登録できます。",
-              "lineHeight": 1.6,
-              "fontFamily": "$font-ui",
-              "fontSize": 13,
-              "fontWeight": "normal"
-            },
-            {
               "type": "frame",
               "id": "Y7KAt0",
               "name": "登録フォーム",
@@ -48298,19 +47974,6 @@
                   "padding": 14,
                   "children": [
                     {
-                      "type": "text",
-                      "id": "Fb7dy",
-                      "name": "説明",
-                      "fill": "$muted",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "売上明細を CSV ファイルに保存します。",
-                      "lineHeight": 1.6,
-                      "fontFamily": "$font-ui",
-                      "fontSize": 13,
-                      "fontWeight": "normal"
-                    },
-                    {
                       "type": "frame",
                       "id": "m1leRH",
                       "name": "ボタン",
@@ -48347,19 +48010,6 @@
                   "gap": 8,
                   "padding": 14,
                   "children": [
-                    {
-                      "type": "text",
-                      "id": "VYe1W",
-                      "name": "説明",
-                      "fill": "$muted",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "商品と売上をすべて消します。元には戻せません。",
-                      "lineHeight": 1.6,
-                      "fontFamily": "$font-ui",
-                      "fontSize": 13,
-                      "fontWeight": "normal"
-                    },
                     {
                       "type": "frame",
                       "id": "K6Ibeb",
