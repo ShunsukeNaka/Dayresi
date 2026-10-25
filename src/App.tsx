@@ -156,7 +156,7 @@ export default function App() {
         {tab === 'history' && (
           <HistoryView sales={data.sales} myName={data.myName} onVoid={(id) => dispatch({ type: 'voidSale', id })} />
         )}
-        {tab === 'summary' && <SummaryView sales={data.sales} products={data.products} />}
+        {tab === 'summary' && <SummaryView sales={data.sales} products={data.products} coupons={data.coupons} />}
         {tab === 'settings' && (
           <SettingsView data={data} dispatch={dispatch} />
         )}

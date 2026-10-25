@@ -125,10 +125,21 @@ export type ProductSummary = {
   share: number | null
 }
 
+export type CouponSummary = {
+  key: string
+  name: string
+  /** 使った枚数 */
+  qty: number
+  /** 引いた金額の合計（プラスの数） */
+  amount: number
+}
+
 export type Summary = {
   total: number
   count: number
   byProduct: ProductSummary[]
+  /** 割引券ごとの、使った枚数と引いた金額。使われた割引券だけを、割引券の登録順に出す */
+  byCoupon: CouponSummary[]
 }
 
 /**
@@ -137,8 +148,10 @@ export type Summary = {
  * - 商品ごとの数量と金額を、商品の登録順に出す。マイナス価格の商品（「割引 −50円」など）も同じように出る
  * - 商品は「商品ID＋会計時の名前＋価格」ごとにまとめる
  * - 割合は、商品の金額 ÷ 金額がプラスの商品の金額の合計。マイナスの商品を入れると合計が 100% を超えるので、プラスの商品だけで割る
+ * - 売上合計は割引のあとの金額。商品ごとの金額と割合は割引の前（spec-next.md「割引券」）
+ * - 割引券ごとに、使った枚数と引いた金額を出す。「割引券ID＋会計時の名前＋種類＋値」ごとにまとめ、割引券の登録順に並べる
  */
-export function summarize(sales: Sale[], products: Product[]): Summary {
+export function summarize(sales: Sale[], products: Product[], coupons: Coupon[] = []): Summary {
   const active = sales.filter((s) => !s.voided)
   const map = new Map<string, ProductSummary>()
   for (const sale of active) {
@@ -160,9 +173,26 @@ export function summarize(sales: Sale[], products: Product[]): Summary {
   })
   const plusTotal = byProduct.reduce((sum, r) => (r.amount > 0 ? sum + r.amount : sum), 0)
   for (const r of byProduct) r.share = r.amount > 0 ? r.amount / plusTotal : null
+
+  const couponMap = new Map<string, CouponSummary & { couponId: string }>()
+  for (const sale of active) {
+    for (const d of sale.discounts ?? []) {
+      const key = `${d.couponId}\u0000${d.name}\u0000${d.kind}\u0000${d.value}`
+      const row = couponMap.get(key) ?? { key, couponId: d.couponId, name: d.name, qty: 0, amount: 0 }
+      row.qty += d.qty
+      row.amount += d.amount
+      couponMap.set(key, row)
+    }
+  }
+  // 割引券も編集・削除はないが、一覧にない割引券があっても落とさないよう末尾に置く
+  const couponOrder = new Map(coupons.map((c, i) => [c.id, i]))
+  const byCoupon = [...couponMap.values()]
+    .sort((a, b) => (couponOrder.get(a.couponId) ?? Infinity) - (couponOrder.get(b.couponId) ?? Infinity))
+    .map(({ key, name, qty, amount }) => ({ key, name, qty, amount }))
   return {
     total: active.reduce((sum, s) => sum + s.total, 0),
     count: active.length,
     byProduct,
+    byCoupon,
   }
 }

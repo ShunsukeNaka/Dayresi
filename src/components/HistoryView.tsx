@@ -41,7 +41,11 @@ export function HistoryView({ sales, myName, onVoid }: Props) {
                 <span className="time">{formatTime(s.at)}</span>
                 <span className="items">
                   {s.voided && <span className="tag">取消済</span>}
-                  {s.items.map((i) => `${i.name}×${i.qty}`).join('、')}
+                  {[
+                    ...s.items.map((i) => `${i.name}×${i.qty}`),
+                    // 使った割引券も明細に並べる（spec-next.md「割引券」）。% 引きは 1 枚までなので枚数を付けない
+                    ...(s.discounts ?? []).map((d) => (d.kind === 'amount' ? `${d.name}×${d.qty}` : d.name)),
+                  ].join('、')}
                 </span>
                 <span className="amount">{formatYen(s.total)}</span>
                 <span className="history-ops">
