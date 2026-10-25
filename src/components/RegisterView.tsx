@@ -28,7 +28,7 @@ export function RegisterView({ products, items, total, onAddItem, onChangeQty, o
         {products.map((p) => (
           <button key={p.id} className="product-btn" onClick={() => onAddItem(p.id)}>
             <span className="name">{p.name}</span>
-            <span className="price">{formatYen(p.price)}</span>
+            <span className={p.price < 0 ? 'price minus' : 'price'}>{formatYen(p.price)}</span>
           </button>
         ))}
       </div>
@@ -39,6 +39,7 @@ export function RegisterView({ products, items, total, onAddItem, onChangeQty, o
         合計が 0 円未満のときは会計に進めず、理由を出す（ADR 0011）
       */}
       <aside className="cart">
+        <h2 className="cart-head">カート</h2>
         <ul className="cart-list">
           {items.length === 0 && <li className="cart-empty">商品を選んでください</li>}
           {items.map((item) => (
