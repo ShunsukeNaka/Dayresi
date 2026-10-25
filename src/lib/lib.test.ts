@@ -198,6 +198,22 @@ describe('csv', () => {
     expect(row.endsWith(',取消')).toBe(true)
   })
 
+  it('カンマや改行を含む商品名は「"」で囲む', () => {
+    const sale = createSale([{ productId: 'a', name: '焼きそば,大盛り', price: 500, qty: 1 }, { productId: 'b', name: 'ラムネ\r\n冷', price: 150, qty: 1 }], 650, [])
+    const csv = salesToCsv([sale])
+    expect(csv).toContain(',"焼きそば,大盛り",500,')
+    expect(csv).toContain(',"ラムネ\r\n冷",150,')
+  })
+
+  it('会計が 0 件なら見出しだけを出す', () => {
+    expect(salesToCsv([])).toBe('﻿会計番号,日時,商品名,単価,数量,小計,会計合計,お預かり,おつり,状態\r\n')
+  })
+
+  it('1 行に会計の値をすべて出し、日時は PC の時刻で書く', () => {
+    const sale = createSale([{ productId: 'a', name: '焼きそば', price: 400, qty: 2 }], 1000, [], new Date(2026, 9, 25, 9, 5, 30))
+    expect(salesToCsv([sale]).split('\r\n')[1]).toBe('1,2026-10-25 09:05:30,焼きそば,400,2,800,800,1000,200,')
+  })
+
   it('マイナス価格は数値のまま出力する', () => {
     const sale = createSale([{ productId: 'd', name: '割引', price: -50, qty: 2 }, { productId: 'a', name: '焼きそば', price: 400, qty: 1 }], 300, [])
     const rows = salesToCsv([sale]).split('\r\n')
