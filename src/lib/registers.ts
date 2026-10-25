@@ -16,8 +16,8 @@ type RegisterInit = Partial<AppData> & {
 }
 
 /** 新しいレジを作る。ID は crypto.randomUUID() で振る */
-export function createRegister({ name, role = 'owner', myName = '', storeId, products = [], sales = [] }: RegisterInit): Register {
-  return { id: crypto.randomUUID(), storeId: storeId ?? crypto.randomUUID(), name, role, myName, products, sales }
+export function createRegister({ name, role = 'owner', myName = '', storeId, products = [], coupons = [], sales = [] }: RegisterInit): Register {
+  return { id: crypto.randomUUID(), storeId: storeId ?? crypto.randomUUID(), name, role, myName, products, coupons, sales }
 }
 
 /** レジが 1 つだけの、新しい保存データ。MVP の保存データ（商品と会計）を引き継ぐときにも使う */
@@ -71,9 +71,9 @@ export function deleteRegister(store: Store, id: string): Store {
  */
 export type ImportProductsResult = 'added' | 'updated' | 'own'
 
-/** 自動で作ったまま、何も入っていないマイレジか（商品も会計も自分の名前もない代表者のレジ） */
+/** 自動で作ったまま、何も入っていないマイレジか（商品も割引券も会計も自分の名前もない代表者のレジ） */
 function isUntouched(r: Register): boolean {
-  return r.role === 'owner' && r.name === DEFAULT_REGISTER_NAME && r.myName === '' && r.products.length === 0 && r.sales.length === 0
+  return r.role === 'owner' && r.name === DEFAULT_REGISTER_NAME && r.myName === '' && r.products.length === 0 && r.coupons.length === 0 && r.sales.length === 0
 }
 
 /** 配られた商品の店のレジが、この端末にあれば返す */

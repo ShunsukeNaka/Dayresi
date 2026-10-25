@@ -7,7 +7,7 @@ export type Product = {
   id: string
   /** 入力したまま保存する（前後の空白も残す）。空白だけは不可。最大 MAX_NAME_LENGTH 文字。同じ名前も登録できる */
   name: string
-  /** 税込価格（円）。整数で MIN_PRICE〜MAX_PRICE。割引券の代わりにマイナスにもできる（ADR 0011） */
+  /** 税込価格（円）。整数で 0〜MAX_PRICE。割引は割引券で行う（ADR 0034。MVP ではマイナスにもできた、ADR 0011） */
   price: number
 }
 
@@ -48,11 +48,28 @@ export type Sale = {
   by?: string
 }
 
+/** 割引券の種類。amount は会計から金額を引く、percent は会計から割合で引く（spec-next.md「割引券」） */
+export type CouponKind = 'amount' | 'percent'
+
 /**
- * レジの中身。商品と会計だけで、カートは持たない（#52）
+ * 割引券。代表者が登録し、商品と一緒に配る。編集・削除・並べ替えはしない（spec-next.md「割引券」）
+ */
+export type Coupon = {
+  /** crypto.randomUUID() で振る。マイナスの価格の商品から移したものは、その商品の ID */
+  id: string
+  /** 名前（例：50円引き券）。商品名と同じ決まり */
+  name: string
+  kind: CouponKind
+  /** 金額引きなら引く金額（1〜MAX_PRICE 円）、% 引きなら割合（1〜100） */
+  value: number
+}
+
+/**
+ * レジの中身。商品・割引券・会計で、カートは持たない（#52）
  */
 export type AppData = {
   products: Product[]
+  coupons: Coupon[]
   sales: Sale[]
 }
 

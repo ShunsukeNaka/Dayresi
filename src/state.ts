@@ -12,7 +12,7 @@ import { createSale, voidSale } from './lib/sales'
  * - addProduct：商品を末尾に登録する。名前か価格がルールに合わなければ何もしない。会計する人のレジでは、配られた商品を編集できないので何もしない
  * - checkout：明細とお預かり（未入力は null で「ちょうど」）から会計を確定する。確定できなければ何もしない
  * - voidSale：会計を取り消す（消さずに取消済みにする）。取消済みやない ID なら何もしない
- * - resetAll：全データ消去。今のレジの商品と会計をすべて消す（ほかのレジは残す）
+ * - resetAll：全データ消去。今のレジの商品・割引券・会計をすべて消す（ほかのレジは残す）
  * - switchRegister：今使うレジを切り替える
  * - createRegister：自分が代表者になる新しいレジを作り、切り替える。レジの名前か自分の名前がルールに合わなければ何もしない
  * - deleteRegister：レジを削除する。最後の 1 つを消したらマイレジを自動で作る
@@ -68,7 +68,9 @@ export function reducer(state: Store, action: Action): Store {
       case 'setMyName':
         return isValidName(action.name) && action.name !== register.myName ? { ...register, myName: action.name } : register
       case 'resetAll':
-        return register.products.length === 0 && register.sales.length === 0 ? register : { ...register, products: [], sales: [] }
+        return register.products.length === 0 && register.coupons.length === 0 && register.sales.length === 0
+          ? register
+          : { ...register, products: [], coupons: [], sales: [] }
     }
   })
 }

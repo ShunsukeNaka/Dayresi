@@ -1,5 +1,5 @@
-import type { AppData, Product, Register, Sale, Store } from '../types'
-import { isValidName, isValidPrice } from './format'
+import type { AppData, Coupon, Product, Register, Sale, Store } from '../types'
+import { MAX_PRICE, isValidCouponValue, isValidName, isValidPrice } from './format'
 import { DEFAULT_REGISTER_NAME, storeWith } from './registers'
 
 /**
@@ -13,7 +13,7 @@ const MVP_KEY = 'dayresi:v2'
 
 // 全データ消去は、reducer の resetAll が今のレジの商品と会計を空にし、自動保存（useAppData）が書き込むことで行う
 
-export const emptyData = (): AppData => ({ products: [], sales: [] })
+export const emptyData = (): AppData => ({ products: [], coupons: [], sales: [] })
 
 /** 商品は、壊れたもの（id が文字列でない、名前や価格がルールに合わない）だけ捨てる。会計が商品名と価格を持つので記録は失われない */
 function isProduct(p: unknown): p is Product {
@@ -30,12 +30,35 @@ function isSale(s: unknown): s is Sale {
   return isObject(s) && Array.isArray((s as Sale).items) && (s as Sale).items.every(isObject)
 }
 
-/** MVP の保存データ（dayresi:v2）を読む。JSON として読めないときは例外を投げる */
+function isCoupon(c: unknown): c is Coupon {
+  const x = c as Coupon
+  return typeof x === 'object' && x !== null && typeof x.id === 'string' && isValidName(x.name) && isValidCouponValue(x.kind, x.value)
+}
+
+/**
+ * マイナスの価格の商品を、同じ ID・名前・金額の金額引きの割引券に移す（ADR 0034）
+ * MVP と、割引券を作る前の次の段階では、割引をマイナスの価格の商品で代用していた（ADR 0011）
+ */
+function toCoupon(p: unknown): Coupon | null {
+  const x = p as Product
+  if (typeof x !== 'object' || x === null || typeof x.id !== 'string' || !isValidName(x.name)) return null
+  if (typeof x.price !== 'number' || !Number.isInteger(x.price) || x.price >= 0 || x.price < -MAX_PRICE) return null
+  return { id: x.id, name: x.name, kind: 'amount', value: -x.price }
+}
+
+/**
+ * レジの中身（MVP の保存データ dayresi:v2 も）を読む。JSON として読めないときは例外を投げる
+ * マイナスの価格の商品は、割引券に移す。過去の会計の明細はそのまま残す
+ */
 export function parseData(raw: string | null): AppData {
   if (!raw) return emptyData()
   const data = JSON.parse(raw) as Partial<AppData>
+  const products: unknown[] = Array.isArray(data?.products) ? data.products : []
+  const moved = products.map(toCoupon).filter((c) => c !== null)
+  const coupons = [...(Array.isArray(data?.coupons) ? data.coupons.filter(isCoupon) : []), ...moved]
   return {
-    products: Array.isArray(data?.products) ? data.products.filter(isProduct) : [],
+    products: products.filter(isProduct),
+    coupons: coupons.filter((c, i) => coupons.findIndex((d) => d.id === c.id) === i),
     sales: Array.isArray(data?.sales) ? data.sales.filter(isSale) : [],
   }
 }
@@ -48,7 +71,7 @@ function parseRegister(x: unknown): Register | null {
   if (typeof x !== 'object' || x === null) return null
   const r = x as Partial<Register>
   return {
-    ...parseData(JSON.stringify({ products: r.products, sales: r.sales })),
+    ...parseData(JSON.stringify({ products: r.products, coupons: r.coupons, sales: r.sales })),
     id: typeof r.id === 'string' && r.id ? r.id : crypto.randomUUID(),
     storeId: typeof r.storeId === 'string' && r.storeId ? r.storeId : crypto.randomUUID(),
     name: isValidName(r.name) ? r.name : DEFAULT_REGISTER_NAME,

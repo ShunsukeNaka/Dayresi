@@ -1,7 +1,9 @@
 /** 商品の価格の上限（円） */
 export const MAX_PRICE = 9_999_999
-/** 割引などをマイナスの価格の商品として登録できる */
-export const MIN_PRICE = -MAX_PRICE
+/** 商品の価格の下限（円）。割引は割引券で行うので、マイナスにはしない（ADR 0034） */
+export const MIN_PRICE = 0
+/** % 引きの割引券の上限（%） */
+export const MAX_PERCENT = 100
 /** 商品名の最大文字数。前後の空白も数える */
 export const MAX_NAME_LENGTH = 30
 
@@ -50,6 +52,12 @@ export function parsePrice(s: string): number | null {
   if (!/^-?\d+$/.test(t)) return null
   const n = Number(t)
   return isValidPrice(n) ? n : null
+}
+
+/** 割引券の値がルールに合うか。金額引きは 1〜MAX_PRICE 円、% 引きは 1〜MAX_PERCENT の整数 */
+export function isValidCouponValue(kind: unknown, value: unknown): boolean {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 1) return false
+  return kind === 'amount' ? value <= MAX_PRICE : kind === 'percent' ? value <= MAX_PERCENT : false
 }
 
 /** 空白だけは不可。前後の空白も含めて MAX_NAME_LENGTH 文字まで */
