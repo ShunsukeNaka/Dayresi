@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import type { Product, Sale, Store } from '../types'
-import { canCheckout, canConfirmSale, createSale, itemsTotal, summarize, voidableSaleIds, voidSale } from './sales'
+import { canCheckout, canConfirmSale, createSale, itemsTotal, mergeSales, summarize, voidableSaleIds, voidSale } from './sales'
 import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatPercent, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesCsvFileName, salesToCsv } from './csv'
 import { loadStore, parseData, parseStore, saveStore } from './storage'
-import { DEFAULT_REGISTER_NAME, addRegister, createRegister, currentRegister, deleteRegister, findStoreRegister, importProducts, storeWith, switchRegister, updateCurrent } from './registers'
+import { DEFAULT_REGISTER_NAME, addRegister, createRegister, currentRegister, deleteRegister, findStoreRegister, importProducts, importSales, storeWith, switchRegister, updateCurrent } from './registers'
 import { addProduct } from './products'
 import { reducer } from '../state'
 import { decodeShare, encodeProductsShare, encodeSalesShare, shareUrl } from './share'
@@ -793,5 +793,54 @@ describe('share（会計を送る）', () => {
     const url = async (n: number) => shareUrl(await encodeSalesShare({ storeId: crypto.randomUUID(), by: '田中', registerId: crypto.randomUUID(), sales: makeSales(n) }), base)
     expect(qrModules(await url(100))).not.toBeNull()
     expect(qrModules(await url(1000))).toBeNull()
+  })
+})
+
+describe('会計の合算', () => {
+  const at = (min: number) => new Date(Date.parse('2026-10-26T01:00:00Z') + min * 60000).toISOString()
+  const sale = (id: string, no: number, min: number, voided = false): Sale => ({ ...mustCreateSale(cartItems({ a: 1 }, products), null, []), id, no, at: at(min), voided })
+
+  it('まだない会計だけを名前を付けて足し、時刻の順に並べる', () => {
+    const own = sale('own-1', 1, 5)
+    const { sales, counts } = mergeSales([own], [sale('r-1', 1, 2), sale('r-2', 2, 8)], '田中')
+    expect(counts).toEqual({ added: 2, voided: 0, existing: 0 })
+    expect(sales.map((s) => [s.id, s.by])).toEqual([['r-1', '田中'], ['own-1', undefined], ['r-2', '田中']])
+  })
+
+  it('送り直しても二重にならず、取り消した会計は取消済にし、取消済は戻さない', () => {
+    const first = mergeSales([], [sale('r-1', 1, 1), sale('r-2', 2, 2)], '田中').sales
+    const again = mergeSales(first, [sale('r-1', 1, 1, true), sale('r-2', 2, 2), sale('r-3', 3, 3)], '田中')
+    expect(again.counts).toEqual({ added: 1, voided: 1, existing: 1 })
+    expect(again.sales.map((s) => [s.id, s.voided])).toEqual([['r-1', true], ['r-2', false], ['r-3', false]])
+    const back = mergeSales(again.sales, [sale('r-1', 1, 1, false)], '田中')
+    expect(back.counts).toEqual({ added: 0, voided: 0, existing: 1 })
+    expect(back.sales).toBe(again.sales)
+  })
+
+  it('代表者の自分の会計番号は、取り込んだ会計を数えずに振る', () => {
+    const merged = mergeSales([], [sale('r-50', 50, 1)], '田中').sales
+    expect(mustCreateSale(cartItems({ a: 1 }, products), null, merged).no).toBe(1)
+  })
+
+  it('同じ店の代表者のレジに取り込んで切り替え、会計する人のレジ・ないレジには取り込まない', () => {
+    const owner = createRegister({ name: '研究室の模擬店', storeId: 'store-1' })
+    const other = createRegister({ name: 'サークルの屋台' })
+    const store: Store = { registers: [owner, other], currentId: other.id }
+    const share = { storeId: 'store-1', by: '田中', sales: [sale('r-1', 1, 1)] }
+    const { store: next, result } = importSales(store, share)
+    expect(result).toEqual({ kind: 'merged', counts: { added: 1, voided: 0, existing: 0 } })
+    expect(next.currentId).toBe(owner.id)
+    expect(currentRegister(next).sales.map((s) => s.by)).toEqual(['田中'])
+    expect(next.registers[1]).toBe(other)
+    expect(importSales(store, { ...share, storeId: 'none' })).toEqual({ store, result: { kind: 'none' } })
+    const member = createRegister({ name: '研究室の模擬店', role: 'member', storeId: 'store-1' })
+    const memberStore: Store = { registers: [member], currentId: member.id }
+    expect(importSales(memberStore, share)).toEqual({ store: memberStore, result: { kind: 'member' } })
+  })
+
+  it('取り込んだ会計も、集計に入る（取消済は入らない）', () => {
+    const merged = mergeSales([sale('own-1', 1, 1)], [sale('r-1', 1, 2), sale('r-2', 2, 3, true)], '田中').sales
+    const summary = summarize(merged, products)
+    expect([summary.total, summary.count]).toEqual([800, 2])
   })
 })

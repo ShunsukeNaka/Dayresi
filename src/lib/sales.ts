@@ -37,11 +37,53 @@ export function createSale(items: SaleItem[], paid: number | null, prevSales: Sa
 }
 
 /**
- * 次の会計番号。今ある会計の番号の最大値＋1 で、取り消した会計も数える（番号を詰めない）。会計がなければ 1
+ * 次の会計番号。自分の会計の番号の最大値＋1 で、取り消した会計も数える（番号を詰めない）。会計がなければ 1
+ * 代表者のレジに取り込んだ、ほかの人の会計（by がある）は数えない。会計番号は会計する人ごとに 1 から振る（spec-next.md「自分の名前」）
  * 保存データの壊れた会計は捨てずに残す（#64）ので、整数でない番号は数えない
  */
 function nextSaleNo(sales: Sale[]): number {
-  return sales.reduce((max, s) => (Number.isInteger(s.no) ? Math.max(max, s.no) : max), 0) + 1
+  return sales.reduce((max, s) => (s.by === undefined && Number.isInteger(s.no) ? Math.max(max, s.no) : max), 0) + 1
+}
+
+/** 会計を取り込んだ結果の件数 */
+export type MergeCounts = {
+  /** 新しく足した会計 */
+  added: number
+  /** 取消済にした会計（もう取り込んであって、送った人が取り消したもの） */
+  voided: number
+  /** もう取り込んであった会計（取消の変化もなかったもの） */
+  existing: number
+}
+
+/**
+ * 送られた会計を、代表者のレジの会計に合算する（spec-next.md「会計を送る」）
+ * - 会計の ID で同じ会計を見分け、まだない会計だけを、会計した人の名前（by）を付けて足す
+ * - もう取り込んであって、送った人が取り消していれば取消済にする。取消済を取り消し前に戻すことはない
+ * - 合算した会計は、時刻の順に並べ直す
+ * 何も変わらなければ、受け取った会計の配列をそのまま返す
+ */
+export function mergeSales(sales: Sale[], incoming: Sale[], by: string): { sales: Sale[]; counts: MergeCounts } {
+  const counts: MergeCounts = { added: 0, voided: 0, existing: 0 }
+  const index = new Map(sales.map((s, i) => [s.id, i]))
+  const next = [...sales]
+  for (const sale of incoming) {
+    const i = index.get(sale.id)
+    if (i === undefined) {
+      index.set(sale.id, next.length)
+      next.push({ ...sale, by })
+      counts.added++
+    } else if (sale.voided && !next[i].voided) {
+      next[i] = { ...next[i], voided: true }
+      counts.voided++
+    } else {
+      counts.existing++
+    }
+  }
+  if (counts.added === 0 && counts.voided === 0) return { sales, counts }
+  // 時刻が読めない会計は、もとの位置のまま残るよう、並べ直しは安定な sort に任せる
+  const time = (s: Sale) => Date.parse(s.at)
+  next.sort((a, b) => (Number.isNaN(time(a)) || Number.isNaN(time(b)) ? 0 : time(a) - time(b)))
+  return { sales: next, counts }
 }
 
 /**

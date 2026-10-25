@@ -1,4 +1,5 @@
-import type { AppData, Register, Role, Store } from '../types'
+import type { AppData, Register, Role, Sale, Store } from '../types'
+import { mergeSales, type MergeCounts } from './sales'
 
 /** レジが 1 つもないときに自動で作る、代表者のレジの名前（spec-next.md「レジ」） */
 export const DEFAULT_REGISTER_NAME = 'マイレジ'
@@ -99,4 +100,25 @@ export function importProducts(
   // 自動で作ったまま何も入っていないマイレジしかなければ、残さずに置き換える
   if (store.registers.length === 1 && isUntouched(store.registers[0])) return { store: { registers: [register], currentId: register.id }, result: 'added' }
   return { store: addRegister(store, register), result: 'added' }
+}
+
+/**
+ * 送られた会計を取り込んだ結果（spec-next.md「会計を送る」）
+ * - merged：同じ店の代表者のレジに合算して、そのレジに切り替えた
+ * - member：同じ店のレジはあるが、会計する人のレジなので取り込まない
+ * - none：同じ店のレジがこの端末にないので取り込まない
+ */
+export type ImportSalesResult = { kind: 'merged'; counts: MergeCounts } | { kind: 'member' } | { kind: 'none' }
+
+/** 送られた会計を、同じ店の代表者のレジに取り込む。取り込めないときは同じ保存データを返す */
+export function importSales(store: Store, share: { storeId: string; by: string; sales: Sale[] }): { store: Store; result: ImportSalesResult } {
+  const register = findStoreRegister(store, share.storeId)
+  if (!register) return { store, result: { kind: 'none' } }
+  if (register.role === 'member') return { store, result: { kind: 'member' } }
+  const { sales, counts } = mergeSales(register.sales, share.sales, share.by)
+  const updated = sales === register.sales ? register : { ...register, sales }
+  return {
+    store: { registers: store.registers.map((r) => (r === register ? updated : r)), currentId: register.id },
+    result: { kind: 'merged', counts },
+  }
 }

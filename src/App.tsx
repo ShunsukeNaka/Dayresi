@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Cart } from './types'
 import { useAppData } from './state'
-import { ROLE_LABEL, currentRegister, findStoreRegister } from './lib/registers'
+import { ROLE_LABEL, currentRegister, findStoreRegister, importSales, type ImportSalesResult } from './lib/registers'
 import { canCheckout, canConfirmSale, itemsTotal } from './lib/sales'
 import { addToCart, cartItems, changeQty as changeCartQty, clearCart } from './lib/cart'
 import { RegisterView } from './components/RegisterView'
@@ -11,6 +11,7 @@ import { SummaryView } from './components/SummaryView'
 import { SettingsView } from './components/SettingsView'
 import { RegisterDialog } from './components/RegisterDialog'
 import { ImportProductsDialog } from './components/ImportProductsDialog'
+import { ImportSalesResultDialog } from './components/ImportSalesResultDialog'
 import { decodeShare, type ProductsShare } from './lib/share'
 
 /** 画面はレジ・履歴・集計・設定の 4 つで、上のタブで切り替える */
@@ -32,6 +33,13 @@ export default function App() {
   const [registerOpen, setRegisterOpen] = useState(false)
   // 開いたリンク（QR）の # 以降にあった、配られた商品
   const [incoming, setIncoming] = useState<ProductsShare | null>(null)
+  // 開いたリンク（QR）の会計を取り込んだ結果
+  const [salesResult, setSalesResult] = useState<{ by: string; registerName: string; result: ImportSalesResult } | null>(null)
+  // リンクを読むときに、そのときの保存データを使う
+  const storeRef = useRef(store)
+  useEffect(() => {
+    storeRef.current = store
+  }, [store])
 
   // リンクを開いたとき（開いているページで別のリンクを開いたときも）、# 以降の引き渡しのデータを読む。読んだら # 以降は消す
   useEffect(() => {
@@ -40,14 +48,24 @@ export default function App() {
       if (!hash) return
       history.replaceState(null, '', location.pathname + location.search)
       void decodeShare(hash).then((share) => {
-        // 会計の取り込み（代表者が合算する）は #132 で作る
         if (share?.kind === 'products') setIncoming(share)
+        if (share?.kind === 'sales') {
+          // 送られた会計は、確かめずに同じ店の代表者のレジへ合算し、結果を出す（spec-next.md「会計を送る」）
+          const before = storeRef.current
+          const { result } = importSales(before, share)
+          dispatch({ type: 'importSales', share })
+          if (result.kind === 'merged' && findStoreRegister(before, share.storeId)?.id !== before.currentId) {
+            setCart(clearCart())
+            setCheckoutOpen(false)
+          }
+          setSalesResult({ by: share.by, registerName: findStoreRegister(before, share.storeId)?.name ?? '', result })
+        }
       })
     }
     read()
     window.addEventListener('hashchange', read)
     return () => window.removeEventListener('hashchange', read)
-  }, [])
+  }, [dispatch])
   // 画面は、今使っているレジの商品と会計を出す
   const data = currentRegister(store)
 
@@ -150,6 +168,15 @@ export default function App() {
             setIncoming(null)
           }}
           onClose={() => setIncoming(null)}
+        />
+      )}
+
+      {salesResult && (
+        <ImportSalesResultDialog
+          by={salesResult.by}
+          registerName={salesResult.registerName}
+          result={salesResult.result}
+          onClose={() => setSalesResult(null)}
         />
       )}
 
