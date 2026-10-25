@@ -251,6 +251,32 @@ main { flex: 1; min-height: 0; }
 .share-bar span { display: block; height: 100%; background: var(--accent); }
 .share-num { font-family: var(--font-num); font-size: 14px; line-height: 1; color: var(--muted); font-variant-numeric: tabular-nums; }
 .share-none { color: var(--disabled-text); }
+
+/* スマホの集計（docs/design/dayresi.pen の M-04）。合計は横に並べ、商品ごとに 2 行（商品・数量・金額／割合）にする */
+@media (max-width: 600px) {
+  .cards { grid-template-columns: 1fr 1fr; margin-bottom: 12px; }
+  .card { padding: 12px 14px; }
+  .card .label { font-size: 12px; }
+  .card .value { font-size: 28px; letter-spacing: -.5px; }
+  .table thead { display: none; }
+  .table tbody tr {
+    display: grid; grid-template-columns: 1fr auto 76px; align-items: center; gap: 6px 8px;
+    grid-template-areas: "name qty amount" "share share share";
+    padding: 10px 14px; border-bottom: 1px solid var(--hair);
+  }
+  .table tbody tr:last-child { border-bottom: 0; }
+  .table td { display: block; height: auto; padding: 0; border: 0; font-size: 15px; }
+  .table td:nth-child(1) { grid-area: name; }
+  .table td.share { grid-area: share; width: auto; }
+  .table td:nth-child(3) { grid-area: qty; font-size: 14px; color: var(--muted); }
+  .table td:nth-child(3)::before { content: "×"; }
+  .table td:nth-child(4) { grid-area: amount; }
+  .table td.share:has(.share-none) { display: none; }
+  .table tbody tr:has(.share-none) { grid-template-areas: "name qty amount"; }
+  .table td.empty-cell { grid-column: 1 / -1; padding: 12px 0; }
+  .share-bar { flex: 1 1 auto; height: 8px; }
+  .share-num { width: 40px; text-align: right; font-size: 12px; }
+}
 .table .empty-cell { color: var(--muted); text-align: center; }
 
 /* 設定（docs/design/dayresi.pen の A-05） */
