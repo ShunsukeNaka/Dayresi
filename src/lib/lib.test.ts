@@ -8,7 +8,7 @@ import { loadStore, parseData, parseStore, saveStore } from './storage'
 import { DEFAULT_REGISTER_NAME, addRegister, createRegister, currentRegister, deleteRegister, findStoreRegister, importProducts, storeWith, switchRegister, updateCurrent } from './registers'
 import { addProduct } from './products'
 import { reducer } from '../state'
-import { decodeShare, encodeProductsShare, shareUrl } from './share'
+import { decodeShare, encodeProductsShare, encodeSalesShare, shareUrl } from './share'
 import { MAX_QR_VERSION, qrModules } from './qr'
 
 const products: Product[] = [
@@ -720,7 +720,8 @@ describe('share（商品を配る）', () => {
   it('ルールに合わない商品は捨てて読む', async () => {
     const bad = [...products, { id: '', name: 'x', price: 1 }, { id: 'z', name: '　', price: 1 }, { id: 'y', name: 'a', price: 1.5 }]
     const fragment = await encodeProductsShare({ storeId: 's', name: '店', products: bad as Product[] })
-    expect((await decodeShare(fragment))?.products).toEqual(products)
+    const share = await decodeShare(fragment)
+    expect(share?.kind === 'products' && share.products).toEqual(products)
   })
 
   it('リンクは今のページの URL に # を付けたもの', () => {
@@ -746,5 +747,51 @@ describe('qr', () => {
     const max = 17 + 4 * MAX_QR_VERSION
     const big = qrModules('a'.repeat(1200))
     expect(big === null || big.length <= max).toBe(true)
+  })
+})
+
+describe('share（会計を送る）', () => {
+  const makeSales = (n: number): Sale[] => {
+    const list: Sale[] = []
+    for (let i = 0; i < n; i++) {
+      const sale = mustCreateSale(cartItems({ a: (i % 3) + 1, b: i % 2 }, products), i % 4 === 0 ? 5000 : null, list)
+      list.push(i % 10 === 0 ? { ...sale, voided: true } : sale)
+    }
+    return list
+  }
+  const base = 'https://shunsukenaka.github.io/Dayresi/'
+  const toSeconds = (iso: string) => new Date(Math.round(Date.parse(iso) / 1000) * 1000).toISOString()
+
+  it('会計を詰めて読み出せる。ID は「レジの ID-会計番号」になり、時刻は秒まで、合計とおつりは作り直す', async () => {
+    const sales = makeSales(5)
+    const fragment = await encodeSalesShare({ storeId: 'store-1', by: '田中', registerId: 'reg-1', sales })
+    expect(fragment).toMatch(/^s=[A-Za-z0-9_-]+$/)
+    const share = await decodeShare(fragment)
+    expect(share).toEqual({
+      kind: 'sales', storeId: 'store-1', by: '田中',
+      sales: sales.map((s) => ({ ...s, id: `reg-1-${s.no}`, at: toSeconds(s.at) })),
+    })
+  })
+
+  it('送り直しても、同じ会計は同じ ID になる', async () => {
+    const sales = makeSales(3)
+    const first = await decodeShare(await encodeSalesShare({ storeId: 's', by: '田中', registerId: 'reg-1', sales: sales.slice(0, 2) }))
+    const again = await decodeShare(await encodeSalesShare({ storeId: 's', by: '田中', registerId: 'reg-1', sales }))
+    const ids = (x: typeof first) => (x?.kind === 'sales' ? x.sales.map((s) => s.id) : [])
+    expect(ids(again).slice(0, 2)).toEqual(ids(first))
+  })
+
+  it('番号や明細が読めない会計は捨てて読む', async () => {
+    const [ok] = makeSales(1)
+    const broken = [{ ...ok, no: 1.5 }, { ...ok, items: [{ productId: 1, name: 'a', price: 1, qty: 1 }] }] as unknown as Sale[]
+    const share = await decodeShare(await encodeSalesShare({ storeId: 's', by: '田中', registerId: 'r', sales: [...broken, ok] }))
+    expect(share?.kind === 'sales' && share.sales.map((s) => s.no)).toEqual([ok.no])
+  })
+
+  // 会計 100 件ほどで QR の上限に届く
+  it('会計 100 件のリンクは QR に入り、1000 件は入らない（リンクで送る）', async () => {
+    const url = async (n: number) => shareUrl(await encodeSalesShare({ storeId: crypto.randomUUID(), by: '田中', registerId: crypto.randomUUID(), sales: makeSales(n) }), base)
+    expect(qrModules(await url(100))).not.toBeNull()
+    expect(qrModules(await url(1000))).toBeNull()
   })
 })
