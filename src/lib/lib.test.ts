@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Product, Sale } from '../types'
 import { canCheckout, cartItems, createSale, itemsTotal, summarize } from './sales'
-import { formatYen, isValidPrice, parsePrice } from './format'
+import { MAX_NAME_LENGTH, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesToCsv } from './csv'
 import { parseData } from './storage'
 import { reducer } from '../state'
@@ -111,6 +111,13 @@ describe('format', () => {
     for (const bad of ['', '-', '1.5', '50-', 'abc', '10000000', '-10000000']) expect(parsePrice(bad)).toBeNull()
     expect(isValidPrice(-9_999_999)).toBe(true)
     expect(isValidPrice(-10_000_000)).toBe(false)
+  })
+
+  it('商品名は空白だけを弾き、前後の空白も含めて文字数を数える', () => {
+    expect(isValidName(' 焼きそば ')).toBe(true)
+    expect(isValidName('　 ')).toBe(false)
+    expect(isValidName('あ'.repeat(MAX_NAME_LENGTH))).toBe(true)
+    expect(isValidName(' ' + 'あ'.repeat(MAX_NAME_LENGTH))).toBe(false)
   })
 
   it('マイナスの金額は符号を前に付けて表示する', () => {

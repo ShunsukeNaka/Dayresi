@@ -1,7 +1,7 @@
 import { useRef, useState, type Dispatch, type FormEvent } from 'react'
 import type { AppData } from '../types'
 import type { Action } from '../state'
-import { MAX_NAME_LENGTH, MAX_PRICE, MIN_PRICE, formatYen, isValidName, newId, parsePrice } from '../lib/format'
+import { MAX_NAME_LENGTH, MAX_PRICE, MIN_PRICE, formatYen, isValidName, parsePrice } from '../lib/format'
 import { ExportCsvButton } from './ExportCsvButton'
 
 type Props = {
@@ -20,7 +20,7 @@ export function SettingsView({ data, dispatch }: Props) {
     const price = parsePrice(newPrice)
     if (!isValidName(newName)) return setAddError('商品名を入力してください。')
     if (price === null) return setAddError(`価格は ${MIN_PRICE.toLocaleString('ja-JP')}〜${MAX_PRICE.toLocaleString('ja-JP')} の整数で入力してください。`)
-    dispatch({ type: 'addProduct', product: { id: newId(), name: newName.trim(), price } })
+    dispatch({ type: 'addProduct', product: { id: crypto.randomUUID(), name: newName, price } })
     setNewName('')
     setNewPrice('')
     setAddError('')
