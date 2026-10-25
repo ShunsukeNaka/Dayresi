@@ -98,8 +98,8 @@ describe('sales', () => {
     expect(canCheckout(minus)).toBe(false)
   })
 
-  it('取消済みを除いて集計し、削除済み商品は末尾に置く', () => {
-    const s1 = createSale([{ productId: 'x', name: '削除済み', price: 100, qty: 1 }, ...cartItems({ b: 1 }, products)], 250, [])
+  it('取消済みを除いて集計し、商品の一覧にない商品は末尾に置く', () => {
+    const s1 = createSale([{ productId: 'x', name: '一覧にない商品', price: 100, qty: 1 }, ...cartItems({ b: 1 }, products)], 250, [])
     const s2 = createSale(cartItems({ a: 2, b: 1 }, products), 950, [s1])
     const s3 = { ...createSale(cartItems({ a: 5 }, products), 2000, [s1, s2]), voided: true }
     const summary = summarize([s1, s2, s3], products)
@@ -108,8 +108,37 @@ describe('sales', () => {
     expect(summary.byProduct.map((r) => [r.name, r.qty, r.amount])).toEqual([
       ['焼きそば', 2, 800],
       ['ラムネ', 2, 300],
-      ['削除済み', 1, 100],
+      ['一覧にない商品', 1, 100],
     ])
+  })
+
+  it('マイナス価格の商品も、商品ごとの集計に数量と金額が出る', () => {
+    const withDiscount: Product[] = [...products, { id: 'd', name: '割引', price: -50 }]
+    const s1 = createSale(cartItems({ a: 1, d: 1 }, withDiscount), 350, [])
+    const s2 = createSale(cartItems({ b: 1, d: 1 }, withDiscount), 100, [s1])
+    const summary = summarize([s1, s2], withDiscount)
+    expect(summary.total).toBe(450)
+    expect(summary.count).toBe(2)
+    expect(summary.byProduct.map((r) => [r.name, r.qty, r.amount])).toEqual([
+      ['焼きそば', 1, 400],
+      ['ラムネ', 1, 150],
+      ['割引', 2, -100],
+    ])
+  })
+
+  it('取り消した会計は、売上合計・件数・商品ごとの集計のどれにも入らない', () => {
+    const s1 = createSale(cartItems({ a: 1 }, products), 400, [])
+    const s2 = { ...createSale(cartItems({ b: 3 }, products), 450, [s1]), voided: true }
+    const summary = summarize([s1, s2], products)
+    expect(summary.total).toBe(400)
+    expect(summary.count).toBe(1)
+    expect(summary.byProduct.map((r) => r.name)).toEqual(['焼きそば'])
+  })
+
+  it('会計がないときは 0 円・0 件・空の一覧になる', () => {
+    expect(summarize([], products)).toEqual({ total: 0, count: 0, byProduct: [] })
+    const voided = { ...createSale(cartItems({ a: 1 }, products), 400, []), voided: true }
+    expect(summarize([voided], products)).toEqual({ total: 0, count: 0, byProduct: [] })
   })
 })
 
