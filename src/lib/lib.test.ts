@@ -4,6 +4,7 @@ import { canCheckout, cartItems, createSale, itemsTotal, summarize, voidSale } f
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesToCsv } from './csv'
 import { parseData } from './storage'
+import { addProduct } from './products'
 import { reducer } from '../state'
 
 const products: Product[] = [
@@ -119,10 +120,34 @@ describe('storage', () => {
   })
 })
 
+describe('products', () => {
+  it('商品を末尾に足し、ID を UUID で振る', () => {
+    const next = addProduct(products, '割引', -50)
+    expect(next.map((p) => p.name)).toEqual(['焼きそば', 'ラムネ', '割引'])
+    expect(next[2]).toMatchObject({ name: '割引', price: -50 })
+    expect(next[2].id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+    expect(products).toHaveLength(2)
+  })
+
+  it('商品名は前後の空白も残し、同じ名前も足せる', () => {
+    const next = addProduct(addProduct(products, ' 焼きそば ', 400), '焼きそば', 400)
+    expect(next.map((p) => p.name)).toEqual(['焼きそば', 'ラムネ', ' 焼きそば ', '焼きそば'])
+    expect(new Set(next.map((p) => p.id)).size).toBe(4)
+  })
+
+  it('ルールに合わない名前や価格では足さない', () => {
+    const bad: [string, number][] = [
+      ['', 100], ['　 ', 100], ['あ'.repeat(MAX_NAME_LENGTH + 1), 100],
+      ['焼きそば', 1.5], ['焼きそば', 10_000_000], ['焼きそば', -10_000_000],
+    ]
+    for (const [name, price] of bad) expect(addProduct(products, name, price)).toBe(products)
+  })
+})
+
 describe('reducer', () => {
   it('商品の追加と会計の取消ができる', () => {
-    let state = reducer({ products, sales: [] }, { type: 'addProduct', product: { id: 'c', name: '割引', price: -50 } })
-    expect(state.products.map((p) => p.id)).toEqual(['a', 'b', 'c'])
+    let state = reducer({ products, sales: [] }, { type: 'addProduct', name: '割引', price: -50 })
+    expect(state.products.map((p) => p.name)).toEqual(['焼きそば', 'ラムネ', '割引'])
     const sale = createSale(cartItems({ a: 1 }, products), 400, [])
     state = reducer(state, { type: 'recordSale', sale })
     state = reducer(state, { type: 'voidSale', id: sale.id })

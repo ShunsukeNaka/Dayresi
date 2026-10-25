@@ -1,10 +1,11 @@
 import { useEffect, useReducer, useRef } from 'react'
-import type { AppData, Product, Sale } from './types'
+import type { AppData, Sale } from './types'
+import { addProduct } from './lib/products'
 import { emptyData, loadData, saveData } from './lib/storage'
 import { voidSale } from './lib/sales'
 
 export type Action =
-  | { type: 'addProduct'; product: Product }
+  | { type: 'addProduct'; name: string; price: number }
   | { type: 'recordSale'; sale: Sale }
   | { type: 'voidSale'; id: string }
   | { type: 'resetAll' }
@@ -12,7 +13,7 @@ export type Action =
 export function reducer(state: AppData, action: Action): AppData {
   switch (action.type) {
     case 'addProduct':
-      return { ...state, products: [...state.products, action.product] }
+      return { ...state, products: addProduct(state.products, action.name, action.price) }
     case 'recordSale':
       return { ...state, sales: [...state.sales, action.sale] }
     case 'voidSale':
