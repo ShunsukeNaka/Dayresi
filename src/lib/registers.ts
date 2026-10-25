@@ -83,20 +83,20 @@ export function findStoreRegister(store: Store, storeId: string): Register | und
 
 /**
  * 配られた商品を取り込む。同じ店のレジがなければ、会計する人のレジとして足して切り替える
- * 同じ店の会計する人のレジがあれば、商品の一覧とレジの名前を置き換えて切り替える（会計は残す）。代表者のレジなら何もしない
+ * 同じ店の会計する人のレジがあれば、商品・割引券の一覧とレジの名前を置き換えて切り替える（会計は残す）。代表者のレジなら何もしない
  */
 export function importProducts(
   store: Store,
-  share: { storeId: string; name: string; products: AppData['products'] },
+  share: { storeId: string; name: string; products: AppData['products']; coupons: AppData['coupons'] },
   myName: string,
 ): { store: Store; result: ImportProductsResult } {
   const existing = findStoreRegister(store, share.storeId)
   if (existing?.role === 'owner') return { store, result: 'own' }
   if (existing) {
-    const updated = { ...existing, name: share.name, products: share.products }
+    const updated = { ...existing, name: share.name, products: share.products, coupons: share.coupons }
     return { store: { registers: store.registers.map((r) => (r === existing ? updated : r)), currentId: existing.id }, result: 'updated' }
   }
-  const register = createRegister({ name: share.name, role: 'member', myName, storeId: share.storeId, products: share.products })
+  const register = createRegister({ name: share.name, role: 'member', myName, storeId: share.storeId, products: share.products, coupons: share.coupons })
   // 自動で作ったまま何も入っていないマイレジしかなければ、残さずに置き換える
   if (store.registers.length === 1 && isUntouched(store.registers[0])) return { store: { registers: [register], currentId: register.id }, result: 'added' }
   return { store: addRegister(store, register), result: 'added' }

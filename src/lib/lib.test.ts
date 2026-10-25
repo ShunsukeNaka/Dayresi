@@ -509,7 +509,7 @@ describe('registers', () => {
 
   it('配られた商品は、会計する人のレジとして足して切り替える', () => {
     const store = storeWith({ products })
-    const { store: next, result } = importProducts(store, { storeId: 'store-1', name: '研究室の模擬店', products }, '田中')
+    const { store: next, result } = importProducts(store, { storeId: 'store-1', name: '研究室の模擬店', products, coupons: [] }, '田中')
     expect(result).toBe('added')
     expect(currentRegister(next)).toMatchObject({ name: '研究室の模擬店', role: 'member', myName: '田中', storeId: 'store-1', products, sales: [] })
     expect(next.registers).toHaveLength(2)
@@ -518,18 +518,18 @@ describe('registers', () => {
   })
 
   it('何も入っていないマイレジしかないときは、取り込んだレジに置き換える', () => {
-    const { store: next } = importProducts(storeWith(), { storeId: 'store-1', name: '研究室の模擬店', products }, '田中')
+    const { store: next } = importProducts(storeWith(), { storeId: 'store-1', name: '研究室の模擬店', products, coupons: [] }, '田中')
     expect(next.registers).toHaveLength(1)
     expect(currentRegister(next)).toMatchObject({ name: '研究室の模擬店', role: 'member' })
     const named = updateCurrent(storeWith(), (r) => ({ ...r, myName: '山田' }))
-    expect(importProducts(named, { storeId: 'store-1', name: '店', products }, '田中').store.registers).toHaveLength(2)
+    expect(importProducts(named, { storeId: 'store-1', name: '店', products, coupons: [] }, '田中').store.registers).toHaveLength(2)
   })
 
   it('同じ店の会計する人のレジがあれば、商品と名前を置き換えて切り替え、会計と自分の名前は残す', () => {
     const sale = mustCreateSale(cartItems({ a: 1 }, products), 400, [])
     const member = createRegister({ name: '旧名', role: 'member', myName: '田中', storeId: 'store-1', products: [products[0]], sales: [sale] })
     const store: Store = { registers: [storeWith().registers[0], member], currentId: 'x' }
-    const { store: next, result } = importProducts(store, { storeId: 'store-1', name: '研究室の模擬店', products }, '別名')
+    const { store: next, result } = importProducts(store, { storeId: 'store-1', name: '研究室の模擬店', products, coupons: [] }, '別名')
     expect(result).toBe('updated')
     expect(next.registers).toHaveLength(2)
     expect(currentRegister(next)).toMatchObject({ id: member.id, name: '研究室の模擬店', myName: '田中', products, sales: [sale] })
@@ -538,7 +538,7 @@ describe('registers', () => {
   it('同じ店の代表者のレジ（自分で配ったもの）には取り込まない', () => {
     const owner = createRegister({ name: '研究室の模擬店', storeId: 'store-1', products: [products[0]] })
     const store: Store = { registers: [owner], currentId: owner.id }
-    const { store: next, result } = importProducts(store, { storeId: 'store-1', name: '別の名前', products }, '田中')
+    const { store: next, result } = importProducts(store, { storeId: 'store-1', name: '別の名前', products, coupons: [] }, '田中')
     expect(result).toBe('own')
     expect(next).toBe(store)
   })
@@ -648,7 +648,7 @@ describe('reducer', () => {
   })
 
   it('配られた商品を取り込み、新しく足すときは自分の名前が要る', () => {
-    const share = { storeId: 'store-1', name: '研究室の模擬店', products }
+    const share = { storeId: 'store-1', name: '研究室の模擬店', products, coupons: [] }
     expect(reducer(empty, { type: 'importProducts', share, myName: '' })).toBe(empty)
     const added = reducer(empty, { type: 'importProducts', share, myName: '田中' })
     expect(cur(added)).toMatchObject({ role: 'member', myName: '田中' })
@@ -748,21 +748,21 @@ describe('share（商品を配る）', () => {
   const tenProducts: Product[] = Array.from({ length: 10 }, (_, i) => ({ id: crypto.randomUUID(), name: `たこ焼き（8個）${i}`, price: 400 + i * 10 }))
 
   it('商品・レジの名前・店の印を詰めて、そのまま読み出せる', async () => {
-    const fragment = await encodeProductsShare({ storeId: 'store-1', name: '研究室の模擬店', products: tenProducts })
+    const fragment = await encodeProductsShare({ storeId: 'store-1', name: '研究室の模擬店', products: tenProducts, coupons: [] })
     expect(fragment).toMatch(/^p=[A-Za-z0-9_-]+$/)
-    expect(await decodeShare(`#${fragment}`)).toEqual({ kind: 'products', storeId: 'store-1', name: '研究室の模擬店', products: tenProducts })
+    expect(await decodeShare(`#${fragment}`)).toEqual({ kind: 'products', storeId: 'store-1', name: '研究室の模擬店', products: tenProducts, coupons: [] })
     expect(await decodeShare(fragment)).toEqual(await decodeShare(`#${fragment}`))
   })
 
   it('引き渡しのデータでない・壊れている・読めない版のときは null', async () => {
     for (const hash of ['', '#', '#x=abc', '#p=', '#p=!!!', '#p=YWJj']) expect(await decodeShare(hash)).toBeNull()
-    const fragment = await encodeProductsShare({ storeId: 's', name: '店', products })
+    const fragment = await encodeProductsShare({ storeId: 's', name: '店', products, coupons: [] })
     expect(await decodeShare(fragment.slice(0, -4))).toBeNull()
   })
 
   it('ルールに合わない商品は捨てて読む', async () => {
     const bad = [...products, { id: '', name: 'x', price: 1 }, { id: 'z', name: '　', price: 1 }, { id: 'y', name: 'a', price: 1.5 }]
-    const fragment = await encodeProductsShare({ storeId: 's', name: '店', products: bad as Product[] })
+    const fragment = await encodeProductsShare({ storeId: 's', name: '店', products: bad as Product[], coupons: [] })
     const share = await decodeShare(fragment)
     expect(share?.kind === 'products' && share.products).toEqual(products)
   })
@@ -772,7 +772,7 @@ describe('share（商品を配る）', () => {
   })
 
   it('商品 10 個のリンクは、QR の上限に収まる', async () => {
-    const url = shareUrl(await encodeProductsShare({ storeId: crypto.randomUUID(), name: '研究室の模擬店', products: tenProducts }), 'https://shunsukenaka.github.io/Dayresi/')
+    const url = shareUrl(await encodeProductsShare({ storeId: crypto.randomUUID(), name: '研究室の模擬店', products: tenProducts, coupons: [] }), 'https://shunsukenaka.github.io/Dayresi/')
     const modules = qrModules(url)
     expect(modules).not.toBeNull()
     expect(modules!.length).toBeLessThanOrEqual(17 + 4 * MAX_QR_VERSION)
@@ -940,5 +940,50 @@ describe('割引の計算', () => {
     const next = reducer(store, { type: 'checkout', items: cartItems({ a: 1 }, products), paid: null, coupons: { p10: 1 } })
     const sale = currentRegister(next).sales[0]
     expect([sale.total, sale.paid, sale.discounts?.[0].amount]).toEqual([360, 360, 40])
+  })
+})
+
+describe('share（割引券と割引）', () => {
+  const coupons = [{ id: 'y50', name: '50円引き', kind: 'amount' as const, value: 50 }, { id: 'p10', name: '1割引き', kind: 'percent' as const, value: 10 }]
+  // 版 1 のデータを、そのときの形のまま作る
+  const encodeRaw = async (key: string, body: unknown) => {
+    const stream = new Blob([JSON.stringify(body)]).stream().pipeThrough(new CompressionStream('deflate-raw'))
+    const bytes = new Uint8Array(await new Response(stream).arrayBuffer())
+    let binary = ''
+    for (const b of bytes) binary += String.fromCharCode(b)
+    return `${key}=${btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')}`
+  }
+
+  it('商品と一緒に割引券を配り、ルールに合わない割引券は捨てる', async () => {
+    const bad = { id: 'x', name: 'a', kind: 'percent' as const, value: 120 }
+    const share = await decodeShare(await encodeProductsShare({ storeId: 's', name: '店', products, coupons: [...coupons, bad] }))
+    expect(share).toEqual({ kind: 'products', storeId: 's', name: '店', products, coupons })
+  })
+
+  it('版 1 の商品のデータも読み、マイナスの価格の商品は割引券にする', async () => {
+    const fragment = await encodeRaw('p', [1, 's', '店', [['a', '焼きそば', 400], ['d', '割引', -50]]])
+    expect(await decodeShare(fragment)).toEqual({ kind: 'products', storeId: 's', name: '店', products: [products[0]], coupons: [{ id: 'd', name: '割引', kind: 'amount', value: 50 }] })
+  })
+
+  it('会計の割引も送り、受け取った側で合計を「明細の合計 − 引いた金額」で作り直す', async () => {
+    const sale = mustCreateSale(cartItems({ a: 2 }, products), 1000, [], new Date(), coupons, { p10: 1, y50: 1 })
+    expect([sale.total, sale.discounts?.length]).toEqual([670, 2])
+    const share = await decodeShare(await encodeSalesShare({ storeId: 's', by: '田中', registerId: 'r', sales: [sale] }))
+    const got = share?.kind === 'sales' ? share.sales[0] : null
+    expect(got).toMatchObject({ total: 670, paid: 1000, change: 330, discounts: sale.discounts })
+  })
+
+  it('版 1 の会計のデータも、割引のない会計として読む', async () => {
+    const fragment = await encodeRaw('s', [1, 's', '田中', [[1, 0, [['a', '焼きそば', 400, 2]], 1000, 0]], 'r', 1_800_000_000])
+    const share = await decodeShare(fragment)
+    expect(share?.kind === 'sales' && share.sales[0]).toMatchObject({ id: 'r-1', total: 800, change: 200 })
+    expect(share?.kind === 'sales' && share.sales[0].discounts).toBeUndefined()
+  })
+
+  it('取り込むと、割引券も配られたものに置き換わる', () => {
+    const { store } = importProducts(storeWith({ products }), { storeId: 's', name: '店', products, coupons }, '田中')
+    expect(currentRegister(store).coupons).toEqual(coupons)
+    const again = importProducts(store, { storeId: 's', name: '店', products, coupons: [coupons[0]] }, '')
+    expect(currentRegister(again.store).coupons).toEqual([coupons[0]])
   })
 })
