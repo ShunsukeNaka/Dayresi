@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import type { Product, Sale } from '../types'
-import { canCheckout, canConfirmSale, createSale, itemsTotal, summarize, voidSale } from './sales'
+import { canCheckout, canConfirmSale, createSale, itemsTotal, summarize, voidableSaleIds, voidSale } from './sales'
 import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesCsvFileName, salesToCsv } from './csv'
@@ -176,6 +176,20 @@ describe('sales', () => {
     expect(summarize([], products)).toEqual({ total: 0, count: 0, byProduct: [] })
     const voided = { ...mustCreateSale(cartItems({ a: 1 }, products), 400, []), voided: true }
     expect(summarize([voided], products)).toEqual({ total: 0, count: 0, byProduct: [] })
+  })
+})
+
+describe('voidableSaleIds', () => {
+  it('取消済みでなく、ID が文字列でほかと重ならない会計だけを返す', () => {
+    const base = mustCreateSale(cartItems({ a: 1 }, products), 400, [])
+    const sales = [
+      { ...base, id: 'ok' },
+      { ...base, id: 'voided', voided: true },
+      { ...base, id: 'dup' },
+      { ...base, id: 'dup' },
+      { ...base, id: undefined as unknown as string },
+    ]
+    expect([...voidableSaleIds(sales)]).toEqual(['ok'])
   })
 })
 

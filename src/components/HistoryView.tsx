@@ -1,5 +1,6 @@
 import type { Sale } from '../types'
 import { formatTime, formatYen } from '../lib/format'
+import { voidableSaleIds } from '../lib/sales'
 
 type Props = {
   sales: Sale[]
@@ -11,10 +12,12 @@ type Props = {
  * - 会計を新しい順に並べ、会計番号・時刻・合計・明細（商品名×数量）を出す
  * - 「取消」は確認してから取り消す。取り消した会計は消さずに「取消済」と出し、取消ボタンは出さない（元に戻す処理はない）
  * - 保存データの会計は壊れていても捨てずに残す（#64）ので、値が壊れていても画面が止まらないようにする
+ * - ID がない・ほかの会計と重なる壊れた会計には、取消ボタンを出さない（#73）
  */
 export function HistoryView({ sales, onVoid }: Props) {
   // 会計は末尾に足されるだけで並びが変わらないので、元の位置を key にする（壊れた会計の id が重なっても区別できる）
   const newestFirst = sales.map((s, index) => ({ s, index })).reverse()
+  const voidable = voidableSaleIds(sales)
 
   return (
     <section className="tab">
@@ -30,7 +33,7 @@ export function HistoryView({ sales, onVoid }: Props) {
               <div className="amount">{formatYen(s.total)}</div>
               <div className="items">{s.items.map((i) => `${i.name}×${i.qty}`).join('、')}</div>
               <div className="history-ops">
-                {!s.voided && (
+                {voidable.has(s.id) && (
                   <button
                     className="secondary"
                     onClick={() => {
