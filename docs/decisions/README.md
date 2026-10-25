@@ -42,7 +42,7 @@
 | [0008](0008-purpose-in-readme.md) | プロダクトの目的を README.md にまとめる | 採用 |
 | [0009](0009-new-design-in-pen.md) | デザインファイルは pen.dev で新しいデザイン案として作る | 採用 |
 | [0010](0010-user-journey-in-docs-research.md) | ユーザージャーニーマップは docs/research/ に Markdown で置く | 採用 |
-| [0011](0011-allow-negative-price.md) | 商品の価格をマイナスにもできるようにする | 採用 |
+| [0011](0011-allow-negative-price.md) | 商品の価格をマイナスにもできるようにする | 採用（次の段階は 0034 で置き換え） |
 | [0012](0012-keep-void-as-is.md) | 会計の間違いは今の取消のままで直す | 採用 |
 | [0013](0013-main-and-sub-targets.md) | 届けたい人は、用意する人をメイン、接客する人をサブのターゲットにする | 採用 |
 | [0014](0014-mvp-done-criteria.md) | MVP の完了条件は、見直した SPEC の通りに公開されていることにする | 採用 |
@@ -65,3 +65,4 @@
 | [0031](0031-rebuild-issues-from-design-doc.md) | 作り直しの Issue を Design Doc に合わせて立て直し、SPEC にない機能は作らない | 採用 |
 | [0032](0032-representative-collects-sales.md) | 次の段階では、代表者が商品を配り、会計を受け取って合算する方式で、端末のあいだでデータを引き渡す | 採用 |
 | [0033](0033-next-spec-in-separate-file.md) | MVP の次の段階の仕様は、docs/spec-next.md に書く | 採用 |
+| [0034](0034-coupons.md) | 次の段階では割引券を作り、マイナスの価格の商品をやめる | 採用 |
