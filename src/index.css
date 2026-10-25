@@ -303,6 +303,32 @@ main { flex: 1; min-height: 0; }
   .checkout-body { grid-template-columns: 1fr; }
 }
 
+/* スマホの会計（docs/design/dayresi.pen の M-02）。全画面のページにし、テンキーと会計確定まで 1 画面に収める */
+@media (max-width: 600px) {
+  .checkout {
+    width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0 12px 20px;
+    border: 0; border-radius: 0; display: flex; flex-direction: column;
+  }
+  .checkout:not([open]) { display: none; }
+  .checkout-head { display: flex; align-items: center; justify-content: space-between; margin: 0 -12px 12px; padding: 6px 8px 6px 16px; border-bottom: var(--stroke) solid var(--line); }
+  .checkout-title { font-size: 18px; margin: 0; }
+  .checkout-body { display: flex; flex-direction: column; gap: 10px; }
+  .pay-col { gap: 8px; }
+  .pay-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 0 14px; }
+  .pay-rows dt { font-size: 13px; }
+  .pay-rows dd { margin: 0; min-height: 0; font-size: 26px; }
+  .pay-rows dd.placeholder { font-size: 18px; }
+  .pay-rows .change { min-height: 0; font-size: 36px; }
+  .pay-rows .change.short { font-size: 22px; }
+  .pay-row:last-child { min-height: 60px; }
+  .pay-hint { font-size: 13px; }
+  .cash-pad, .quick, .keypad { gap: 8px; }
+  .quick button { height: 44px; font-size: 14px; }
+  .keypad button { height: 54px; font-size: 22px; }
+  .dialog-actions { grid-template-columns: 1fr; margin-top: auto; padding-top: 10px; }
+  .dialog-actions button { height: 56px; }
+}
+
 /* ダイアログ（レジの一覧など、docs/design/dayresi.pen の N-02〜N-05）。狭い画面では全画面のページ（P-01〜P-04） */
 .modal {
   border: var(--stroke) solid var(--line); border-radius: 12px; padding: 32px; width: min(600px, calc(100vw - 24px));

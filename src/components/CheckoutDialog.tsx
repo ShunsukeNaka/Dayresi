@@ -52,7 +52,11 @@ export function CheckoutDialog({ total, onConfirm, onCancel }: Props) {
         onCancel()
       }}
     >
-      <h2 className="checkout-title">会計</h2>
+      <div className="checkout-head">
+        <h2 className="checkout-title">会計</h2>
+        {/* スマホでは全画面のページになり、「戻る」の代わりに × で戻る（docs/design/dayresi.pen の M-02） */}
+        <button className="modal-close only-narrow" aria-label="戻る" onClick={onCancel}>×</button>
+      </div>
       {/* 左に金額（合計・お預かり・おつり）、右に金額ボタンとテンキーを並べる */}
       <div className="checkout-body">
         <div className="pay-col">
@@ -96,7 +100,7 @@ export function CheckoutDialog({ total, onConfirm, onCancel }: Props) {
       </div>
 
       <div className="dialog-actions">
-        <button className="secondary" onClick={onCancel}>戻る</button>
+        <button className="secondary only-wide" onClick={onCancel}>戻る</button>
         <button className="primary" onClick={() => onConfirm(input === '' ? null : paid)} disabled={!canConfirm}>会計確定</button>
       </div>
     </dialog>
