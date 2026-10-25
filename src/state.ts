@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useRef } from 'react'
-import type { Coupon, Product, Sale, SaleItem, Store } from './types'
-import type { CartCoupons } from './lib/coupons'
+import type { Coupon, CouponKind, Product, Sale, SaleItem, Store } from './types'
+import { addCoupon, type CartCoupons } from './lib/coupons'
 import { addProduct } from './lib/products'
 import { loadStore, saveStore } from './lib/storage'
 import { addRegister, createRegister, deleteRegister, importProducts, importSales, switchRegister, updateCurrent } from './lib/registers'
@@ -20,6 +20,7 @@ import { createSale, voidSale } from './lib/sales'
  * - setMyName：今のレジの自分の名前を変える。ルールに合わなければ何もしない
  * - importProducts：配られた商品を取り込む（新しく足すときは自分の名前がルールに合わなければ何もしない）
  * - importSales：送られた会計を、同じ店の代表者のレジに合算する（そのレジがなければ何もしない）
+ * - addCoupon：割引券を末尾に登録する。名前か値がルールに合わない、または会計する人のレジなら何もしない
  */
 export type Action =
   | { type: 'addProduct'; name: string; price: number }
@@ -32,6 +33,7 @@ export type Action =
   | { type: 'setMyName'; name: string }
   | { type: 'importProducts'; share: { storeId: string; name: string; products: Product[]; coupons: Coupon[] }; myName: string }
   | { type: 'importSales'; share: { storeId: string; by: string; sales: Sale[] } }
+  | { type: 'addCoupon'; name: string; kind: CouponKind; value: number }
 
 /** 何も変わらない操作では同じ状態を返し、保存し直さない */
 export function reducer(state: Store, action: Action): Store {
@@ -65,6 +67,11 @@ export function reducer(state: Store, action: Action): Store {
       case 'voidSale': {
         const sales = voidSale(register.sales, action.id)
         return sales === register.sales ? register : { ...register, sales }
+      }
+      case 'addCoupon': {
+        if (register.role === 'member') return register
+        const coupons = addCoupon(register.coupons, action.name, action.kind, action.value)
+        return coupons === register.coupons ? register : { ...register, coupons }
       }
       case 'setMyName':
         return isValidName(action.name) && action.name !== register.myName ? { ...register, myName: action.name } : register

@@ -6,6 +6,7 @@ import { ExportCsvButton } from './ExportCsvButton'
 import { encodeProductsShare, encodeSalesShare, shareUrl } from '../lib/share'
 import { ShareDialog } from './ShareDialog'
 import { MyNameDialog } from './MyNameDialog'
+import { CouponSection } from './CouponSection'
 
 type Props = {
   data: Register
@@ -52,10 +53,10 @@ export function SettingsView({ data, dispatch }: Props) {
     nameInputRef.current?.focus()
   }
 
-  /** 全データ消去。商品と会計をすべて消す。消す前にブラウザの確認ダイアログを出す */
+  /** 全データ消去。商品・割引券・会計をすべて消す。消す前にブラウザの確認ダイアログを出す */
   const resetAll = () => {
     const warning = data.sales.length > 0 ? '\n売上CSVを保存していない場合、売上データは復元できません。' : ''
-    if (confirm(`商品と売上をすべて消去しますか？${warning}`)) dispatch({ type: 'resetAll' })
+    if (confirm(`商品・割引券・売上をすべて消去しますか？${warning}`)) dispatch({ type: 'resetAll' })
   }
 
   // 会計する人のレジでは、配られた商品を編集できない（spec-next.md「会計する人のレジ」、docs/design/dayresi.pen の N-09）
@@ -119,6 +120,8 @@ export function SettingsView({ data, dispatch }: Props) {
           )}
         </div>
 
+        <CouponSection data={data} dispatch={dispatch} />
+
         {/* 商品を配る（spec-next.md「商品を配る」、docs/design/dayresi.pen の N-07）。代表者のレジだけ */}
         {data.role === 'owner' && (
           <div className="settings-section">
@@ -140,7 +143,7 @@ export function SettingsView({ data, dispatch }: Props) {
               <ExportCsvButton sales={data.sales} ownName={data.myName} />
             </div>
             <div className="data-action">
-              <button className="danger" onClick={resetAll} disabled={data.products.length === 0 && data.sales.length === 0}>
+              <button className="danger" onClick={resetAll} disabled={data.products.length === 0 && data.coupons.length === 0 && data.sales.length === 0}>
                 全データを消去
               </button>
             </div>
