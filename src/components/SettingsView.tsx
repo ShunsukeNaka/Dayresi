@@ -20,7 +20,7 @@ export function SettingsView({ data, dispatch }: Props) {
     const price = parsePrice(newPrice)
     if (!isValidName(newName)) return setAddError('商品名を入力してください。')
     if (price === null) return setAddError(`価格は ${MIN_PRICE.toLocaleString('ja-JP')}〜${MAX_PRICE.toLocaleString('ja-JP')} の整数で入力してください。`)
-    dispatch({ type: 'addProduct', product: { id: crypto.randomUUID(), name: newName, price } })
+    dispatch({ type: 'addProduct', name: newName, price })
     setNewName('')
     setNewPrice('')
     setAddError('')
