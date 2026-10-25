@@ -61,3 +61,4 @@
 | [0027](0027-no-data-sharing-between-devices.md) | 端末のあいだでデータを共有する機能は MVP で扱わない | 採用 |
 | [0028](0028-spec-is-mvp-goal.md) | SPEC は MVP の目標として扱う | 採用 |
 | [0029](0029-record-tech-choices.md) | 選んだ技術のメリットを docs/tech-choices.md に書き足していく | 採用 |
+| [0030](0030-one-purpose-per-pr.md) | 1 つの PR には 1 つの目的だけ持たせる | 採用 |
