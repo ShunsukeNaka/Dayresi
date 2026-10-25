@@ -9,6 +9,9 @@ export default defineConfig({
   base: './',
   plugins: [
     react(),
+    // 一度開けば通信がなくても動くよう、Service Worker でアプリのファイルをキャッシュする（SPEC「非機能」）
+    // 新しい版を公開すると新しい Service Worker はすぐ有効になるが、開いているページは読み直さない。
+    // 新しい版になるのは次にページを読み込んだとき（#75）。会計の途中で読み直されてカートが消えることはない
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
