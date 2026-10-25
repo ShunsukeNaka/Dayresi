@@ -37,5 +37,8 @@ export type AppData = {
   sales: Sale[]
 }
 
-/** productId → 数量 */
+/**
+ * 会計を確定する前のカート。商品ID → 数量（1〜MAX_QTY）
+ * localStorage には保存せず、画面の state だけで持つ。再読み込みすると消える
+ */
 export type Cart = Record<string, number>

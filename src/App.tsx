@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import type { Cart } from './types'
 import { useAppData } from './state'
-import { canCheckout, cartItems, createSale, itemsTotal } from './lib/sales'
+import { MAX_QTY, canCheckout, cartItems, createSale, itemsTotal } from './lib/sales'
 import { RegisterView } from './components/RegisterView'
 import { CheckoutDialog } from './components/CheckoutDialog'
 import { HistoryView } from './components/HistoryView'
@@ -29,7 +29,7 @@ export default function App() {
 
   const changeQty = useCallback((id: string, delta: number) => {
     setCart((prev) => {
-      const qty = Math.max(0, Math.min(999, (prev[id] ?? 0) + delta))
+      const qty = Math.max(0, Math.min(MAX_QTY, (prev[id] ?? 0) + delta))
       const next = { ...prev }
       if (qty === 0) delete next[id]
       else next[id] = qty
