@@ -52,33 +52,46 @@ export function CheckoutDialog({ total, onConfirm, onCancel }: Props) {
         onCancel()
       }}
     >
-      <dl className="pay-rows">
-        <dt>合計</dt>
-        <dd>{formatYen(total)}</dd>
-        <dt>お預かり</dt>
-        <dd className={input === '' ? 'placeholder' : ''}>
-          {input === '' ? `ちょうど（${formatYen(total)}）` : formatYen(paid)}
-        </dd>
-        <dt>おつり</dt>
-        <dd className={`change${change >= 0 ? '' : ' short'}`}>
-          {change >= 0 ? formatYen(change) : `${formatYen(-change)} 不足`}
-        </dd>
-      </dl>
-
-      <div className="cash-pad">
-        <div className="quick">
-          {QUICK_BILLS.map((bill) => (
-            <button key={bill} onClick={() => setInput(String(bill))} disabled={bill < total}>
-              {formatYen(bill)}
-            </button>
-          ))}
-          <button onClick={() => setInput('')}>ちょうど</button>
+      <h2 className="checkout-title">会計</h2>
+      {/* 左に金額（合計・お預かり・おつり）、右に金額ボタンとテンキーを並べる */}
+      <div className="checkout-body">
+        <div className="pay-col">
+          <dl className="pay-rows">
+            <div className="pay-row">
+              <dt>合計</dt>
+              <dd>{formatYen(total)}</dd>
+            </div>
+            <div className="pay-row paid">
+              <dt>お預かり</dt>
+              <dd className={input === '' ? 'placeholder' : ''}>
+                {input === '' ? `ちょうど（${formatYen(total)}）` : formatYen(paid)}
+              </dd>
+            </div>
+            <div className="pay-row">
+              <dt>おつり</dt>
+              <dd className={`change${change >= 0 ? '' : ' short'}`}>
+                {change >= 0 ? formatYen(change) : `${formatYen(-change)} 不足`}
+              </dd>
+            </div>
+          </dl>
+          <p className="pay-hint">未入力で確定すると「ちょうど」になります</p>
         </div>
-        <div className="keypad">
-          {['7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '00'].map((k) => (
-            <button key={k} onClick={() => appendDigits(k)}>{k}</button>
-          ))}
-          <button onClick={() => setInput((prev) => prev.slice(0, -1))} aria-label="1桁削除">⌫</button>
+
+        <div className="cash-pad">
+          <div className="quick">
+            {QUICK_BILLS.map((bill) => (
+              <button key={bill} className="secondary" onClick={() => setInput(String(bill))} disabled={bill < total}>
+                {formatYen(bill)}
+              </button>
+            ))}
+            <button className="secondary" onClick={() => setInput('')}>ちょうど</button>
+          </div>
+          <div className="keypad">
+            {['7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '00'].map((k) => (
+              <button key={k} onClick={() => appendDigits(k)}>{k}</button>
+            ))}
+            <button onClick={() => setInput((prev) => prev.slice(0, -1))} aria-label="1桁削除">⌫</button>
+          </div>
         </div>
       </div>
 
