@@ -24,6 +24,18 @@ export type SaleItem = {
   qty: number
 }
 
+/** 会計で使った割引券。会計した時点の名前・種類・値も持つので、割引券がなくなっても記録が読める */
+export type SaleDiscount = {
+  couponId: string
+  name: string
+  kind: CouponKind
+  value: number
+  /** 使った枚数。% 引きは 1 */
+  qty: number
+  /** 実際に引いた金額（円、0 以上）。割引が合計より大きいときは、引けた分だけ */
+  amount: number
+}
+
 /** 確定した会計。支払方法は持たない（ADR 0018） */
 export type Sale = {
   /** crypto.randomUUID() で振る */
@@ -41,6 +53,11 @@ export type Sale = {
   change: number
   /** 取り消したか。取り消した会計は消さずに残し、集計からは除く（ADR 0012） */
   voided: boolean
+  /**
+   * 使った割引券と、引いた金額（spec-next.md「割引券」）。割引券を使わなかった会計と、割引券を作る前の会計にはない
+   * total は、この割引を引いたあとの金額
+   */
+  discounts?: SaleDiscount[]
   /**
    * 会計した人の名前。代表者のレジに取り込んだ、会計する人の会計にだけある（spec-next.md「会計を送る」）
    * 自分のレジで会計したものにはない

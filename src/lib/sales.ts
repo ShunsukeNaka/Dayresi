@@ -1,18 +1,25 @@
-import type { Product, Sale, SaleItem } from '../types'
+import type { Coupon, Product, Sale, SaleItem } from '../types'
+import { applyCoupons, type CartCoupons } from './coupons'
 
-/** 合計。明細の「価格×数量」の和で、マイナス価格の商品も含める。明細が空なら 0 */
+/** 割引の前の合計。明細の「価格×数量」の和（割引券を作る前の会計には、マイナスの価格の明細もある）。明細が空なら 0 */
 export function itemsTotal(items: SaleItem[]): number {
   return items.reduce((sum, i) => sum + i.price * i.qty, 0)
 }
 
-/** 商品が1つ以上あり、合計が0円以上なら会計できる。0円ちょうどは会計でき、0円未満は確定できない（ADR 0011） */
+/** 商品が1つ以上あり、合計が0円以上なら会計できる。商品の価格は 0 円以上で、割引は 0 円で止まるので、合計は 0 円未満にならない（ADR 0034） */
 export function canCheckout(items: SaleItem[]): boolean {
   return items.length > 0 && itemsTotal(items) >= 0
 }
 
-/** 会計を確定できるか。canCheckout が真で、お預かり（未入力の null は「ちょうど」）が合計以上なら確定できる */
-export function canConfirmSale(items: SaleItem[], paid: number | null): boolean {
-  return canCheckout(items) && (paid ?? itemsTotal(items)) >= itemsTotal(items)
+/** 割引のあとの合計 */
+export function saleTotal(items: SaleItem[], coupons: Coupon[] = [], selected: CartCoupons = {}): number {
+  return applyCoupons(itemsTotal(items), coupons, selected).total
+}
+
+/** 会計を確定できるか。canCheckout が真で、お預かり（未入力の null は「ちょうど」）が割引のあとの合計以上なら確定できる */
+export function canConfirmSale(items: SaleItem[], paid: number | null, coupons: Coupon[] = [], selected: CartCoupons = {}): boolean {
+  const total = saleTotal(items, coupons, selected)
+  return canCheckout(items) && (paid ?? total) >= total
 }
 
 /**
@@ -20,9 +27,11 @@ export function canConfirmSale(items: SaleItem[], paid: number | null): boolean 
  * 確定できないとき（canConfirmSale が偽）は会計を作らず null を返す
  * 支払方法は分けない。キャッシュレスで受け取った分も、お預かり金額を入れて（または「ちょうど」で）記録する（ADR 0018）
  */
-export function createSale(items: SaleItem[], paid: number | null, prevSales: Sale[], now = new Date()): Sale | null {
-  if (!canConfirmSale(items, paid)) return null
-  const total = itemsTotal(items)
+export function createSale(
+  items: SaleItem[], paid: number | null, prevSales: Sale[], now = new Date(), coupons: Coupon[] = [], selected: CartCoupons = {},
+): Sale | null {
+  if (!canConfirmSale(items, paid, coupons, selected)) return null
+  const { discounts, total } = applyCoupons(itemsTotal(items), coupons, selected)
   const received = paid ?? total
   return {
     id: crypto.randomUUID(),
@@ -33,6 +42,7 @@ export function createSale(items: SaleItem[], paid: number | null, prevSales: Sa
     paid: received,
     change: received - total,
     voided: false,
+    ...(discounts.length > 0 ? { discounts } : {}),
   }
 }
 

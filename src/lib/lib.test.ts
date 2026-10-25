@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import type { Product, Sale, Store } from '../types'
-import { canCheckout, canConfirmSale, createSale, itemsTotal, mergeSales, summarize, voidableSaleIds, voidSale } from './sales'
+import { canCheckout, canConfirmSale, createSale, itemsTotal, mergeSales, saleTotal, summarize, voidableSaleIds, voidSale } from './sales'
 import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatPercent, formatTime, formatYen, isValidCouponValue, isValidName, isValidPrice, parsePrice } from './format'
 import { salesCsvFileName, salesToCsv } from './csv'
@@ -8,6 +8,7 @@ import { loadStore, parseData, parseStore, saveStore } from './storage'
 import { DEFAULT_REGISTER_NAME, addRegister, createRegister, currentRegister, deleteRegister, findStoreRegister, importProducts, importSales, storeWith, switchRegister, updateCurrent } from './registers'
 import { addProduct } from './products'
 import { reducer } from '../state'
+import { applyCoupons } from './coupons'
 import { decodeShare, encodeProductsShare, encodeSalesShare, shareUrl } from './share'
 import { MAX_QR_VERSION, qrModules } from './qr'
 
@@ -884,5 +885,60 @@ describe('会計の合算', () => {
     const merged = mergeSales([sale('own-1', 1, 1)], [sale('r-1', 1, 2), sale('r-2', 2, 3, true)], '田中').sales
     const summary = summarize(merged, products)
     expect([summary.total, summary.count]).toEqual([800, 2])
+  })
+})
+
+describe('割引の計算', () => {
+  const yen50 = { id: 'y50', name: '50円引き', kind: 'amount' as const, value: 50 }
+  const yen100 = { id: 'y100', name: '100円引き', kind: 'amount' as const, value: 100 }
+  const off10 = { id: 'p10', name: '1割引き', kind: 'percent' as const, value: 10 }
+  const off20 = { id: 'p20', name: '2割引き', kind: 'percent' as const, value: 20 }
+  const coupons = [yen50, off10, yen100, off20]
+
+  it('% 引きは引く金額の 1 円未満を切り捨てる', () => {
+    expect(applyCoupons(1050, coupons, { p10: 1 })).toEqual({ total: 945, discounts: [{ couponId: 'p10', name: '1割引き', kind: 'percent', value: 10, qty: 1, amount: 105 }] })
+    expect(applyCoupons(1055, coupons, { p10: 1 }).total).toBe(950)
+  })
+
+  it('% 引きを先にかけ、そのあとで金額引きを引く。記録は割引券の並びの順', () => {
+    const { total, discounts } = applyCoupons(1000, coupons, { y50: 2, p10: 1 })
+    expect(total).toBe(800)
+    expect(discounts.map((d) => [d.couponId, d.qty, d.amount])).toEqual([['y50', 2, 100], ['p10', 1, 100]])
+  })
+
+  it('% 引きは 1 枚まで。2 つ選んでいれば、並びで最初のものだけを使う', () => {
+    const { total, discounts } = applyCoupons(1000, coupons, { p10: 1, p20: 1 })
+    expect(total).toBe(900)
+    expect(discounts.map((d) => d.couponId)).toEqual(['p10'])
+  })
+
+  it('割引が合計より大きいときは 0 円で止め、実際に引けた金額を記録する', () => {
+    const { total, discounts } = applyCoupons(120, coupons, { y50: 1, y100: 1 })
+    expect(total).toBe(0)
+    expect(discounts.map((d) => [d.couponId, d.amount])).toEqual([['y50', 50], ['y100', 70]])
+    expect(applyCoupons(500, [{ ...off10, value: 100 }], { p10: 1 }).total).toBe(0)
+  })
+
+  it('選んでいない・0 枚の割引券は使わない', () => {
+    expect(applyCoupons(500, coupons, {})).toEqual({ total: 500, discounts: [] })
+    expect(applyCoupons(500, coupons, { y50: 0, none: 3 })).toEqual({ total: 500, discounts: [] })
+  })
+
+  it('会計に割引を記録し、合計は割引のあと。お預かりは割引のあとの合計と比べる', () => {
+    const items = cartItems({ a: 2 }, products)
+    expect(saleTotal(items, coupons, { y50: 1 })).toBe(750)
+    expect(canConfirmSale(items, 750, coupons, { y50: 1 })).toBe(true)
+    expect(canConfirmSale(items, 700, coupons, { y50: 1 })).toBe(false)
+    const sale = mustCreateSale(items, 1000, [], new Date(), coupons, { y50: 1 })
+    expect([sale.total, sale.paid, sale.change]).toEqual([750, 1000, 250])
+    expect(sale.discounts).toEqual([{ couponId: 'y50', name: '50円引き', kind: 'amount', value: 50, qty: 1, amount: 50 }])
+    expect(mustCreateSale(items, null, []).discounts).toBeUndefined()
+  })
+
+  it('reducer の会計で、今のレジの割引券を使う', () => {
+    const store = updateCurrent(storeWith({ products }), (r) => ({ ...r, coupons }))
+    const next = reducer(store, { type: 'checkout', items: cartItems({ a: 1 }, products), paid: null, coupons: { p10: 1 } })
+    const sale = currentRegister(next).sales[0]
+    expect([sale.total, sale.paid, sale.discounts?.[0].amount]).toEqual([360, 360, 40])
   })
 })
