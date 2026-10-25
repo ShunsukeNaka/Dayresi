@@ -170,6 +170,13 @@ main { flex: 1; min-height: 0; }
 .table .num { text-align: right; font-variant-numeric: tabular-nums; }
 .table td.num:last-child { font-weight: 700; }
 .table .minus { color: var(--minus); }
+/* 割合の横棒（SPEC「集計」）。割合が一番大きい商品を目いっぱいの長さにする */
+.table td.share { width: 40%; }
+.share-cell { display: flex; align-items: center; gap: 12px; }
+.share-bar { flex: 0 1 300px; height: 12px; background: var(--key); }
+.share-bar span { display: block; height: 100%; background: var(--accent); }
+.share-num { font-family: var(--font-num); font-size: 14px; line-height: 1; color: var(--muted); font-variant-numeric: tabular-nums; }
+.share-none { color: var(--disabled-text); }
 .table .empty-cell { color: var(--muted); text-align: center; }
 
 /* 設定（docs/design/dayresi.pen の A-05） */

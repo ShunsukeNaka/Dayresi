@@ -10,6 +10,11 @@ export function formatYen(n: number): string {
   return (n < 0 ? '−¥' : '¥') + Math.abs(n).toLocaleString('ja-JP')
 }
 
+/** 割合の表示。0.299 → 29.9%（小数第 1 位まで） */
+export function formatPercent(ratio: number): string {
+  return `${(ratio * 100).toFixed(1)}%`
+}
+
 /** 履歴の時刻。PC の時刻で 9:05（時は 0 を付けず、分は 2 桁） */
 export function formatTime(iso: string): string {
   const d = new Date(iso)
