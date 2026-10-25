@@ -3,7 +3,7 @@ import type { Product, Sale } from '../types'
 import { canCheckout, createSale, itemsTotal, summarize, voidSale } from './sales'
 import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
-import { salesToCsv } from './csv'
+import { salesCsvFileName, salesToCsv } from './csv'
 import { loadData, parseData, saveData } from './storage'
 import { addProduct } from './products'
 import { reducer } from '../state'
@@ -128,6 +128,25 @@ describe('voidSale', () => {
 })
 
 describe('csv', () => {
+  it('ファイル名は保存した日時を入れる', () => {
+    expect(salesCsvFileName(new Date(2026, 9, 25, 9, 5))).toBe('dayresi-sales-20261025-0905.csv')
+  })
+
+  it('1 行を明細 1 件にし、取り消した会計も「取消」として出す', () => {
+    const base = { at: '2026-10-25T03:00:00.000Z', paid: 1000, voided: false }
+    const s1: Sale = { ...base, id: '1', no: 1, total: 750, change: 250, items: [{ productId: 'a', name: '焼きそば', price: 400, qty: 2 }, { productId: 'd', name: '割引', price: -50, qty: 1 }] }
+    const s2: Sale = { ...base, id: '2', no: 2, total: 150, change: 850, voided: true, items: [{ productId: 'b', name: 'ラムネ', price: 150, qty: 1 }] }
+    const csv = salesToCsv([s1, s2])
+    expect(csv.startsWith('\uFEFF会計番号,日時,商品名,単価,数量,小計,会計合計,お預かり,おつり,状態\r\n')).toBe(true)
+    expect(csv.endsWith('\r\n')).toBe(true)
+    const rows = csv.slice(1).split('\r\n').slice(1, -1).map((r) => r.split(','))
+    expect(rows.map((r) => [r[0], r[2], r[5], r[9]])).toEqual([
+      ['1', '焼きそば', '800', ''],
+      ['1', '割引', '-50', ''],
+      ['2', 'ラムネ', '150', '取消'],
+    ])
+  })
+
   it('BOM付きで、記号を含む値をエスケープする', () => {
     const sale: Sale = {
       id: '1', no: 1, at: '2026-10-10T03:04:05.000Z', total: 100, paid: 100, change: 0, voided: true,
