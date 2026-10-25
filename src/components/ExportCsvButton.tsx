@@ -6,6 +6,7 @@ type Props = {
   sales: Sale[]
 }
 
+/** 売上 CSV を保存するボタン。会計がないときは押せない */
 export function ExportCsvButton({ sales }: Props) {
   return (
     <button

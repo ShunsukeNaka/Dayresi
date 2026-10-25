@@ -31,6 +31,7 @@ export function SettingsView({ data, dispatch }: Props) {
     nameInputRef.current?.focus()
   }
 
+  /** 全データ消去。商品と会計をすべて消す。消す前にブラウザの確認ダイアログを出す */
   const resetAll = () => {
     const warning = data.sales.length > 0 ? '\n売上CSVを保存していない場合、売上データは復元できません。' : ''
     if (confirm(`商品と売上をすべて消去しますか？${warning}`)) dispatch({ type: 'resetAll' })
@@ -76,10 +77,7 @@ export function SettingsView({ data, dispatch }: Props) {
 
         <div className="panel">
           <h2>データ</h2>
-          <p className="hint">
-            データはこの端末のブラウザの中だけに保存され、サーバーには送信されません。
-            ブラウザのデータを消したり、プライベートブラウズで使ったりすると消えるため、終了時には売上CSVを保存してください。
-          </p>
+          {/* 売上 CSV の保存（会計がないときは押せない）と全データ消去（商品も会計もないときは押せない） */}
           <div className="row-actions">
             <ExportCsvButton sales={data.sales} />
             <button className="danger" onClick={resetAll} disabled={data.products.length === 0 && data.sales.length === 0}>
