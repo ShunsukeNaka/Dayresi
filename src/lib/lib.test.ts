@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { Product, Sale } from '../types'
 import { canCheckout, createSale, itemsTotal, summarize, voidSale } from './sales'
 import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesToCsv } from './csv'
-import { parseData } from './storage'
+import { loadData, parseData, saveData } from './storage'
 import { addProduct } from './products'
 import { reducer } from '../state'
 
@@ -159,9 +159,35 @@ describe('storage', () => {
     expect(parseData(JSON.stringify({ products: [discount], sales: [] })).products).toEqual([discount])
   })
 
-  it('支払方法を記録していた以前のデータも読み込める', () => {
-    const old = { id: '1', no: 1, at: '2026-10-10T03:04:05.000Z', items: [], total: 400, method: 'other', paid: 400, change: 0, voided: false }
-    expect(parseData(JSON.stringify({ products: [], sales: [old] })).sales).toHaveLength(1)
+  describe('localStorage', () => {
+    const original = globalThis.localStorage
+    const stub = (entries: Record<string, string>) => {
+      const map = new Map(Object.entries(entries))
+      globalThis.localStorage = {
+        getItem: (k: string) => map.get(k) ?? null,
+        setItem: (k: string, v: string) => void map.set(k, v),
+        removeItem: (k: string) => void map.delete(k),
+      } as Storage
+      return map
+    }
+    afterEach(() => {
+      globalThis.localStorage = original
+    })
+
+    it('dayresi:v2 から読み、dayresi:v2 に保存する', () => {
+      const map = stub({ 'dayresi:v2': JSON.stringify({ products: [products[0]], sales: [] }) })
+      expect(loadData().products).toEqual([products[0]])
+      saveData({ products, sales: [] })
+      expect(JSON.parse(map.get('dayresi:v2')!).products).toEqual(products)
+    })
+
+    it('作り直す前の dayresi:v1 は読まず、保存しても消さない', () => {
+      const v1 = JSON.stringify({ products: [products[0]], sales: [] })
+      const map = stub({ 'dayresi:v1': v1 })
+      expect(loadData()).toEqual({ products: [], sales: [] })
+      saveData({ products, sales: [] })
+      expect(map.get('dayresi:v1')).toBe(v1)
+    })
   })
 })
 
