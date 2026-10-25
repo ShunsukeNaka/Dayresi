@@ -30,14 +30,21 @@ export function isValidPrice(n: unknown): n is number {
   return typeof n === 'number' && Number.isInteger(n) && n >= MIN_PRICE && n <= MAX_PRICE
 }
 
-/** 入力中の文字列を価格に変換する。全角や記号のマイナスも受け付ける。不正なら null */
+/**
+ * 入力中の文字列を価格に変換する。不正なら null
+ * 全角の数字（４００）と、全角や記号のマイナス（－・−）も受け付ける。桁区切りのカンマ・¥・円は受け付けない
+ */
 export function parsePrice(s: string): number | null {
-  const t = s.trim().replace(/^[−－]/, '-')
+  const t = s
+    .trim()
+    .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+    .replace(/^[−－]/, '-')
   if (!/^-?\d+$/.test(t)) return null
   const n = Number(t)
   return isValidPrice(n) ? n : null
 }
 
+/** 空白だけは不可。前後の空白も含めて MAX_NAME_LENGTH 文字まで */
 export function isValidName(s: unknown): s is string {
   return typeof s === 'string' && s.trim().length > 0 && s.length <= MAX_NAME_LENGTH
 }
