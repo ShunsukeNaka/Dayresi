@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { formatYen } from '../lib/format'
 
+/** お預かり金額の入力の上限の桁数（¥9,999,999） */
 const MAX_DIGITS = 7
+/** 金額ボタン。合計より少ない金額は押せない */
 const QUICK_BILLS = [1000, 5000, 10000]
 
 type Props = {
@@ -11,6 +13,11 @@ type Props = {
   onCancel: () => void
 }
 
+/**
+ * 会計ダイアログ。合計・お預かり・おつりを出す
+ * お預かりは金額ボタンとテンキーで入れる（操作はマウスで、キーボードのショートカットは作らない）
+ * 「会計確定」で会計を記録し、「戻る」（または Esc）でカートに戻る
+ */
 export function CheckoutDialog({ total, onConfirm, onCancel }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   // お預かり金額の入力（数字の文字列）。空のときは「ちょうど」として扱う
@@ -18,6 +25,9 @@ export function CheckoutDialog({ total, onConfirm, onCancel }: Props) {
 
   const paid = input === '' ? total : Number(input)
   const change = paid - total
+  // canConfirmSale（src/lib/sales.ts）と同じ判定。ダイアログには明細を渡さず合計だけを渡しており、
+  // 商品が 1 つ以上あることは開く前に canCheckout で確かめているので、ここではお預かりが合計以上かだけを見る。
+  // 確定するときは App が canConfirmSale で確かめ直す
   const canConfirm = total >= 0 && change >= 0
 
   useEffect(() => {
