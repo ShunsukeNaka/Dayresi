@@ -8,6 +8,8 @@ import { loadStore, parseData, parseStore, saveStore } from './storage'
 import { DEFAULT_REGISTER_NAME, addRegister, createRegister, currentRegister, deleteRegister, storeWith, switchRegister, updateCurrent } from './registers'
 import { addProduct } from './products'
 import { reducer } from '../state'
+import { decodeShare, encodeProductsShare, shareUrl } from './share'
+import { MAX_QR_VERSION, qrModules } from './qr'
 
 const products: Product[] = [
   { id: 'a', name: '焼きそば', price: 400 },
@@ -557,6 +559,13 @@ describe('reducer', () => {
     expect(cur(deleted).name).toBe('B')
   })
 
+  it('今のレジの自分の名前を変え、ルールに合わない・同じ名前では状態を変えない', () => {
+    const state = reducer(empty, { type: 'setMyName', name: '山田' })
+    expect(cur(state).myName).toBe('山田')
+    expect(reducer(state, { type: 'setMyName', name: '山田' })).toBe(state)
+    expect(reducer(state, { type: 'setMyName', name: '　' })).toBe(state)
+  })
+
   it('操作は今のレジにだけ働く', () => {
     const other = createRegister({ name: 'サークルの屋台', products })
     const state: Store = { registers: [...empty.registers, other], currentId: other.id }
@@ -638,5 +647,53 @@ describe('format', () => {
   it('ファイル名用の日時は YYYYMMDD-HHmm にする', () => {
     expect(fileStamp(new Date(2026, 9, 25, 15, 30, 45))).toBe('20261025-1530')
     expect(fileStamp(new Date(2026, 0, 3, 9, 5, 0))).toBe('20260103-0905')
+  })
+})
+
+describe('share（商品を配る）', () => {
+  const tenProducts: Product[] = Array.from({ length: 10 }, (_, i) => ({ id: crypto.randomUUID(), name: `たこ焼き（8個）${i}`, price: i === 9 ? -50 : 400 + i * 10 }))
+
+  it('商品・レジの名前・店の印を詰めて、そのまま読み出せる', async () => {
+    const fragment = await encodeProductsShare({ storeId: 'store-1', name: '研究室の模擬店', products: tenProducts })
+    expect(fragment).toMatch(/^p=[A-Za-z0-9_-]+$/)
+    expect(await decodeShare(`#${fragment}`)).toEqual({ kind: 'products', storeId: 'store-1', name: '研究室の模擬店', products: tenProducts })
+    expect(await decodeShare(fragment)).toEqual(await decodeShare(`#${fragment}`))
+  })
+
+  it('引き渡しのデータでない・壊れている・読めない版のときは null', async () => {
+    for (const hash of ['', '#', '#x=abc', '#p=', '#p=!!!', '#p=YWJj']) expect(await decodeShare(hash)).toBeNull()
+    const fragment = await encodeProductsShare({ storeId: 's', name: '店', products })
+    expect(await decodeShare(fragment.slice(0, -4))).toBeNull()
+  })
+
+  it('ルールに合わない商品は捨てて読む', async () => {
+    const bad = [...products, { id: '', name: 'x', price: 1 }, { id: 'z', name: '　', price: 1 }, { id: 'y', name: 'a', price: 1.5 }]
+    const fragment = await encodeProductsShare({ storeId: 's', name: '店', products: bad as Product[] })
+    expect((await decodeShare(fragment))?.products).toEqual(products)
+  })
+
+  it('リンクは今のページの URL に # を付けたもの', () => {
+    expect(shareUrl('p=abc', 'https://example.com/Dayresi/')).toBe('https://example.com/Dayresi/#p=abc')
+  })
+
+  it('商品 10 個のリンクは、QR の上限に収まる', async () => {
+    const url = shareUrl(await encodeProductsShare({ storeId: crypto.randomUUID(), name: '研究室の模擬店', products: tenProducts }), 'https://shunsukenaka.github.io/Dayresi/')
+    const modules = qrModules(url)
+    expect(modules).not.toBeNull()
+    expect(modules!.length).toBeLessThanOrEqual(17 + 4 * MAX_QR_VERSION)
+  })
+})
+
+describe('qr', () => {
+  it('文字列を正方形の点の並びにし、上限を超えると null', () => {
+    // バージョン 1（21 × 21）から順に、入る一番小さい大きさにする
+    expect(qrModules('https://e.co/')!.length).toBe(21)
+    const small = qrModules('https://example.com/')!
+    expect(small.length).toBe(25)
+    expect(small.every((row) => row.length === 25)).toBe(true)
+    expect(qrModules('a'.repeat(5000))).toBeNull()
+    const max = 17 + 4 * MAX_QR_VERSION
+    const big = qrModules('a'.repeat(1200))
+    expect(big === null || big.length <= max).toBe(true)
   })
 })

@@ -16,6 +16,7 @@ import { createSale, voidSale } from './lib/sales'
  * - switchRegister：今使うレジを切り替える
  * - createRegister：自分が代表者になる新しいレジを作り、切り替える。レジの名前か自分の名前がルールに合わなければ何もしない
  * - deleteRegister：レジを削除する。最後の 1 つを消したらマイレジを自動で作る
+ * - setMyName：今のレジの自分の名前を変える。ルールに合わなければ何もしない
  */
 export type Action =
   | { type: 'addProduct'; name: string; price: number }
@@ -25,6 +26,7 @@ export type Action =
   | { type: 'switchRegister'; id: string }
   | { type: 'createRegister'; name: string; myName: string }
   | { type: 'deleteRegister'; id: string }
+  | { type: 'setMyName'; name: string }
 
 /** 何も変わらない操作では同じ状態を返し、保存し直さない */
 export function reducer(state: Store, action: Action): Store {
@@ -51,6 +53,8 @@ export function reducer(state: Store, action: Action): Store {
         const sales = voidSale(register.sales, action.id)
         return sales === register.sales ? register : { ...register, sales }
       }
+      case 'setMyName':
+        return isValidName(action.name) && action.name !== register.myName ? { ...register, myName: action.name } : register
       case 'resetAll':
         return register.products.length === 0 && register.sales.length === 0 ? register : { ...register, products: [], sales: [] }
     }

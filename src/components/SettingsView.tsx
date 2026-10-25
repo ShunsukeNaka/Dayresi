@@ -1,11 +1,14 @@
 import { useRef, useState, type Dispatch, type FormEvent } from 'react'
-import type { AppData } from '../types'
+import type { Register } from '../types'
 import type { Action } from '../state'
 import { MAX_NAME_LENGTH, MAX_PRICE, MIN_PRICE, formatYen, isValidName, parsePrice } from '../lib/format'
 import { ExportCsvButton } from './ExportCsvButton'
+import { encodeProductsShare, shareUrl } from '../lib/share'
+import { ShareDialog } from './ShareDialog'
+import { MyNameDialog } from './MyNameDialog'
 
 type Props = {
-  data: AppData
+  data: Register
   dispatch: Dispatch<Action>
 }
 
@@ -14,6 +17,15 @@ export function SettingsView({ data, dispatch }: Props) {
   const [newPrice, setNewPrice] = useState('')
   const [addError, setAddError] = useState('')
   const nameInputRef = useRef<HTMLInputElement>(null)
+  // 商品を配る手順。自分の名前がまだなければ先に入れてもらい、それから QR とリンクを出す
+  const [shareStep, setShareStep] = useState<'name' | 'share' | null>(null)
+  const [shareLink, setShareLink] = useState<string | null>(null)
+
+  const startShare = () => {
+    setShareLink(null)
+    setShareStep('share')
+    void encodeProductsShare({ storeId: data.storeId, name: data.name, products: data.products }).then((f) => setShareLink(shareUrl(f)))
+  }
 
   /**
    * 商品を登録する。入力が正しくなければ理由を出して登録しない（商品名が長すぎるときは入力欄の maxLength で止める）
@@ -81,6 +93,19 @@ export function SettingsView({ data, dispatch }: Props) {
           )}
         </div>
 
+        {/* 商品を配る（spec-next.md「商品を配る」、docs/design/dayresi.pen の N-07）。代表者のレジだけ */}
+        {data.role === 'owner' && (
+          <div className="settings-section">
+            <h2 className="page-title">商品を配る</h2>
+            <div className="share-section">
+              <p className="hint">会計する人に商品を配ります。QR をスマホのカメラで読んでもらうか、リンクを送ります。商品を足したときは、配り直してください。</p>
+              <button className="primary" onClick={() => (data.myName ? startShare() : setShareStep('name'))} disabled={data.products.length === 0}>
+                商品を配る
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="settings-section">
           <h2 className="page-title">データ</h2>
           {/* 売上 CSV の保存（会計がないときは押せない）と全データ消去（商品も会計もないときは押せない）。消す前に確認する */}
@@ -98,6 +123,27 @@ export function SettingsView({ data, dispatch }: Props) {
           </div>
         </div>
       </div>
+
+      {shareStep === 'name' && (
+        <MyNameDialog
+          hint="履歴や売上 CSV で、誰の会計かを見分けるのに使います。"
+          onSubmit={(name) => {
+            dispatch({ type: 'setMyName', name })
+            startShare()
+          }}
+          onClose={() => setShareStep(null)}
+        />
+      )}
+      {shareStep === 'share' && (
+        <ShareDialog
+          title="商品を配る"
+          heading={data.name}
+          sub={`商品 ${data.products.length} つ`}
+          hint="会計する人に、スマホのカメラで読んでもらいます。離れている人には、リンクを送ります。"
+          url={shareLink}
+          onClose={() => setShareStep(null)}
+        />
+      )}
     </section>
   )
 }
