@@ -118,6 +118,7 @@ describe('format', () => {
     expect(parsePrice('－５０')).toBe(-50)
     expect(parsePrice('−５０')).toBe(-50)
     expect(parsePrice('　４００　')).toBe(400)
+    expect(parsePrice('４0０')).toBe(400)
     expect(parsePrice('９９９９９９９')).toBe(9_999_999)
     for (const bad of ['１０００００００', '１．５', '1,000', '１，０００', '¥400', '￥400', '400円', '４００円']) expect(parsePrice(bad)).toBeNull()
   })
