@@ -197,9 +197,9 @@ describe('sales', () => {
   })
 
   it('会計がないときは 0 円・0 件・空の一覧になる', () => {
-    expect(summarize([], products)).toEqual({ total: 0, count: 0, byProduct: [] })
+    expect(summarize([], products)).toEqual({ total: 0, count: 0, byProduct: [], byCoupon: [] })
     const voided = { ...mustCreateSale(cartItems({ a: 1 }, products), 400, []), voided: true }
-    expect(summarize([voided], products)).toEqual({ total: 0, count: 0, byProduct: [] })
+    expect(summarize([voided], products)).toEqual({ total: 0, count: 0, byProduct: [], byCoupon: [] })
   })
 })
 
@@ -1043,5 +1043,37 @@ describe('カートの割引券', () => {
     expect(changeCartCouponQty({ y50: 1 }, 'y50', -1)).toEqual({})
     expect(removeCartCoupon({ y50: 1, p10: 1 }, 'p10')).toEqual({ y50: 1 })
     expect(removeCartCoupon(cart, 'p10')).toBe(cart)
+  })
+})
+
+describe('割引の集計と CSV', () => {
+  const coupons = [
+    { id: 'y50', name: '50円引き', kind: 'amount' as const, value: 50 },
+    { id: 'p10', name: '1割引き', kind: 'percent' as const, value: 10 },
+  ]
+  const items = [{ productId: 'a', name: '焼きそば', price: 400, qty: 3 }]
+  const s1 = mustCreateSale(items, null, [], new Date(2026, 9, 25, 9, 0), coupons, { p10: 1, y50: 2 })
+  const s2 = mustCreateSale(items, null, [s1], new Date(2026, 9, 25, 9, 5), coupons, { y50: 1 })
+  const s3 = { ...mustCreateSale(items, null, [s1, s2], new Date(2026, 9, 25, 9, 9), coupons, { y50: 5 }), voided: true }
+
+  it('売上合計は割引のあと、商品別は割引の前、割引券ごとに枚数と引いた金額を登録順に出す（取消は除く）', () => {
+    const summary = summarize([s1, s2, s3], [], coupons)
+    expect(s1.total).toBe(1200 - 120 - 100)
+    expect(summary.total).toBe(980 + 1150)
+    expect(summary.byProduct.map((r) => [r.qty, r.amount, r.share])).toEqual([[6, 2400, 1]])
+    expect(summary.byCoupon.map((r) => [r.name, r.qty, r.amount])).toEqual([['50円引き', 3, 150], ['1割引き', 1, 120]])
+  })
+
+  it('割引券を使った会計がなければ、割引券の集計は空', () => {
+    expect(summarize([mustCreateSale(items, null, [])], []).byCoupon).toEqual([])
+  })
+
+  it('CSV では、割引券を明細のあとに 1 行で出し、単価と小計をマイナスにする', () => {
+    const rows = salesToCsv([s1]).slice(1).split('\r\n').slice(1, -1).map((r) => r.split(','))
+    expect(rows.map((r) => r.slice(3, 8))).toEqual([
+      ['焼きそば', '400', '3', '1200', '980'],
+      ['50円引き', '-50', '2', '-100', '980'],
+      ['1割引き', '-120', '1', '-120', '980'],
+    ])
   })
 })

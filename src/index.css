@@ -211,6 +211,7 @@ main { flex: 1; min-height: 0; }
 @media (max-width: 600px) {
   .tab:has(> .page) { padding: 16px 12px; }
   .page-title { font-size: 22px; margin-bottom: 12px; }
+  .section-title { margin: 20px 0 10px; font-size: 18px; }
 }
 
 /* ほかの人の会計があるときは、番号に名前を付けるので広げる（N-13） */
@@ -259,6 +260,8 @@ main { flex: 1; min-height: 0; }
 .card .label { color: var(--muted); font-size: 14px; font-weight: 700; }
 .card .value { font-size: 44px; line-height: 1.2; font-weight: 800; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
 /* 表は枠で包んで角を丸める（table の枠は角が丸まらないため） */
+/* 集計の割引券の表の見出し（docs/design/dayresi.pen の K-05） */
+.section-title { margin: 28px 0 12px; font-size: 20px; font-weight: 800; }
 .table-box { background: var(--surface); border: var(--stroke) solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td { padding: 0 24px; height: 52px; border-bottom: 1px solid var(--hair); text-align: left; font-size: 16px; }
@@ -297,6 +300,12 @@ main { flex: 1; min-height: 0; }
   .table td.share:has(.share-none) { display: none; }
   .table tbody tr:has(.share-none) { grid-template-areas: "name qty amount"; }
   .table td.empty-cell { grid-column: 1 / -1; padding: 12px 0; }
+  /* 割引券の表は「割引券・枚数・引いた金額」の 3 列で、割合の横棒がない */
+  .coupon-table tbody tr { grid-template-areas: "name qty amount"; }
+  .coupon-table td:nth-child(2) { grid-area: qty; font-size: 14px; color: var(--muted); }
+  .coupon-table td:nth-child(2)::before { content: "×"; }
+  .coupon-table td:nth-child(3) { grid-area: amount; font-size: 15px; color: var(--minus); }
+  .coupon-table td:nth-child(3)::before { content: none; }
   .share-bar { flex: 1 1 auto; height: 8px; }
   .share-num { width: 40px; text-align: right; font-size: 12px; }
 }
