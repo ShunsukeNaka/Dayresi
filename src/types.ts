@@ -11,24 +11,35 @@ export type Product = {
   price: number
 }
 
-/** 会計時点の商品名・価格を保持する（後で商品を編集・削除しても履歴は変わらない） */
+/**
+ * 会計の明細。会計した時点の商品名と価格も持つので、
+ * 履歴・集計・売上 CSV を会計のデータだけで作れる
+ */
 export type SaleItem = {
   productId: string
+  /** 会計した時点の商品名 */
   name: string
+  /** 会計した時点の税込価格（円）。マイナスもある（ADR 0011） */
   price: number
   qty: number
 }
 
+/** 確定した会計。支払方法は持たない（ADR 0018） */
 export type Sale = {
+  /** crypto.randomUUID() で振る */
   id: string
-  /** 1 から始まる会計番号 */
+  /** 会計番号。1 から連番で、今ある会計の最大値＋1。取り消しても番号を詰めない。全データ消去で 1 に戻る */
   no: number
-  /** ISO 8601 */
+  /** 会計した日時。ISO 8601 の文字列（例 2026-10-25T09:15:16.025Z）。表示は PC の時刻に直す */
   at: string
   items: SaleItem[]
+  /** 確定したときの合計（円）。明細から使うたびに計算し直さない */
   total: number
+  /** お預かり金額（円）。未入力で確定したときは合計と同じ（「ちょうど」） */
   paid: number
+  /** 確定したときのおつり（円）＝ paid − total */
   change: number
+  /** 取り消したか。取り消した会計は消さずに残し、集計からは除く（ADR 0012） */
   voided: boolean
 }
 

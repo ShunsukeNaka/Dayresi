@@ -23,8 +23,13 @@ describe('sales', () => {
     const first = createSale(items, 1000, [])
     expect(first).toMatchObject({ no: 1, total: 400, paid: 1000, change: 600, voided: false })
     expect(first).not.toHaveProperty('method')
+    expect(first.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
     const exact = createSale(items, 400, [first])
     expect(exact).toMatchObject({ no: 2, paid: 400, change: 0 })
+    // 取り消した会計も番号を持ち続けるので、番号を詰めない
+    expect(createSale(items, 400, [first, { ...exact, voided: true }]).no).toBe(3)
+    // 全データ消去で会計がなくなると 1 に戻る
+    expect(createSale(items, 400, []).no).toBe(1)
   })
 
   it('マイナス価格の商品を含めて合計し、合計が0円以上なら会計できる', () => {
