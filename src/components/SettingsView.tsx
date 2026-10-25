@@ -142,7 +142,7 @@ export function SettingsView({ data, dispatch }: Props) {
           <div className="data-actions">
             <div className="data-action">
               <p className="hint">売上明細を CSV ファイルに保存します。Excel でそのまま開けます。</p>
-              <ExportCsvButton sales={data.sales} />
+              <ExportCsvButton sales={data.sales} ownName={data.myName} />
             </div>
             <div className="data-action">
               <p className="hint">商品と売上をすべて消します。元には戻せません。</p>
