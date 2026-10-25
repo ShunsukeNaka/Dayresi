@@ -1,10 +1,11 @@
 import type { Product, Sale, SaleItem } from '../types'
 
+/** 合計。明細の「価格×数量」の和で、マイナス価格の商品も含める。明細が空なら 0 */
 export function itemsTotal(items: SaleItem[]): number {
   return items.reduce((sum, i) => sum + i.price * i.qty, 0)
 }
 
-/** 商品が1つ以上あり、合計が0円以上なら会計できる */
+/** 商品が1つ以上あり、合計が0円以上なら会計できる。0円ちょうどは会計でき、0円未満は確定できない（ADR 0011） */
 export function canCheckout(items: SaleItem[]): boolean {
   return items.length > 0 && itemsTotal(items) >= 0
 }

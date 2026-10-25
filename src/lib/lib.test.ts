@@ -88,6 +88,16 @@ describe('sales', () => {
     expect(canCheckout([])).toBe(false)
   })
 
+  it('空の明細の合計は0で、合計0円ちょうどは会計でき、0円未満はできない', () => {
+    expect(itemsTotal([])).toBe(0)
+    const zero = [{ productId: 'b', name: 'ラムネ', price: 150, qty: 1 }, { productId: 'd', name: '割引', price: -50, qty: 3 }]
+    expect(itemsTotal(zero)).toBe(0)
+    expect(canCheckout(zero)).toBe(true)
+    const minus = [{ productId: 'b', name: 'ラムネ', price: 150, qty: 1 }, { productId: 'd', name: '割引', price: -50, qty: 4 }]
+    expect(itemsTotal(minus)).toBe(-50)
+    expect(canCheckout(minus)).toBe(false)
+  })
+
   it('取消済みを除いて集計し、削除済み商品は末尾に置く', () => {
     const s1 = createSale([{ productId: 'x', name: '削除済み', price: 100, qty: 1 }, ...cartItems({ b: 1 }, products)], 250, [])
     const s2 = createSale(cartItems({ a: 2, b: 1 }, products), 950, [s1])
