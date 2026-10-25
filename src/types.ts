@@ -43,6 +43,10 @@ export type Sale = {
   voided: boolean
 }
 
+/**
+ * 保存するデータ。その PC のブラウザの localStorage（キー dayresi:v2）にだけ保存し、サーバーには送らない
+ * 中身は商品と会計だけで、カートは保存しない（#52）
+ */
 export type AppData = {
   products: Product[]
   sales: Sale[]

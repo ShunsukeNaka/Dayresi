@@ -1,7 +1,11 @@
 import type { AppData, Product, Sale } from '../types'
 import { isValidName, isValidPrice } from './format'
 
-const KEY = 'dayresi:v1'
+/**
+ * 保存先のキー。形式を変えたらキー名のバージョンを上げる
+ * 作り直す前の公開版が使っていた dayresi:v1 は読まず、消さずに残す（ADR 0025）
+ */
+const KEY = 'dayresi:v2'
 
 export const emptyData = (): AppData => ({ products: [], sales: [] })
 
