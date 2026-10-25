@@ -1,11 +1,11 @@
 # Dayresi 開発ルール
 
-アプリの概要と仕様は [SPEC.md](SPEC.md)、MVP の目的とやること・やらないことの理由は [docs/mvp-design-doc.md](docs/mvp-design-doc.md)、開発コマンドは [README.md](README.md) を参照。
+アプリの概要と仕様は [SPEC.md](SPEC.md)（MVP）と [docs/spec-next.md](docs/spec-next.md)（MVP の次の段階）、MVP の目的とやること・やらないことの理由は [docs/mvp-design-doc.md](docs/mvp-design-doc.md)、開発コマンドは [README.md](README.md) を参照。
 
 ## 仕様
 
-- 仕様の変更・追加は、実装する前に SPEC.md を更新して合意をとる
-- SPEC.md の「必ず守ること」と「MVP で扱わないもの」に反する実装はしない
+- 仕様の変更・追加は、実装する前に SPEC.md（次の段階のものは docs/spec-next.md）を更新して合意をとる
+- SPEC.md の「必ず守ること」と「MVP で扱わないもの」に反する実装はしない。次の段階の実装では、「MVP で扱わないもの」の代わりに docs/spec-next.md の「次の段階でも扱わないもの」に従う
 
 ## Issue 駆動
 
