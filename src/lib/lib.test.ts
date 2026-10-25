@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import type { Product, Sale } from '../types'
-import { canCheckout, createSale, itemsTotal, summarize, voidSale } from './sales'
+import { canCheckout, canConfirmSale, createSale, itemsTotal, summarize, voidSale } from './sales'
 import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesCsvFileName, salesToCsv } from './csv'
@@ -361,13 +361,38 @@ describe('products', () => {
 })
 
 describe('reducer', () => {
-  it('商品の追加と会計の取消ができる', () => {
-    let state = reducer({ products, sales: [] }, { type: 'addProduct', name: '割引', price: -50 })
+  const empty = { products, sales: [] }
+
+  it('商品を登録し、ルールに合わない商品では状態を変えない', () => {
+    const state = reducer(empty, { type: 'addProduct', name: '割引', price: -50 })
     expect(state.products.map((p) => p.name)).toEqual(['焼きそば', 'ラムネ', '割引'])
-    const sale = mustCreateSale(cartItems({ a: 1 }, products), 400, [])
-    state = reducer(state, { type: 'recordSale', sale })
-    state = reducer(state, { type: 'voidSale', id: sale.id })
+    expect(reducer(empty, { type: 'addProduct', name: '　', price: 100 })).toBe(empty)
+  })
+
+  it('会計を確定し、1 から番号を振る', () => {
+    let state = reducer(empty, { type: 'checkout', items: cartItems({ a: 1 }, products), paid: 1000 })
+    state = reducer(state, { type: 'checkout', items: cartItems({ b: 2 }, products), paid: null })
+    expect(state.sales.map((s) => [s.no, s.total, s.paid, s.change])).toEqual([[1, 400, 1000, 600], [2, 300, 300, 0]])
+  })
+
+  it('確定できない会計では状態を変えない', () => {
+    expect(reducer(empty, { type: 'checkout', items: [], paid: null })).toBe(empty)
+    expect(reducer(empty, { type: 'checkout', items: cartItems({ a: 1 }, products), paid: 100 })).toBe(empty)
+    expect(canConfirmSale(cartItems({ a: 1 }, products), 100)).toBe(false)
+    expect(canConfirmSale(cartItems({ a: 1 }, products), null)).toBe(true)
+  })
+
+  it('会計を取り消し、取消済みやない ID では状態を変えない', () => {
+    let state = reducer(empty, { type: 'checkout', items: cartItems({ a: 1 }, products), paid: null })
+    state = reducer(state, { type: 'voidSale', id: state.sales[0].id })
     expect(state.sales[0].voided).toBe(true)
+    expect(reducer(state, { type: 'voidSale', id: state.sales[0].id })).toBe(state)
+    expect(reducer(state, { type: 'voidSale', id: 'none' })).toBe(state)
+  })
+
+  it('全データ消去で商品と会計がすべて消える', () => {
+    const state = reducer(empty, { type: 'checkout', items: cartItems({ a: 1 }, products), paid: null })
+    expect(reducer(state, { type: 'resetAll' })).toEqual({ products: [], sales: [] })
   })
 })
 

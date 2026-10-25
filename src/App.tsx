@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import type { Cart } from './types'
 import { useAppData } from './state'
-import { canCheckout, createSale, itemsTotal } from './lib/sales'
+import { canCheckout, canConfirmSale, itemsTotal } from './lib/sales'
 import { cartItems, changeQty as changeCartQty, clearCart } from './lib/cart'
 import { RegisterView } from './components/RegisterView'
 import { CheckoutDialog } from './components/CheckoutDialog'
@@ -37,9 +37,9 @@ export default function App() {
   }
 
   const confirmCheckout = (paid: number | null) => {
-    const sale = createSale(items, paid, data.sales)
-    if (!sale) return
-    dispatch({ type: 'recordSale', sale })
+    // 確定できる会計だけを渡すので、reducer で必ず記録される
+    if (!canConfirmSale(items, paid)) return
+    dispatch({ type: 'checkout', items, paid })
     setCart(clearCart())
     setCheckoutOpen(false)
   }
