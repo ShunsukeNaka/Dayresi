@@ -1,15 +1,15 @@
 import { useEffect, useReducer, useRef } from 'react'
-import type { SaleItem, Store } from './types'
+import type { Product, SaleItem, Store } from './types'
 import { addProduct } from './lib/products'
 import { loadStore, saveStore } from './lib/storage'
-import { addRegister, createRegister, deleteRegister, switchRegister, updateCurrent } from './lib/registers'
+import { addRegister, createRegister, deleteRegister, importProducts, switchRegister, updateCurrent } from './lib/registers'
 import { isValidName } from './lib/format'
 import { createSale, voidSale } from './lib/sales'
 
 /**
  * 商品と会計を変える操作。画面はこれを通してだけデータを変える（カートは画面の state で持ち、ここには入れない）
  * どの操作も、今使っているレジに対して行う
- * - addProduct：商品を末尾に登録する。名前か価格がルールに合わなければ何もしない
+ * - addProduct：商品を末尾に登録する。名前か価格がルールに合わなければ何もしない。会計する人のレジでは、配られた商品を編集できないので何もしない
  * - checkout：明細とお預かり（未入力は null で「ちょうど」）から会計を確定する。確定できなければ何もしない
  * - voidSale：会計を取り消す（消さずに取消済みにする）。取消済みやない ID なら何もしない
  * - resetAll：全データ消去。今のレジの商品と会計をすべて消す（ほかのレジは残す）
@@ -17,6 +17,7 @@ import { createSale, voidSale } from './lib/sales'
  * - createRegister：自分が代表者になる新しいレジを作り、切り替える。レジの名前か自分の名前がルールに合わなければ何もしない
  * - deleteRegister：レジを削除する。最後の 1 つを消したらマイレジを自動で作る
  * - setMyName：今のレジの自分の名前を変える。ルールに合わなければ何もしない
+ * - importProducts：配られた商品を取り込む（新しく足すときは自分の名前がルールに合わなければ何もしない）
  */
 export type Action =
   | { type: 'addProduct'; name: string; price: number }
@@ -27,6 +28,7 @@ export type Action =
   | { type: 'createRegister'; name: string; myName: string }
   | { type: 'deleteRegister'; id: string }
   | { type: 'setMyName'; name: string }
+  | { type: 'importProducts'; share: { storeId: string; name: string; products: Product[] }; myName: string }
 
 /** 何も変わらない操作では同じ状態を返し、保存し直さない */
 export function reducer(state: Store, action: Action): Store {
@@ -38,10 +40,16 @@ export function reducer(state: Store, action: Action): Store {
       return addRegister(state, createRegister({ name: action.name, myName: action.myName }))
     case 'deleteRegister':
       return deleteRegister(state, action.id)
+    case 'importProducts': {
+      const existing = state.registers.some((r) => r.storeId === action.share.storeId)
+      if (!existing && !isValidName(action.myName)) return state
+      return importProducts(state, action.share, action.myName).store
+    }
   }
   return updateCurrent(state, (register) => {
     switch (action.type) {
       case 'addProduct': {
+        if (register.role === 'member') return register
         const products = addProduct(register.products, action.name, action.price)
         return products === register.products ? register : { ...register, products }
       }

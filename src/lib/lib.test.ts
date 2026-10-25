@@ -5,7 +5,7 @@ import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatPercent, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesCsvFileName, salesToCsv } from './csv'
 import { loadStore, parseData, parseStore, saveStore } from './storage'
-import { DEFAULT_REGISTER_NAME, addRegister, createRegister, currentRegister, deleteRegister, storeWith, switchRegister, updateCurrent } from './registers'
+import { DEFAULT_REGISTER_NAME, addRegister, createRegister, currentRegister, deleteRegister, findStoreRegister, importProducts, storeWith, switchRegister, updateCurrent } from './registers'
 import { addProduct } from './products'
 import { reducer } from '../state'
 import { decodeShare, encodeProductsShare, shareUrl } from './share'
@@ -471,6 +471,42 @@ describe('registers', () => {
     expect(currentRegister(next).id).not.toBe(a.id)
   })
 
+  it('配られた商品は、会計する人のレジとして足して切り替える', () => {
+    const store = storeWith({ products })
+    const { store: next, result } = importProducts(store, { storeId: 'store-1', name: '研究室の模擬店', products }, '田中')
+    expect(result).toBe('added')
+    expect(currentRegister(next)).toMatchObject({ name: '研究室の模擬店', role: 'member', myName: '田中', storeId: 'store-1', products, sales: [] })
+    expect(next.registers).toHaveLength(2)
+    expect(next.registers[0]).toBe(store.registers[0])
+    expect(findStoreRegister(next, 'store-1')).toBe(currentRegister(next))
+  })
+
+  it('何も入っていないマイレジしかないときは、取り込んだレジに置き換える', () => {
+    const { store: next } = importProducts(storeWith(), { storeId: 'store-1', name: '研究室の模擬店', products }, '田中')
+    expect(next.registers).toHaveLength(1)
+    expect(currentRegister(next)).toMatchObject({ name: '研究室の模擬店', role: 'member' })
+    const named = updateCurrent(storeWith(), (r) => ({ ...r, myName: '山田' }))
+    expect(importProducts(named, { storeId: 'store-1', name: '店', products }, '田中').store.registers).toHaveLength(2)
+  })
+
+  it('同じ店の会計する人のレジがあれば、商品と名前を置き換えて切り替え、会計と自分の名前は残す', () => {
+    const sale = mustCreateSale(cartItems({ a: 1 }, products), 400, [])
+    const member = createRegister({ name: '旧名', role: 'member', myName: '田中', storeId: 'store-1', products: [products[0]], sales: [sale] })
+    const store: Store = { registers: [storeWith().registers[0], member], currentId: 'x' }
+    const { store: next, result } = importProducts(store, { storeId: 'store-1', name: '研究室の模擬店', products }, '別名')
+    expect(result).toBe('updated')
+    expect(next.registers).toHaveLength(2)
+    expect(currentRegister(next)).toMatchObject({ id: member.id, name: '研究室の模擬店', myName: '田中', products, sales: [sale] })
+  })
+
+  it('同じ店の代表者のレジ（自分で配ったもの）には取り込まない', () => {
+    const owner = createRegister({ name: '研究室の模擬店', storeId: 'store-1', products: [products[0]] })
+    const store: Store = { registers: [owner], currentId: owner.id }
+    const { store: next, result } = importProducts(store, { storeId: 'store-1', name: '別の名前', products }, '田中')
+    expect(result).toBe('own')
+    expect(next).toBe(store)
+  })
+
   it('currentId がどのレジとも合わないときは、最初のレジを今のレジにする', () => {
     const a = createRegister({ name: 'A' })
     expect(currentRegister({ registers: [a], currentId: 'none' })).toBe(a)
@@ -564,6 +600,21 @@ describe('reducer', () => {
     expect(cur(state).myName).toBe('山田')
     expect(reducer(state, { type: 'setMyName', name: '山田' })).toBe(state)
     expect(reducer(state, { type: 'setMyName', name: '　' })).toBe(state)
+  })
+
+  it('会計する人のレジでは、商品を登録できない', () => {
+    const member = createRegister({ name: '研究室の模擬店', role: 'member', myName: '田中', products })
+    const state: Store = { registers: [member], currentId: member.id }
+    expect(reducer(state, { type: 'addProduct', name: '割引', price: -50 })).toBe(state)
+  })
+
+  it('配られた商品を取り込み、新しく足すときは自分の名前が要る', () => {
+    const share = { storeId: 'store-1', name: '研究室の模擬店', products }
+    expect(reducer(empty, { type: 'importProducts', share, myName: '' })).toBe(empty)
+    const added = reducer(empty, { type: 'importProducts', share, myName: '田中' })
+    expect(cur(added)).toMatchObject({ role: 'member', myName: '田中' })
+    const updated = reducer(added, { type: 'importProducts', share: { ...share, products: [products[0]] }, myName: '' })
+    expect(cur(updated).products).toEqual([products[0]])
   })
 
   it('操作は今のレジにだけ働く', () => {

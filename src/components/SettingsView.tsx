@@ -49,14 +49,21 @@ export function SettingsView({ data, dispatch }: Props) {
     if (confirm(`商品と売上をすべて消去しますか？${warning}`)) dispatch({ type: 'resetAll' })
   }
 
+  // 会計する人のレジでは、配られた商品を編集できない（spec-next.md「会計する人のレジ」、docs/design/dayresi.pen の N-09）
+  const isMember = data.role === 'member'
+
   return (
     <section className="tab">
       <div className="container page">
         <div className="settings-section">
-          <h2 className="page-title">商品</h2>
-          <p className="hint">価格は税込で入力してください。割引券は「割引」「-50」のように、マイナスの価格の商品として登録できます。</p>
+          <h2 className="page-title">{isMember ? '配られた商品' : '商品'}</h2>
+          {isMember ? (
+            <p className="hint">代表者が配った商品です。このレジでは編集できません。商品が変わったときは、代表者に配り直してもらいます。</p>
+          ) : (
+            <p className="hint">価格は税込で入力してください。割引券は「割引」「-50」のように、マイナスの価格の商品として登録できます。</p>
+          )}
           {/* 登録フォームを一覧の上に置き、続けて登録しやすくする */}
-          <form className="add-product" onSubmit={addProduct}>
+          {!isMember && <form className="add-product" onSubmit={addProduct}>
             <label className="field">
               <span className="field-label">商品名</span>
               <input
@@ -77,7 +84,7 @@ export function SettingsView({ data, dispatch }: Props) {
               />
             </label>
             <button className="primary" type="submit">追加</button>
-          </form>
+          </form>}
           {addError && <p className="error">{addError}</p>}
           {/* 登録した商品は、登録順に番号・商品名・価格を文字だけで並べる。編集・削除・並べ替えはしない */}
           {data.products.length > 0 && (
@@ -106,7 +113,7 @@ export function SettingsView({ data, dispatch }: Props) {
           </div>
         )}
 
-        <div className="settings-section">
+        {!isMember && <div className="settings-section">
           <h2 className="page-title">データ</h2>
           {/* 売上 CSV の保存（会計がないときは押せない）と全データ消去（商品も会計もないときは押せない）。消す前に確認する */}
           <div className="data-actions">
@@ -121,7 +128,7 @@ export function SettingsView({ data, dispatch }: Props) {
               </button>
             </div>
           </div>
-        </div>
+        </div>}
       </div>
 
       {shareStep === 'name' && (
