@@ -35,7 +35,7 @@ export default function App() {
   // 開いたリンク（QR）の # 以降にあった、配られた商品
   const [incoming, setIncoming] = useState<ProductsShare | null>(null)
   // 開いたリンク（QR）の会計を取り込んだ結果
-  const [salesResult, setSalesResult] = useState<{ by: string; registerName: string; result: ImportSalesResult } | null>(null)
+  const [salesResult, setSalesResult] = useState<{ by: string; result: ImportSalesResult } | null>(null)
   // リンクを読むときに、そのときの保存データを使う
   const storeRef = useRef(store)
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function App() {
             setCart(clearCart())
             setCheckoutOpen(false)
           }
-          setSalesResult({ by: share.by, registerName: findStoreRegister(before, share.storeId)?.name ?? '', result })
+          setSalesResult({ by: share.by, result })
         }
       })
     }
@@ -176,7 +176,6 @@ export default function App() {
       {salesResult && (
         <ImportSalesResultDialog
           by={salesResult.by}
-          registerName={salesResult.registerName}
           result={salesResult.result}
           onClose={() => setSalesResult(null)}
         />

@@ -114,14 +114,12 @@ export function RegisterDialog({ store, dispatch, onRegisterChange, onCreated, o
             <button className="choice" onClick={() => setView('create')}>
               <span className="choice-icon" aria-hidden="true">＋</span>
               <span className="choice-title">新しいレジを作る</span>
-              <span className="hint">自分が代表者になります。商品を登録して、会計する人に配ります。</span>
             </button>
             <button className="choice" onClick={() => setView('import')}>
               <span className="choice-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="currentColor" /></svg>
               </span>
               <span className="choice-title">データを取り込んで追加</span>
-              <span className="hint">代表者から配られた商品で会計します。配られた QR やリンクから追加します。</span>
             </button>
           </div>
           <div className="modal-actions only-wide">

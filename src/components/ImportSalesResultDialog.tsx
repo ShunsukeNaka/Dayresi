@@ -4,14 +4,12 @@ import type { ImportSalesResult } from '../lib/registers'
 type Props = {
   /** 送った人（会計した人）の名前 */
   by: string
-  /** 取り込んだ代表者のレジの名前 */
-  registerName: string
   result: ImportSalesResult
   onClose: () => void
 }
 
 /** 会計を取り込んだ結果（docs/design/dayresi.pen の N-12・P-10、spec-next.md「会計を送る」） */
-export function ImportSalesResultDialog({ by, registerName, result, onClose }: Props) {
+export function ImportSalesResultDialog({ by, result, onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -48,7 +46,6 @@ export function ImportSalesResultDialog({ by, registerName, result, onClose }: P
               <tr><th>もう取り込んであった会計</th><td>{result.counts.existing} 件</td></tr>
             </tbody>
           </table>
-          <p className="hint result-note">{registerName}の売上に合算しました。集計と履歴で確かめられます。</p>
         </>
       ) : (
         <p className="modal-lead">

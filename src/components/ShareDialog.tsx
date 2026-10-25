@@ -8,8 +8,6 @@ type Props = {
   heading: string
   /** 数など（例：商品 6 つ） */
   sub: string
-  /** QR の読み方の説明 */
-  hint: string
   /** 渡すリンク。作っている途中は null */
   url: string | null
   onClose: () => void
@@ -20,7 +18,7 @@ type Props = {
  * リンクは共有機能（navigator.share）で送る。共有機能がない PC では、リンクをコピーする
  * QR に入らないほど大きいときは、QR を出さずにリンクで送るよう案内する
  */
-export function ShareDialog({ title, heading, sub, hint, url, onClose }: Props) {
+export function ShareDialog({ title, heading, sub, url, onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [copied, setCopied] = useState(false)
   const modules = useMemo(() => (url ? qrModules(url) : null), [url])
@@ -71,11 +69,7 @@ export function ShareDialog({ title, heading, sub, hint, url, onClose }: Props) 
             <div className="share-heading">{heading}</div>
             <div className="share-sub">{sub}</div>
           </div>
-          {tooLarge ? (
-            <p className="share-warning">QR コードに入りきりません。リンクを LINE などで送ってください。</p>
-          ) : (
-            <p className="hint">{hint}</p>
-          )}
+          {tooLarge && <p className="share-warning">QR コードに入りきりません。リンクを LINE などで送ってください。</p>}
           <button className={tooLarge ? 'primary share-link' : 'secondary share-link'} onClick={sendLink} disabled={!url}>
             リンクを送る
           </button>
