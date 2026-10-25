@@ -13,8 +13,9 @@ import { RegisterDialog } from './components/RegisterDialog'
 import { ImportProductsDialog } from './components/ImportProductsDialog'
 import { ImportSalesResultDialog } from './components/ImportSalesResultDialog'
 import { decodeShare, type ProductsShare } from './lib/share'
+import { TabIcon } from './components/TabIcon'
 
-/** 画面はレジ・履歴・集計・設定の 4 つで、上のタブで切り替える */
+/** 画面はレジ・履歴・集計・設定の 4 つで、タブで切り替える。タブは PC では上部バーに、スマホでは画面の下に出す */
 type Tab = 'register' | 'history' | 'summary' | 'settings'
 
 const TABS: { id: Tab; label: string }[] = [
@@ -114,7 +115,8 @@ export default function App() {
               className={tab === t.id ? 'active' : ''}
               onClick={() => setTab(t.id)}
             >
-              {t.label}
+              <TabIcon name={t.id} />
+              <span className="tab-label">{t.label}</span>
             </button>
           ))}
         </nav>
