@@ -15,6 +15,10 @@ export function SettingsView({ data, dispatch }: Props) {
   const [addError, setAddError] = useState('')
   const nameInputRef = useRef<HTMLInputElement>(null)
 
+  /**
+   * 商品を登録する。入力が正しくなければ理由を出して登録しない（商品名が長すぎるときは入力欄の maxLength で止める）
+   * 登録したら入力欄を空にし、続けて次の商品を入力できるよう商品名の欄に戻る
+   */
   const addProduct = (e: FormEvent) => {
     e.preventDefault()
     const price = parsePrice(newPrice)
@@ -38,6 +42,7 @@ export function SettingsView({ data, dispatch }: Props) {
         <div className="panel">
           <h2>商品</h2>
           <p className="hint">価格は税込で入力してください。割引券は「割引」「-50」のように、マイナスの価格の商品として登録できます。</p>
+          {/* 登録した商品は、登録順に商品名と価格を文字だけで並べる。編集・削除・並べ替えはしない */}
           {data.products.length > 0 && (
             <ul className="product-list">
               {data.products.map((p) => (
