@@ -1,7 +1,13 @@
+/**
+ * 商品。登録するのは商品名と税込価格だけ（SPEC「商品」）
+ * 並び順は配列の順（登録した順）。編集・削除・並べ替えはしない
+ */
 export type Product = {
+  /** crypto.randomUUID() で振る */
   id: string
+  /** 入力したまま保存する（前後の空白も残す）。空白だけは不可。最大 MAX_NAME_LENGTH 文字。同じ名前も登録できる */
   name: string
-  /** 税込価格（円） */
+  /** 税込価格（円）。整数で MIN_PRICE〜MAX_PRICE。割引券の代わりにマイナスにもできる（ADR 0011） */
   price: number
 }
 
