@@ -317,6 +317,20 @@ main { flex: 1; min-height: 0; }
   .data-action + .data-action { border-left: 0; border-top: var(--stroke) solid var(--line); }
 }
 
+/* スマホの設定（docs/design/dayresi.pen の M-05・P-06）。登録フォームは「商品名」の下に「価格と追加」を並べ、区画は縦に並べる */
+@media (max-width: 600px) {
+  .settings-section + .settings-section { margin-top: 24px; }
+  .add-product { grid-template-columns: 1fr 110px; gap: 10px; padding: 12px; }
+  .add-product .field:first-child { grid-column: 1 / -1; }
+  .add-product button { grid-column: auto; height: 48px; font-size: 17px; }
+  .add-product input { height: 48px; font-size: 15px; }
+  .product-list li { padding: 6px 14px; gap: 12px; grid-template-columns: 18px 1fr auto; }
+  .product-list .name, .product-list .price { font-size: 15px; }
+  .data-action { padding: 14px; }
+  .data-action button { width: 100%; }
+  .share-section, .send-section { padding: 14px; gap: 10px; }
+}
+
 /* 会計ダイアログ（docs/design/dayresi.pen の A-02） */
 .checkout {
   border: var(--stroke) solid var(--line); border-radius: 12px; padding: 32px; width: min(880px, calc(100vw - 24px));
