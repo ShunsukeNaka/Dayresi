@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useRef } from 'react'
 import type { Product, Sale, SaleItem, Store } from './types'
+import type { CartCoupons } from './lib/coupons'
 import { addProduct } from './lib/products'
 import { loadStore, saveStore } from './lib/storage'
 import { addRegister, createRegister, deleteRegister, importProducts, importSales, switchRegister, updateCurrent } from './lib/registers'
@@ -10,7 +11,7 @@ import { createSale, voidSale } from './lib/sales'
  * 商品と会計を変える操作。画面はこれを通してだけデータを変える（カートは画面の state で持ち、ここには入れない）
  * どの操作も、今使っているレジに対して行う
  * - addProduct：商品を末尾に登録する。名前か価格がルールに合わなければ何もしない。会計する人のレジでは、配られた商品を編集できないので何もしない
- * - checkout：明細とお預かり（未入力は null で「ちょうど」）から会計を確定する。確定できなければ何もしない
+ * - checkout：明細とお預かり（未入力は null で「ちょうど」）と、選んだ割引券から会計を確定する。確定できなければ何もしない
  * - voidSale：会計を取り消す（消さずに取消済みにする）。取消済みやない ID なら何もしない
  * - resetAll：全データ消去。今のレジの商品・割引券・会計をすべて消す（ほかのレジは残す）
  * - switchRegister：今使うレジを切り替える
@@ -22,7 +23,7 @@ import { createSale, voidSale } from './lib/sales'
  */
 export type Action =
   | { type: 'addProduct'; name: string; price: number }
-  | { type: 'checkout'; items: SaleItem[]; paid: number | null }
+  | { type: 'checkout'; items: SaleItem[]; paid: number | null; coupons?: CartCoupons }
   | { type: 'voidSale'; id: string }
   | { type: 'resetAll' }
   | { type: 'switchRegister'; id: string }
@@ -58,7 +59,7 @@ export function reducer(state: Store, action: Action): Store {
         return products === register.products ? register : { ...register, products }
       }
       case 'checkout': {
-        const sale = createSale(action.items, action.paid, register.sales)
+        const sale = createSale(action.items, action.paid, register.sales, new Date(), register.coupons, action.coupons ?? {})
         return sale ? { ...register, sales: [...register.sales, sale] } : register
       }
       case 'voidSale': {
