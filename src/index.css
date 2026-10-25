@@ -152,22 +152,38 @@ main { flex: 1; min-height: 0; }
 .add-product { display: grid; grid-template-columns: 1fr 140px auto; gap: 8px; align-items: center; }
 .add-product button { min-width: 154px; }
 
-/* 会計ダイアログ */
+/* 会計ダイアログ（docs/design/dayresi.pen の A-02） */
 .checkout {
-  border: 0; border-radius: 16px; padding: 20px; width: min(460px, calc(100vw - 24px));
+  border: var(--stroke) solid var(--line); border-radius: 12px; padding: 32px; width: min(880px, calc(100vw - 24px));
   background: var(--surface); color: var(--text);
 }
-.checkout::backdrop { background: rgba(0, 0, 0, .5); }
-.pay-rows { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0 0 16px; align-items: baseline; }
-.pay-rows dt { color: var(--muted); }
-.pay-rows dd { margin: 0; text-align: right; font-weight: 700; font-size: 1.6rem; font-variant-numeric: tabular-nums; }
-.pay-rows dd.placeholder { color: var(--muted); font-size: 1.2rem; }
-.pay-rows .change { color: var(--positive); font-size: 2.2rem; }
-.pay-rows .change.short { color: var(--danger); font-size: 1.6rem; }
-.quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6px; }
-.quick button { padding: 10px 4px; }
-.keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.keypad button { padding: 14px; font-size: 1.3rem; font-variant-numeric: tabular-nums; }
-.dialog-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 16px; }
-.dialog-actions button { padding: 16px; font-size: 1.15rem; }
+.checkout::backdrop { background: rgba(17, 17, 17, .65); }
+.checkout-title { font-size: 22px; font-weight: 800; margin: 0 0 24px; }
+.checkout-body { display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
+.pay-col { display: flex; flex-direction: column; gap: 10px; }
+.pay-rows { margin: 0; border: var(--stroke) solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.pay-row { padding: 16px 20px; border-bottom: 1px solid var(--hair); }
+.pay-row:last-child { border-bottom: 0; }
+/* 入力中のお預かりを目立たせる */
+.pay-row.paid { background: var(--accent-soft); box-shadow: inset 0 0 0 3px var(--accent); border-bottom: 0; }
+.pay-rows dt { font-size: 14px; font-weight: 700; color: var(--muted); }
+.pay-row.paid dt { color: var(--text); }
+/* 入力の状態で字の大きさが変わっても、ダイアログの高さが揺れないよう行の高さをそろえる */
+.pay-rows dd { margin: 4px 0 0; min-height: 44px; display: flex; align-items: flex-end; justify-content: flex-end; line-height: 1.2; font-weight: 800; font-size: 36px; letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
+.pay-rows dd.placeholder { color: var(--muted); font-size: 24px; }
+.pay-rows .change { min-height: 63px; color: var(--positive); font-size: 52px; }
+.pay-rows .change.short { color: var(--danger); font-size: 32px; }
+.pay-hint { font-size: 13px; color: var(--muted); margin: 0; }
+.cash-pad { display: flex; flex-direction: column; gap: 10px; }
+.quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.quick button { height: 52px; padding: 0 4px; font-size: 17px; }
+.keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.keypad button { height: 60px; padding: 0; font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.dialog-actions { display: grid; grid-template-columns: 200px 1fr; gap: 12px; margin-top: 24px; }
+.dialog-actions button { height: 64px; font-size: 17px; }
+.dialog-actions button.primary { font-size: 22px; }
 
+@media (max-width: 860px) {
+  .checkout { padding: 20px; }
+  .checkout-body { grid-template-columns: 1fr; }
+}
