@@ -5,22 +5,25 @@ export const MIN_PRICE = -MAX_PRICE
 /** 商品名の最大文字数。前後の空白も数える */
 export const MAX_NAME_LENGTH = 30
 
+/** 金額の表示。¥1,000、マイナスは記号（U+2212）を ¥ の前に置いて −¥50 */
 export function formatYen(n: number): string {
   return (n < 0 ? '−¥' : '¥') + Math.abs(n).toLocaleString('ja-JP')
 }
 
+/** 履歴の時刻。PC の時刻で 9:05（時は 0 を付けず、分は 2 桁） */
 export function formatTime(iso: string): string {
   const d = new Date(iso)
   return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
+/** 売上 CSV の日時。PC の時刻で 2026-10-25 09:05:30 */
 export function formatDateTime(iso: string): string {
   const d = new Date(iso)
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
 }
 
-/** ファイル名用の YYYYMMDD-HHmm */
+/** ファイル名用の日時。PC の時刻で 20261025-1530（YYYYMMDD-HHmm） */
 export function fileStamp(date = new Date()): string {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}`

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Product, Sale } from '../types'
 import { canCheckout, cartItems, createSale, itemsTotal, summarize } from './sales'
-import { MAX_NAME_LENGTH, formatYen, isValidName, isValidPrice, parsePrice } from './format'
+import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesToCsv } from './csv'
 import { parseData } from './storage'
 import { reducer } from '../state'
@@ -151,5 +151,26 @@ describe('format', () => {
     expect(formatYen(1200)).toBe('¥1,200')
     expect(formatYen(-50)).toBe('−¥50')
     expect(formatYen(0)).toBe('¥0')
+  })
+
+  it('大きな金額は 3 桁ごとに区切り、マイナスも区切る', () => {
+    expect(formatYen(9_999_999)).toBe('¥9,999,999')
+    expect(formatYen(-1_234_567)).toBe('−¥1,234,567')
+  })
+
+  it('履歴の時刻は、時に 0 を付けず分を 2 桁にする', () => {
+    expect(formatTime(new Date(2026, 9, 25, 9, 5, 30).toISOString())).toBe('9:05')
+    expect(formatTime(new Date(2026, 9, 25, 15, 30, 0).toISOString())).toBe('15:30')
+    expect(formatTime(new Date(2026, 9, 25, 0, 0, 0).toISOString())).toBe('0:00')
+  })
+
+  it('CSV の日時は、月日・時分秒を 2 桁にする', () => {
+    expect(formatDateTime(new Date(2026, 9, 25, 9, 5, 30).toISOString())).toBe('2026-10-25 09:05:30')
+    expect(formatDateTime(new Date(2026, 0, 3, 14, 7, 8).toISOString())).toBe('2026-01-03 14:07:08')
+  })
+
+  it('ファイル名用の日時は YYYYMMDD-HHmm にする', () => {
+    expect(fileStamp(new Date(2026, 9, 25, 15, 30, 45))).toBe('20261025-1530')
+    expect(fileStamp(new Date(2026, 0, 3, 9, 5, 0))).toBe('20260103-0905')
   })
 })
