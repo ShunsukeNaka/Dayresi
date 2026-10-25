@@ -11,7 +11,6 @@ MVP を考えたときの内容（目的、届けたい人、困りごと、や�
 - マップに合わせて SPEC を見直し、MVP を定義し直した（#8・#9、2026-10-18、[0011](decisions/0011-allow-negative-price.md)〜[0019](decisions/0019-school-festival-only.md)）
 - 定義し直した MVP を作り直すことにした（#14、2026-10-19、[0022](decisions/0022-rebuild-mvp.md)・[0024](decisions/0024-rebuild-layer-by-layer.md)・[0025](decisions/0025-rethink-data-formats.md)）
 - この Design Doc をまとめる中で、端末のあいだでデータを共有する機能（商品設定ファイルの書き出し・読み込み）を MVP から外した（#48、2026-10-23、[0027](decisions/0027-no-data-sharing-between-devices.md)）
-- この Design Doc に合わせて作り直しの Issue を立て直し、SPEC にない機能を今のコードから消した（#50、2026-10-25、[0031](decisions/0031-rebuild-issues-from-design-doc.md)）
 
 ## 背景
 
@@ -112,7 +111,6 @@ SPEC.md の「必ず守ること」。MVP でも、そのあとでも、これ�
 | カートの行ごとの削除 | MVP をメインターゲットに絞るため | [0016](decisions/0016-cart-clear-only.md) |
 | 経費の記録・利益の計算 | MVP をメインターゲットに絞るため | [0017](decisions/0017-no-expense-profit.md) |
 | 支払方法の区別 | MVP をメインターゲットに絞るため | [0018](decisions/0018-cash-only-payment.md) |
-| 商品の編集・削除・並べ替え（登録だけにする） | （ADR の理由の記入待ち） | [0031](decisions/0031-rebuild-issues-from-design-doc.md) |
 | 端末のあいだでのデータの共有（商品設定ファイルの書き出し・読み込みなど） | 初期段階では一人、一か所で使う想定でいるから | [0027](decisions/0027-no-data-sharing-between-devices.md) |
 | 同人誌即売会などでの利用 | ユーザージャーニーマップでターゲットに含めていない | [0019](decisions/0019-school-festival-only.md) |
 
@@ -137,7 +135,7 @@ SPEC.md は MVP の目標を書いたもので、プロダクト全体の最終�
 - SPEC の通りに実装され、GitHub Pages で公開されている
 - SPEC が、ユーザージャーニーマップに合わせて見直されている
 
-作り直し（#50〜#75）は 2026-10-25 に終えた。1つめを満たしているかは、最後に #76 で確かめる。2つめは満たしている。
+2026-10-23 の時点では、1つめを満たしていない。作り直し（#15〜#44）がまだ始まっておらず、公開版には SPEC から外した商品設定ファイルの書き出し・読み込みが残っている。満たしているかは、最後に #45 で確かめる。2つめは満たしている。
 
 ## 作り直しの進め方
 
@@ -145,13 +143,11 @@ SPEC.md は MVP の目標を書いたもので、プロダクト全体の最終�
 - データの形式 → ロジック → 画面の順に、今のコードを層ごとに置き換える。Issue ごとの PR で、公開版が今までどおり動く状態を保つ（[0024](decisions/0024-rebuild-layer-by-layer.md)）
 - データの形式は、今の形式で読めることを前提にせず考え直す（[0025](decisions/0025-rethink-data-formats.md)）
 - Issue はマイルストーン「MVP 作り直し」にある
-  - #50：SPEC にない機能を今のコードから消す
-  - #51〜#55：データの形式
-  - #56〜#66：ロジック
-  - #67〜#74：画面
-  - #75：PWA
-  - #76：SPEC の通りか確かめて公開する
-- SPEC にも Design Doc にもない機能は作らず、今のコードからも消す（[0031](decisions/0031-rebuild-issues-from-design-doc.md)）
+  - #15〜#20：データの形式
+  - #21〜#32：ロジック
+  - #33〜#43：画面
+  - #44：PWA
+  - #45：SPEC の通りか確かめて公開する
 
 ## MVP のあとで考えること
 
