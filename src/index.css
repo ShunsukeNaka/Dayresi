@@ -1,18 +1,28 @@
 /* 色はライトの 1 組だけ。ダークモードは作らない（SPEC「非機能」）。ボタンは大きく、シンプルにする */
 :root {
-  --bg: #f3f4f6;
+  /* 色・角・枠は docs/design/dayresi.pen の変数（テーマ style: A）に合わせる */
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-2: #f9fafb;
-  --text: #111827;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --primary: #2563eb;
-  --primary-text: #ffffff;
-  --danger: #dc2626;
-  --accent: #059669;
-  --topbar: #1f2937;
-  --topbar-text: #f9fafb;
-  --radius: 12px;
+  --subtle: #f6f6f6;
+  --ink: #111111;
+  --line: #1a1a1a;
+  --hair: #e2e2e2;
+  --text: #111111;
+  --muted: #555555;
+  --accent: #ff5a1f;
+  --accent-soft: #fff1ea;
+  /* オレンジの上の文字は黒。白だとコントラスト比が約 3.1:1 で足りない */
+  --on-accent: #111111;
+  --minus: #c2410c;
+  --danger: #d92d20;
+  --positive: #08703f;
+  --key: #f0f0f0;
+  --disabled-bg: #f0f0f0;
+  --disabled-text: #9a9a9a;
+  --bar-muted: #c8c8c8;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --stroke: 2px;
   /* 本文は PC にある日本語のフォント。金額は同梱した Inter で、日本語の文字は本文のフォントで出す */
   --font-ui: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, system-ui, sans-serif;
   --font-num: "Inter Variable", var(--font-ui);
@@ -34,22 +44,25 @@ body {
 #root { display: flex; flex-direction: column; height: 100dvh; }
 button, input { font: inherit; color: inherit; }
 button {
-  cursor: pointer; border: 0; border-radius: 10px; padding: 10px 16px;
-  background: var(--border); touch-action: manipulation;
+  cursor: pointer; border: 0; border-radius: var(--radius); padding: 10px 16px;
+  background: var(--key); touch-action: manipulation;
 }
-button:disabled { opacity: .4; cursor: not-allowed; }
-button:focus-visible, input:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
-button.primary { background: var(--primary); color: var(--primary-text); font-weight: 700; }
-button.secondary { background: var(--surface); border: 1px solid var(--border); }
-button.danger { background: var(--danger); color: #fff; }
-input { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px; width: 100%; min-width: 0; }
+button:disabled { background: var(--disabled-bg); color: var(--disabled-text); border-color: transparent; cursor: not-allowed; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button.primary { background: var(--accent); color: var(--on-accent); font-weight: 800; }
+button.secondary { background: var(--surface); border: var(--stroke) solid var(--line); font-weight: 700; }
+/* 取り消せない操作は、主な操作より目立たないよう赤い枠だけにする */
+button.danger { background: var(--surface); border: var(--stroke) solid var(--danger); color: var(--danger); font-weight: 700; }
+button.primary:disabled, button.secondary:disabled, button.danger:disabled { background: var(--disabled-bg); color: var(--disabled-text); border-color: transparent; }
+input { background: var(--surface); border: var(--stroke) solid var(--line); border-radius: var(--radius); padding: 12px 14px; width: 100%; min-width: 0; }
+input::placeholder { color: var(--disabled-text); }
 
 /* 上部バー */
-.topbar { background: var(--topbar); color: var(--topbar-text); padding: 8px 20px; display: flex; align-items: center; gap: 16px; }
-.topbar h1 { font-size: 1.1rem; margin: 0; flex: 1; }
+.topbar { background: var(--ink); color: #fff; height: 64px; padding: 0 24px; display: flex; align-items: center; gap: 16px; flex: none; }
+.topbar h1 { font-size: 22px; font-weight: 700; margin: 0; flex: 1; }
 .tabs { display: flex; gap: 4px; }
-.tabs button { background: transparent; color: var(--topbar-text); opacity: .7; padding: 8px 18px; }
-.tabs button.active { opacity: 1; background: rgba(255, 255, 255, .14); font-weight: 700; }
+.tabs button { background: transparent; color: var(--bar-muted); padding: 8px 20px; font-size: 15px; font-weight: 500; }
+.tabs button.active { background: var(--accent); color: var(--on-accent); font-weight: 700; }
 
 main { flex: 1; min-height: 0; }
 .tab { height: 100%; overflow: auto; padding: 16px 20px; }
@@ -65,25 +78,25 @@ main { flex: 1; min-height: 0; }
 .product-grid .empty { grid-column: 1 / -1; }
 .product-grid .empty button { margin-top: 8px; }
 .product-btn {
-  position: relative; min-height: 110px; background: var(--surface); border: 1px solid var(--border);
+  position: relative; min-height: 110px; background: var(--surface); border: 1px solid var(--hair);
   display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
   font-size: 1.1rem; text-align: center; word-break: break-word; padding: 14px 12px;
 }
-.product-btn:hover { border-color: var(--primary); }
+.product-btn:hover { border-color: var(--accent); }
 .product-btn:active { transform: scale(.97); }
 .product-btn .name { font-weight: 700; }
 .product-btn .price { color: var(--muted); }
 
-.cart { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); display: flex; flex-direction: column; min-height: 0; }
+.cart { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--radius); display: flex; flex-direction: column; min-height: 0; }
 .cart-list { list-style: none; margin: 0; padding: 8px 12px; flex: 1; overflow: auto; }
-.cart-list li { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.cart-list li { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--hair); }
 .cart-list li.cart-empty { display: block; color: var(--muted); text-align: center; border: 0; padding: 24px 0; }
 .cart-name { word-break: break-word; }
 .qty { display: flex; align-items: center; gap: 6px; }
 .qty button { width: 34px; height: 34px; padding: 0; font-size: 1.1rem; }
 .qty-num { min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
 .sub { min-width: 80px; text-align: right; font-variant-numeric: tabular-nums; }
-.cart-total { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px; border-top: 1px solid var(--border); font-size: 1.1rem; }
+.cart-total { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px; border-top: 1px solid var(--hair); font-size: 1.1rem; }
 .cart-total strong { font-size: 2rem; font-variant-numeric: tabular-nums; }
 .cart-warning { color: var(--danger); font-size: .9rem; margin: 0; padding: 0 16px 10px; text-align: right; }
 .cart-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; padding: 0 12px 12px; }
@@ -97,7 +110,7 @@ main { flex: 1; min-height: 0; }
 /* 履歴 */
 .history-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .history-list li {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); border: 1px solid var(--hair); border-radius: var(--radius);
   padding: 12px 16px; display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: center;
 }
 .history-list .meta { color: var(--muted); font-size: .9rem; }
@@ -110,24 +123,24 @@ main { flex: 1; min-height: 0; }
 
 /* 集計 */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.card { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--radius); padding: 16px; }
 .card .label { color: var(--muted); font-size: .9rem; }
 .card .value { font-size: 1.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-.table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-.table th, .table td { padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; }
-.table th { background: var(--surface-2); font-size: .9rem; color: var(--muted); }
+.table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--hair); border-radius: var(--radius); overflow: hidden; }
+.table th, .table td { padding: 12px 16px; border-bottom: 1px solid var(--hair); text-align: left; }
+.table th { background: var(--subtle); font-size: .9rem; color: var(--muted); }
 .table .num { text-align: right; font-variant-numeric: tabular-nums; }
 .table .empty-cell { color: var(--muted); text-align: center; }
 .row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 
 /* 設定 */
-.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; }
 .panel h2 { font-size: 1.05rem; margin: 0 0 8px; }
 .panel .row-actions { margin-top: 8px; }
 .hint { color: var(--muted); font-size: .9rem; margin: 0 0 12px; line-height: 1.6; }
 .error { color: var(--danger); font-size: .9rem; margin: 8px 0 0; }
 .product-list { list-style: none; margin: 0 0 12px; padding: 0; }
-.product-list li { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.product-list li { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--hair); }
 .product-list .price { font-variant-numeric: tabular-nums; }
 .add-product { display: grid; grid-template-columns: 1fr 140px auto; gap: 8px; align-items: center; }
 .add-product button { min-width: 154px; }
@@ -142,7 +155,7 @@ main { flex: 1; min-height: 0; }
 .pay-rows dt { color: var(--muted); }
 .pay-rows dd { margin: 0; text-align: right; font-weight: 700; font-size: 1.6rem; font-variant-numeric: tabular-nums; }
 .pay-rows dd.placeholder { color: var(--muted); font-size: 1.2rem; }
-.pay-rows .change { color: var(--accent); font-size: 2.2rem; }
+.pay-rows .change { color: var(--positive); font-size: 2.2rem; }
 .pay-rows .change.short { color: var(--danger); font-size: 1.6rem; }
 .quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6px; }
 .quick button { padding: 10px 4px; }

@@ -23,8 +23,8 @@ export default defineConfig({
         start_url: './',
         scope: './',
         display: 'standalone',
-        background_color: '#f3f4f6',
-        theme_color: '#1f2937',
+        background_color: '#ffffff',
+        theme_color: '#111111',
         icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
       },
       workbox: {
