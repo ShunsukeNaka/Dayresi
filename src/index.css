@@ -143,15 +143,24 @@ main { flex: 1; min-height: 0; }
   color: var(--muted); font-size: 12px; font-weight: 700; vertical-align: 1px;
 }
 
-/* 集計 */
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.card { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--radius); padding: 16px; }
-.card .label { color: var(--muted); font-size: .9rem; }
-.card .value { font-size: 1.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-.table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--hair); border-radius: var(--radius); overflow: hidden; }
-.table th, .table td { padding: 12px 16px; border-bottom: 1px solid var(--hair); text-align: left; }
-.table th { background: var(--subtle); font-size: .9rem; color: var(--muted); }
+/* 集計（docs/design/dayresi.pen の A-04） */
+.cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;
+  background: var(--surface); border: var(--stroke) solid var(--line); border-radius: var(--radius-lg); overflow: hidden;
+}
+.card { padding: 20px 24px; }
+.card + .card { border-left: var(--stroke) solid var(--line); }
+.card .label { color: var(--muted); font-size: 14px; font-weight: 700; }
+.card .value { font-size: 44px; line-height: 1.2; font-weight: 800; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+/* 表は枠で包んで角を丸める（table の枠は角が丸まらないため） */
+.table-box { background: var(--surface); border: var(--stroke) solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 0 24px; height: 52px; border-bottom: 1px solid var(--hair); text-align: left; font-size: 16px; }
+.table tbody tr:last-child td { border-bottom: 0; }
+.table th { height: 44px; background: var(--subtle); border-bottom: var(--stroke) solid var(--line); font-size: 13px; font-weight: 700; color: var(--muted); }
 .table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.table td.num:last-child { font-weight: 700; }
+.table .minus { color: var(--minus); }
 .table .empty-cell { color: var(--muted); text-align: center; }
 .row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 

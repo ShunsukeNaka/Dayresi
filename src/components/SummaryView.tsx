@@ -19,7 +19,9 @@ export function SummaryView({ sales, products }: Props) {
 
   return (
     <section className="tab">
-      <div className="container">
+      <div className="container page">
+        <h2 className="page-title">集計</h2>
+        {/* 売上合計と会計件数は、1 つの枠に並べる */}
         <div className="cards">
           <div className="card">
             <div className="label">売上合計</div>
@@ -27,10 +29,11 @@ export function SummaryView({ sales, products }: Props) {
           </div>
           <div className="card">
             <div className="label">会計件数</div>
-            <div className="value">{summary.count} 件</div>
+            <div className="value">{summary.count}件</div>
           </div>
         </div>
 
+        <div className="table-box">
         <table className="table">
           <thead>
             <tr><th>商品</th><th className="num">数量</th><th className="num">金額</th></tr>
@@ -43,11 +46,12 @@ export function SummaryView({ sales, products }: Props) {
               <tr key={row.key}>
                 <td>{row.name}</td>
                 <td className="num">{row.qty}</td>
-                <td className="num">{formatYen(row.amount)}</td>
+                <td className={row.amount < 0 ? 'num minus' : 'num'}>{formatYen(row.amount)}</td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </section>
   )
