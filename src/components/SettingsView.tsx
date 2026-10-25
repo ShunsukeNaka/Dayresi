@@ -33,7 +33,7 @@ export function SettingsView({ data, dispatch }: Props) {
   const startShare = () => {
     setShareLink(null)
     setShareStep('share')
-    void encodeProductsShare({ storeId: data.storeId, name: data.name, products: data.products }).then((f) => setShareLink(shareUrl(f)))
+    void encodeProductsShare({ storeId: data.storeId, name: data.name, products: data.products, coupons: data.coupons }).then((f) => setShareLink(shareUrl(f)))
   }
 
   /**

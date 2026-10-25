@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef } from 'react'
-import type { Product, Sale, SaleItem, Store } from './types'
+import type { Coupon, Product, Sale, SaleItem, Store } from './types'
 import type { CartCoupons } from './lib/coupons'
 import { addProduct } from './lib/products'
 import { loadStore, saveStore } from './lib/storage'
@@ -30,7 +30,7 @@ export type Action =
   | { type: 'createRegister'; name: string; myName: string }
   | { type: 'deleteRegister'; id: string }
   | { type: 'setMyName'; name: string }
-  | { type: 'importProducts'; share: { storeId: string; name: string; products: Product[] }; myName: string }
+  | { type: 'importProducts'; share: { storeId: string; name: string; products: Product[]; coupons: Coupon[] }; myName: string }
   | { type: 'importSales'; share: { storeId: string; by: string; sales: Sale[] } }
 
 /** 何も変わらない操作では同じ状態を返し、保存し直さない */
