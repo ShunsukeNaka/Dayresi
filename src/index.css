@@ -115,7 +115,8 @@ main { flex: 1; min-height: 0; }
   background: var(--surface); border: var(--stroke) solid var(--line); border-radius: var(--radius-lg);
   display: flex; flex-direction: column; min-height: 0; overflow: hidden;
 }
-.cart-head { font-size: 16px; font-weight: 700; margin: 0; padding: 16px 20px 4px; }
+.cart-head { display: flex; align-items: center; gap: 8px; padding: 16px 20px 4px; }
+.cart-head h2 { flex: 1; font-size: 16px; font-weight: 700; margin: 0; }
 .cart-list { list-style: none; margin: 0; padding: 0 20px; flex: 1; overflow: auto; }
 .cart-list li { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; min-height: 56px; padding: 6px 0; border-bottom: 1px solid var(--hair); }
 .cart-list li.cart-empty { display: block; color: var(--muted); text-align: center; border: 0; padding: 24px 0; }
@@ -135,6 +136,42 @@ main { flex: 1; min-height: 0; }
 @media (max-width: 860px) {
   .register { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
   .cart-list { max-height: 30vh; flex: none; }
+}
+
+/* スマホのレジ（docs/design/dayresi.pen の M-01・M-01b）。商品ボタンは 2 列で小さく、カートは下の帯にたたむ */
+@media (max-width: 600px) {
+  .register { display: flex; flex-direction: column; padding: 0; gap: 0; }
+  .product-grid { flex: 1; min-height: 0; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
+  .product-btn { min-height: 72px; padding: 8px 10px; gap: 2px; }
+  .product-btn .name { font-size: 15px; }
+  .product-btn .price { font-size: 14px; }
+  .qty-badge { min-width: 26px; height: 26px; font-size: 13px; }
+
+  /* .only-narrow の中央寄せより優先させる */
+  .register .cart-bar { flex: none; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 10px; padding: 10px 12px 12px; background: var(--surface); border-top: var(--stroke) solid var(--line); }
+  .cart-bar-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .cart-open { display: flex; align-items: center; gap: 6px; padding: 6px 4px; background: transparent; font-size: 15px; font-weight: 700; }
+  .cart-bar-total { font-family: var(--font-num); font-size: 28px; font-weight: 800; letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
+  .cart-bar-checkout { height: 56px; font-size: 20px; }
+  .cart-bar .cart-warning { padding: 0; }
+
+  /* 開いたカートは、下のタブの上に、下から出す */
+  .cart {
+    position: fixed; left: 0; right: 0; bottom: calc(64px + env(safe-area-inset-bottom)); z-index: 9;
+    max-height: 70dvh; border: 0; border-top: var(--stroke) solid var(--line); border-radius: 12px 12px 0 0;
+    transform: translateY(110%); transition: transform .2s ease; visibility: hidden;
+  }
+  .cart.open { transform: none; visibility: visible; }
+  .cart-head { padding: 8px 8px 8px 8px; border-bottom: 1px solid var(--hair); }
+  .cart-close { width: 40px; height: 40px; padding: 0; background: transparent; }
+  .cart-clear { padding: 6px 14px; font-size: 14px; }
+  .cart-list { max-height: none; flex: 1; padding: 0 16px; }
+  .qty button { width: 40px; height: 40px; }
+  .cart-total { padding: 10px 16px 0; }
+  .cart-total strong { font-size: 32px; }
+  .cart-actions { grid-template-columns: 1fr; padding: 10px 12px 12px; }
+  .cart-actions button { height: 56px; }
+  .cart-backdrop { position: fixed; inset: 0; z-index: 8; background: rgba(17, 17, 17, .65); }
 }
 
 /* 履歴（docs/design/dayresi.pen の A-03） */
