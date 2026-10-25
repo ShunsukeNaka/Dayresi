@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useRef } from 'react'
 import type { AppData, Product, Sale } from './types'
 import { emptyData, loadData, saveData } from './lib/storage'
+import { voidSale } from './lib/sales'
 
 export type Action =
   | { type: 'addProduct'; product: Product }
@@ -15,7 +16,7 @@ export function reducer(state: AppData, action: Action): AppData {
     case 'recordSale':
       return { ...state, sales: [...state.sales, action.sale] }
     case 'voidSale':
-      return { ...state, sales: state.sales.map((s) => (s.id === action.id ? { ...s, voided: true } : s)) }
+      return { ...state, sales: voidSale(state.sales, action.id) }
     case 'resetAll':
       return emptyData()
   }
