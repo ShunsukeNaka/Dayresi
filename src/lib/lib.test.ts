@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Product, Sale } from '../types'
-import { canCheckout, cartItems, createSale, itemsTotal, summarize, voidSale } from './sales'
+import { canCheckout, createSale, itemsTotal, summarize, voidSale } from './sales'
+import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesToCsv } from './csv'
 import { parseData } from './storage'
@@ -11,6 +12,50 @@ const products: Product[] = [
   { id: 'a', name: '焼きそば', price: 400 },
   { id: 'b', name: 'ラムネ', price: 150 },
 ]
+
+describe('cart', () => {
+  it('商品を 1 つずつ入れ、数量を増やす・減らす', () => {
+    let cart = addToCart({}, 'a')
+    expect(cart).toEqual({ a: 1 })
+    cart = addToCart(cart, 'a')
+    expect(cart).toEqual({ a: 2 })
+    cart = changeQty(cart, 'a', 1)
+    expect(cart).toEqual({ a: 3 })
+    cart = changeQty(cart, 'a', -1)
+    expect(cart).toEqual({ a: 2 })
+  })
+
+  it('0 になったらカートから消え、0 より少なくならない', () => {
+    expect(changeQty({ a: 1, b: 2 }, 'a', -1)).toEqual({ b: 2 })
+    expect(changeQty({ b: 2 }, 'a', -1)).toEqual({ b: 2 })
+  })
+
+  it('数量は MAX_QTY で止まる', () => {
+    expect(MAX_QTY).toBe(999)
+    expect(addToCart({ a: MAX_QTY }, 'a')).toEqual({ a: MAX_QTY })
+    expect(changeQty({ a: MAX_QTY - 1 }, 'a', 1)).toEqual({ a: MAX_QTY })
+  })
+
+  it('一括でクリアする', () => {
+    expect(clearCart()).toEqual({})
+  })
+
+  it('商品の登録順で明細にし、商品にないものは除く', () => {
+    const items = cartItems({ x: 1, b: 2, a: 1 }, products)
+    expect(items).toEqual([
+      { productId: 'a', name: '焼きそば', price: 400, qty: 1 },
+      { productId: 'b', name: 'ラムネ', price: 150, qty: 2 },
+    ])
+  })
+
+  it('受け取ったカートを変えない', () => {
+    const cart = Object.freeze({ a: 1 })
+    expect(addToCart(cart, 'a')).not.toBe(cart)
+    changeQty(cart, 'a', -1)
+    changeQty(cart, 'b', 1)
+    expect(cart).toEqual({ a: 1 })
+  })
+})
 
 describe('sales', () => {
   it('カートを商品順に明細化して合計する', () => {
