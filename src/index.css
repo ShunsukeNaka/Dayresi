@@ -184,9 +184,33 @@ main { flex: 1; min-height: 0; }
   min-height: 72px; padding: 10px 20px; border-bottom: 1px solid var(--hair);
 }
 .history-list li:last-child { border-bottom: 0; }
+/* スマホ（docs/design/dayresi.pen の M の段）：見出しのあるページ（履歴・集計・設定）の余白と見出しを詰める */
+@media (max-width: 600px) {
+  .tab:has(> .page) { padding: 16px 12px; }
+  .page-title { font-size: 22px; margin-bottom: 12px; }
+}
+
 /* ほかの人の会計があるときは、番号に名前を付けるので広げる（N-13） */
 .history-list.with-names li { grid-template-columns: 96px 52px 1fr 110px 84px; }
 .history-hint { margin: -8px 0 16px; }
+
+/* スマホの履歴（M-03）。1 件を 2 行（番号・時刻・合計／明細・取消）にする */
+@media (max-width: 600px) {
+  .history-list li, .history-list.with-names li {
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas: "no time . amount" "items items items ops";
+    gap: 4px 10px; min-height: 0; padding: 10px 14px;
+  }
+  .history-list .no { grid-area: no; font-size: 15px; }
+  .history-list .time { grid-area: time; font-size: 13px; }
+  .history-list .amount { grid-area: amount; font-size: 18px; }
+  .history-list .items { grid-area: items; font-size: 14px; }
+  .history-list .history-ops { grid-area: ops; align-self: center; }
+  .history-list .history-ops button { padding: 5px 12px; font-size: 13px; }
+  .history-list .history-ops:empty { display: none; }
+  .tag { font-size: 11px; padding: 0 6px; margin-right: 8px; }
+  .history-hint { margin: -4px 0 12px; font-size: 13px; }
+}
 .history-list .no { font-family: var(--font-num); font-size: 16px; font-weight: 700; }
 .history-list .time { font-family: var(--font-num); font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .history-list .items { font-size: 16px; word-break: break-word; }
