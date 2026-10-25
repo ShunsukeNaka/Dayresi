@@ -40,7 +40,8 @@ export default function App() {
       if (!hash) return
       history.replaceState(null, '', location.pathname + location.search)
       void decodeShare(hash).then((share) => {
-        if (share) setIncoming(share)
+        // 会計の取り込み（代表者が合算する）は #132 で作る
+        if (share?.kind === 'products') setIncoming(share)
       })
     }
     read()

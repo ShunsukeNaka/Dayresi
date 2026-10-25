@@ -3,7 +3,7 @@ import type { Register } from '../types'
 import type { Action } from '../state'
 import { MAX_NAME_LENGTH, MAX_PRICE, MIN_PRICE, formatYen, isValidName, parsePrice } from '../lib/format'
 import { ExportCsvButton } from './ExportCsvButton'
-import { encodeProductsShare, shareUrl } from '../lib/share'
+import { encodeProductsShare, encodeSalesShare, shareUrl } from '../lib/share'
 import { ShareDialog } from './ShareDialog'
 import { MyNameDialog } from './MyNameDialog'
 
@@ -18,8 +18,17 @@ export function SettingsView({ data, dispatch }: Props) {
   const [addError, setAddError] = useState('')
   const nameInputRef = useRef<HTMLInputElement>(null)
   // 商品を配る手順。自分の名前がまだなければ先に入れてもらい、それから QR とリンクを出す
-  const [shareStep, setShareStep] = useState<'name' | 'share' | null>(null)
+  const [shareStep, setShareStep] = useState<'name' | 'share' | 'send' | null>(null)
   const [shareLink, setShareLink] = useState<string | null>(null)
+
+  // 代表者に送る（会計する人のレジ）。そのレジの会計をすべて送る
+  const startSend = () => {
+    setShareLink(null)
+    setShareStep('send')
+    void encodeSalesShare({ storeId: data.storeId, by: data.myName, registerId: data.id, sales: data.sales }).then((f) => setShareLink(shareUrl(f)))
+  }
+  const voidedCount = data.sales.filter((s) => s.voided).length
+  const salesLabel = `${data.sales.length} 件${voidedCount > 0 ? `（取消 ${voidedCount} 件を含む）` : ''}`
 
   const startShare = () => {
     setShareLink(null)
@@ -55,6 +64,20 @@ export function SettingsView({ data, dispatch }: Props) {
   return (
     <section className="tab">
       <div className="container page">
+        {/* 代表者に送る（spec-next.md「会計を送る」、docs/design/dayresi.pen の N-09）。会計する人のレジだけ */}
+        {isMember && (
+          <div className="settings-section">
+            <h2 className="page-title">代表者に送る</h2>
+            <div className="send-section">
+              <div className="send-text">
+                <div className="send-count">このレジの会計 {salesLabel}</div>
+                <p className="hint">何回送っても、同じ会計が二重になることはありません。取り消したときも、送り直してください。</p>
+              </div>
+              <button className="primary" onClick={startSend} disabled={data.sales.length === 0}>代表者に送る</button>
+            </div>
+          </div>
+        )}
+
         <div className="settings-section">
           <h2 className="page-title">{isMember ? '配られた商品' : '商品'}</h2>
           {isMember ? (
@@ -138,6 +161,16 @@ export function SettingsView({ data, dispatch }: Props) {
             dispatch({ type: 'setMyName', name })
             startShare()
           }}
+          onClose={() => setShareStep(null)}
+        />
+      )}
+      {shareStep === 'send' && (
+        <ShareDialog
+          title="代表者に送る"
+          heading={`${data.myName} の会計`}
+          sub={salesLabel}
+          hint="代表者に、Dayresi が入ったスマホのカメラで読んでもらいます。離れているときや、代表者が PC のときは、リンクを送ります。"
+          url={shareLink}
           onClose={() => setShareStep(null)}
         />
       )}
