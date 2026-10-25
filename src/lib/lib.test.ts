@@ -222,10 +222,23 @@ describe('csv', () => {
 })
 
 describe('storage', () => {
-  it('空や不正な要素を含むデータから有効なものだけ取り出す', () => {
+  it('空のデータは空で、壊れた商品はその商品だけ捨てる', () => {
     expect(parseData(null)).toEqual({ products: [], sales: [] })
-    const data = parseData(JSON.stringify({ products: [products[0], { id: 1 }], sales: [{ bad: true }] }))
-    expect(data).toEqual({ products: [products[0]], sales: [] })
+    const broken = [{ id: 1, name: 'a', price: 1 }, { id: 'x', name: '   ', price: 1 }, { id: 'y', name: 'a', price: 1.5 }, null]
+    expect(parseData(JSON.stringify({ products: [products[0], ...broken], sales: [] })).products).toEqual([products[0]])
+  })
+
+  it('番号や合計が壊れた会計も、計算が合わない会計も、捨てずに残す', () => {
+    const odd = { id: 's', no: '1', at: 123, items: [{ productId: 'a', name: '', price: 'abc', qty: 1 }], total: '400', paid: null, change: 99, voided: 'no' }
+    const mismatch = { ...createSale(cartItems({ a: 1 }, products), 400, []), total: 9999, change: -1 }
+    const sales = parseData(JSON.stringify({ products: [], sales: [odd, mismatch] })).sales
+    expect(sales).toEqual([odd, mismatch])
+  })
+
+  it('画面が止まるほど壊れた会計（オブジェクトでない、明細が一覧でない、明細がオブジェクトでない）だけ捨てる', () => {
+    const ok = createSale(cartItems({ a: 1 }, products), 400, [])
+    const bad = [null, 'sale', 1, { ...ok, items: 'x' }, { ...ok, items: undefined }, { ...ok, items: [null] }, { ...ok, items: [1] }]
+    expect(parseData(JSON.stringify({ products: [], sales: [...bad, ok] })).sales).toEqual([ok])
   })
 
   it('マイナス価格の商品を捨てずに読み込む', () => {
@@ -253,6 +266,27 @@ describe('storage', () => {
       expect(loadData().products).toEqual([products[0]])
       saveData({ products, sales: [] })
       expect(JSON.parse(map.get('dayresi:v2')!).products).toEqual(products)
+    })
+
+    it('JSON として読めないデータは捨てて空で始める', () => {
+      stub({ 'dayresi:v2': '{broken' })
+      expect(loadData()).toEqual({ products: [], sales: [] })
+      stub({ 'dayresi:v2': 'null' })
+      expect(loadData()).toEqual({ products: [], sales: [] })
+    })
+
+    it('保存に失敗しても例外を投げない', () => {
+      stub({})
+      globalThis.localStorage.setItem = () => { throw new DOMException('quota', 'QuotaExceededError') }
+      expect(() => saveData({ products, sales: [] })).not.toThrow()
+    })
+
+    it('全データ消去で空のデータを保存すると、商品も会計もなくなる', () => {
+      const sale = createSale(cartItems({ a: 1 }, products), 400, [])
+      const map = stub({ 'dayresi:v2': JSON.stringify({ products, sales: [sale] }) })
+      saveData(reducer(loadData(), { type: 'resetAll' }))
+      expect(JSON.parse(map.get('dayresi:v2')!)).toEqual({ products: [], sales: [] })
+      expect(loadData()).toEqual({ products: [], sales: [] })
     })
 
     it('作り直す前の dayresi:v1 は読まず、保存しても消さない', () => {
