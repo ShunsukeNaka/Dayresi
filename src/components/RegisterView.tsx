@@ -15,9 +15,12 @@ type Props = {
 }
 
 export function RegisterView({ products, items, total, onAddItem, onChangeQty, onClear, onCheckout, onGoSettings }: Props) {
+  // 商品ID → カート内の数量。カートに入っている商品のボタンに数量を出す
+  const qtyById = new Map(items.map((i) => [i.productId, i.qty]))
+
   return (
     <section className="tab register">
-      {/* 商品ボタン。登録順に並べ、商品名と価格を出す。押すとカートに 1 つ入る。カート内の数は出さない（SPEC にない） */}
+      {/* 商品ボタン。登録順に並べ、商品名と価格を出す。押すとカートに 1 つ入る。カートに入っている商品は、色を変えて左上に数量を出す */}
       <div className="product-grid">
         {products.length === 0 && (
           <div className="empty">
@@ -25,12 +28,21 @@ export function RegisterView({ products, items, total, onAddItem, onChangeQty, o
             <button className="primary" onClick={onGoSettings}>設定で商品を登録する</button>
           </div>
         )}
-        {products.map((p) => (
-          <button key={p.id} className="product-btn" onClick={() => onAddItem(p.id)}>
-            <span className="name">{p.name}</span>
-            <span className={p.price < 0 ? 'price minus' : 'price'}>{formatYen(p.price)}</span>
-          </button>
-        ))}
+        {products.map((p) => {
+          const qty = qtyById.get(p.id) ?? 0
+          return (
+            <button key={p.id} className={qty > 0 ? 'product-btn in-cart' : 'product-btn'} onClick={() => onAddItem(p.id)}>
+              {qty > 0 && (
+                <>
+                  <span className="qty-badge" aria-hidden="true">{qty}</span>
+                  <span className="sr-only">カートに{qty}個</span>
+                </>
+              )}
+              <span className="name">{p.name}</span>
+              <span className={p.price < 0 ? 'price minus' : 'price'}>{formatYen(p.price)}</span>
+            </button>
+          )
+        })}
       </div>
 
       {/*
