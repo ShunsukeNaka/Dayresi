@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import type { Cart } from './types'
 import { useAppData } from './state'
-import { currentRegister } from './lib/registers'
+import { ROLE_LABEL, currentRegister } from './lib/registers'
 import { canCheckout, canConfirmSale, itemsTotal } from './lib/sales'
 import { addToCart, cartItems, changeQty as changeCartQty, clearCart } from './lib/cart'
 import { RegisterView } from './components/RegisterView'
@@ -9,6 +9,7 @@ import { CheckoutDialog } from './components/CheckoutDialog'
 import { HistoryView } from './components/HistoryView'
 import { SummaryView } from './components/SummaryView'
 import { SettingsView } from './components/SettingsView'
+import { RegisterDialog } from './components/RegisterDialog'
 
 /** 画面はレジ・履歴・集計・設定の 4 つで、上のタブで切り替える */
 type Tab = 'register' | 'history' | 'summary' | 'settings'
@@ -26,6 +27,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>(() => (currentRegister(store).products.length > 0 ? 'register' : 'settings'))
   const [cart, setCart] = useState<Cart>({})
   const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [registerOpen, setRegisterOpen] = useState(false)
   // 画面は、今使っているレジの商品と会計を出す
   const data = currentRegister(store)
 
@@ -56,7 +58,15 @@ export default function App() {
   return (
     <>
       <header className="topbar">
-        <h1>Dayresi</h1>
+        <div className="topbar-left">
+          <h1>Dayresi</h1>
+          {/* 今のレジの名前と役割。押すとレジの一覧を開く（spec-next.md「レジ」） */}
+          <button className="register-switch" onClick={() => setRegisterOpen(true)} aria-label={`レジ：${data.name}（${ROLE_LABEL[data.role]}）。レジの一覧を開く`}>
+            <span className="register-switch-name">{data.name}</span>
+            <span className="register-switch-role">{ROLE_LABEL[data.role]}</span>
+            <span aria-hidden="true">▾</span>
+          </button>
+        </div>
         <nav className="tabs" role="tablist">
           {TABS.map((t) => (
             <button
@@ -93,6 +103,20 @@ export default function App() {
           <SettingsView data={data} dispatch={dispatch} />
         )}
       </main>
+
+      {registerOpen && (
+        <RegisterDialog
+          store={store}
+          dispatch={dispatch}
+          // レジが変わったら、前のレジのカートと会計ダイアログは閉じる
+          onRegisterChange={() => {
+            setCart(clearCart())
+            setCheckoutOpen(false)
+          }}
+          onCreated={() => setTab('settings')}
+          onClose={() => setRegisterOpen(false)}
+        />
+      )}
 
       {checkoutOpen && (
         <CheckoutDialog total={total} onConfirm={confirmCheckout} onCancel={() => setCheckoutOpen(false)} />

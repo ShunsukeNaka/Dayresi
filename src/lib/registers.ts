@@ -3,6 +3,9 @@ import type { AppData, Register, Role, Store } from '../types'
 /** レジが 1 つもないときに自動で作る、代表者のレジの名前（spec-next.md「レジ」） */
 export const DEFAULT_REGISTER_NAME = 'マイレジ'
 
+/** 役割の表示（spec-next.md「役割」） */
+export const ROLE_LABEL: Record<Role, string> = { owner: '代表者', member: '会計' }
+
 type RegisterInit = Partial<AppData> & {
   name: string
   role?: Role
@@ -35,4 +38,26 @@ export function updateCurrent(store: Store, update: (register: Register) => Regi
   const next = update(current)
   if (next === current) return store
   return { ...store, registers: store.registers.map((r) => (r === current ? next : r)) }
+}
+
+/** 今使うレジを切り替える。ない ID や、もう今のレジなら、同じ保存データを返す */
+export function switchRegister(store: Store, id: string): Store {
+  if (id === store.currentId || !store.registers.some((r) => r.id === id)) return store
+  return { ...store, currentId: id }
+}
+
+/** レジを一覧の末尾に足し、そのレジに切り替える */
+export function addRegister(store: Store, register: Register): Store {
+  return { registers: [...store.registers, register], currentId: register.id }
+}
+
+/**
+ * レジを削除する。ない ID なら同じ保存データを返す
+ * 今のレジを消したら、一覧の最初のレジに切り替える。最後の 1 つを消したら、マイレジを自動で作る（spec-next.md「レジ」）
+ */
+export function deleteRegister(store: Store, id: string): Store {
+  if (!store.registers.some((r) => r.id === id)) return store
+  const registers = store.registers.filter((r) => r.id !== id)
+  if (registers.length === 0) return storeWith()
+  return { registers, currentId: registers.some((r) => r.id === store.currentId) ? store.currentId : registers[0].id }
 }
