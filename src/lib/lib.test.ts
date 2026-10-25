@@ -5,7 +5,7 @@ import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatPercent, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesCsvFileName, salesToCsv } from './csv'
 import { loadStore, parseData, parseStore, saveStore } from './storage'
-import { DEFAULT_REGISTER_NAME, createRegister, currentRegister, storeWith, updateCurrent } from './registers'
+import { DEFAULT_REGISTER_NAME, addRegister, createRegister, currentRegister, deleteRegister, storeWith, switchRegister, updateCurrent } from './registers'
 import { addProduct } from './products'
 import { reducer } from '../state'
 
@@ -434,6 +434,41 @@ describe('registers', () => {
     expect(updateCurrent(store, (r) => r)).toBe(store)
   })
 
+  it('レジを切り替え、ない ID や今のレジなら同じ保存データを返す', () => {
+    const a = createRegister({ name: 'A' })
+    const b = createRegister({ name: 'B' })
+    const store: Store = { registers: [a, b], currentId: a.id }
+    expect(switchRegister(store, b.id).currentId).toBe(b.id)
+    expect(switchRegister(store, a.id)).toBe(store)
+    expect(switchRegister(store, 'none')).toBe(store)
+  })
+
+  it('足したレジは末尾に入り、そのレジに切り替わる', () => {
+    const store = storeWith()
+    const b = createRegister({ name: 'B' })
+    const next = addRegister(store, b)
+    expect(next.registers.map((r) => r.name)).toEqual([DEFAULT_REGISTER_NAME, 'B'])
+    expect(next.currentId).toBe(b.id)
+  })
+
+  it('今のレジを消すと最初のレジに切り替わり、ほかのレジを消しても今のレジは変わらない', () => {
+    const a = createRegister({ name: 'A' })
+    const b = createRegister({ name: 'B' })
+    const c = createRegister({ name: 'C' })
+    const store: Store = { registers: [a, b, c], currentId: b.id }
+    expect(deleteRegister(store, b.id)).toEqual({ registers: [a, c], currentId: a.id })
+    expect(deleteRegister(store, c.id)).toEqual({ registers: [a, b], currentId: b.id })
+    expect(deleteRegister(store, 'none')).toBe(store)
+  })
+
+  it('最後の 1 つを消すと、マイレジを自動で作る', () => {
+    const a = createRegister({ name: 'A', products })
+    const next = deleteRegister({ registers: [a], currentId: a.id }, a.id)
+    expect(next.registers).toHaveLength(1)
+    expect(currentRegister(next)).toMatchObject({ name: DEFAULT_REGISTER_NAME, role: 'owner', products: [] })
+    expect(currentRegister(next).id).not.toBe(a.id)
+  })
+
   it('currentId がどのレジとも合わないときは、最初のレジを今のレジにする', () => {
     const a = createRegister({ name: 'A' })
     expect(currentRegister({ registers: [a], currentId: 'none' })).toBe(a)
@@ -503,6 +538,23 @@ describe('reducer', () => {
     expect(cur(cleared)).toMatchObject({ id: cur(state).id, name: DEFAULT_REGISTER_NAME, products: [], sales: [] })
     expect(cleared.registers[1]).toBe(other)
     expect(reducer(cleared, { type: 'resetAll' })).toBe(cleared)
+  })
+
+  it('新しいレジを代表者として作って切り替え、名前がルールに合わなければ作らない', () => {
+    const state = reducer(empty, { type: 'createRegister', name: '研究室の模擬店', myName: '山田' })
+    expect(state.registers).toHaveLength(2)
+    expect(cur(state)).toMatchObject({ name: '研究室の模擬店', myName: '山田', role: 'owner', products: [], sales: [] })
+    expect(reducer(empty, { type: 'createRegister', name: '　', myName: '山田' })).toBe(empty)
+    expect(reducer(empty, { type: 'createRegister', name: '研究室の模擬店', myName: '' })).toBe(empty)
+  })
+
+  it('レジを切り替え・削除する', () => {
+    const created = reducer(empty, { type: 'createRegister', name: 'B', myName: '山田' })
+    const switched = reducer(created, { type: 'switchRegister', id: empty.currentId })
+    expect(cur(switched).name).toBe(DEFAULT_REGISTER_NAME)
+    const deleted = reducer(switched, { type: 'deleteRegister', id: empty.currentId })
+    expect(deleted.registers.map((r) => r.name)).toEqual(['B'])
+    expect(cur(deleted).name).toBe('B')
   })
 
   it('操作は今のレジにだけ働く', () => {
