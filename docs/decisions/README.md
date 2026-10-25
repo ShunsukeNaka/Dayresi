@@ -59,7 +59,9 @@
 | [0025](0025-rethink-data-formats.md) | データの形式は、今の形式との互換を前提にせずに考え直す | 採用 |
 | [0026](0026-mvp-design-doc.md) | MVP を考えたときの内容を Design Doc にまとめ、docs/ に置く | 採用 |
 | [0027](0027-no-data-sharing-between-devices.md) | 端末のあいだでデータを共有する機能は MVP で扱わない | 採用 |
-| [0028](0028-spec-is-mvp-goal.md) | SPEC は MVP の目標として扱う | 採用 |
+| [0028](0028-spec-is-mvp-goal.md) | SPEC は MVP の目標として扱う | 採用（MVP のあとの書き場所は 0033 で置き換え） |
 | [0029](0029-record-tech-choices.md) | 選んだ技術のメリットを docs/tech-choices.md に書き足していく | 採用 |
 | [0030](0030-one-purpose-per-pr.md) | 1 つの PR には 1 つの目的だけ持たせる | 採用 |
 | [0031](0031-rebuild-issues-from-design-doc.md) | 作り直しの Issue を Design Doc に合わせて立て直し、SPEC にない機能は作らない | 採用 |
+| [0032](0032-representative-collects-sales.md) | 次の段階では、代表者が商品を配り、会計を受け取って合算する方式で、端末のあいだでデータを引き渡す | 採用 |
+| [0033](0033-next-spec-in-separate-file.md) | MVP の次の段階の仕様は、docs/spec-next.md に書く | 採用 |
