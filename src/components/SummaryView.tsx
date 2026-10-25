@@ -1,7 +1,6 @@
 import type { Product, Sale } from '../types'
 import { formatYen } from '../lib/format'
 import { summarize } from '../lib/sales'
-import { ExportCsvButton } from './ExportCsvButton'
 
 type Props = {
   sales: Sale[]
@@ -22,7 +21,6 @@ export function SummaryView({ sales, products }: Props) {
           <div className="card">
             <div className="label">会計件数</div>
             <div className="value">{summary.count} 件</div>
-            {summary.voidedCount > 0 && <div className="sub-label">ほかに取消 {summary.voidedCount} 件</div>}
           </div>
         </div>
 
@@ -43,10 +41,6 @@ export function SummaryView({ sales, products }: Props) {
             ))}
           </tbody>
         </table>
-
-        <div className="row-actions">
-          <ExportCsvButton sales={sales} className="primary" />
-        </div>
       </div>
     </section>
   )

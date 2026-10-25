@@ -5,13 +5,12 @@ import { fileStamp } from '../lib/format'
 
 type Props = {
   sales: Sale[]
-  className?: string
 }
 
-export function ExportCsvButton({ sales, className = 'secondary' }: Props) {
+export function ExportCsvButton({ sales }: Props) {
   return (
     <button
-      className={className}
+      className="secondary"
       disabled={sales.length === 0}
       onClick={() => downloadFile(`dayresi-sales-${fileStamp()}.csv`, salesToCsv(sales), 'text/csv;charset=utf-8')}
     >
