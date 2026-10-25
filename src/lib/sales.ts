@@ -33,6 +33,15 @@ export function createSale(items: SaleItem[], paid: number, prevSales: Sale[], n
   }
 }
 
+/**
+ * 会計を取り消す。消さずに取消済みとして残し、集計からは除く（ADR 0012）。元に戻す処理は持たない
+ * すでに取消済みの会計や、ない ID を指定したときは、受け取った配列をそのまま返す
+ */
+export function voidSale(sales: Sale[], id: string): Sale[] {
+  if (!sales.some((s) => s.id === id && !s.voided)) return sales
+  return sales.map((s) => (s.id === id ? { ...s, voided: true } : s))
+}
+
 export type ProductSummary = { key: string; name: string; qty: number; amount: number }
 
 export type Summary = {

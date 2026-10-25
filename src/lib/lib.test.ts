@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Product, Sale } from '../types'
-import { canCheckout, cartItems, createSale, itemsTotal, summarize } from './sales'
+import { canCheckout, cartItems, createSale, itemsTotal, summarize, voidSale } from './sales'
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesToCsv } from './csv'
 import { parseData } from './storage'
@@ -54,6 +54,30 @@ describe('sales', () => {
       ['ラムネ', 2, 300],
       ['削除済み', 1, 100],
     ])
+  })
+})
+
+describe('voidSale', () => {
+  const s1 = createSale(cartItems({ a: 2 }, products), 1000, [])
+  const s2 = createSale(cartItems({ b: 1 }, products), 150, [s1])
+  const sales = [s1, s2]
+
+  it('指定した会計だけを取消済みにし、番号や明細は変えない', () => {
+    const next = voidSale(sales, s1.id)
+    expect(next[0]).toEqual({ ...s1, voided: true })
+    expect(next[1]).toBe(s2)
+  })
+
+  it('元の配列と会計を変えない', () => {
+    voidSale(sales, s1.id)
+    expect(sales).toEqual([s1, s2])
+    expect(s1.voided).toBe(false)
+  })
+
+  it('取消済みの会計や、ない ID を指定したときは、受け取った配列をそのまま返す', () => {
+    const voided = voidSale(sales, s1.id)
+    expect(voidSale(voided, s1.id)).toBe(voided)
+    expect(voidSale(sales, 'none')).toBe(sales)
   })
 })
 
