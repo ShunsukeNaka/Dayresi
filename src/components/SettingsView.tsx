@@ -39,50 +39,62 @@ export function SettingsView({ data, dispatch }: Props) {
 
   return (
     <section className="tab">
-      <div className="container">
-        <div className="panel">
-          <h2>商品</h2>
+      <div className="container page">
+        <div className="settings-section">
+          <h2 className="page-title">商品</h2>
           <p className="hint">価格は税込で入力してください。割引券は「割引」「-50」のように、マイナスの価格の商品として登録できます。</p>
-          {/* 登録した商品は、登録順に商品名と価格を文字だけで並べる。編集・削除・並べ替えはしない */}
-          {data.products.length > 0 && (
-            <ul className="product-list">
-              {data.products.map((p) => (
-                <li key={p.id}>
-                  <span>{p.name}</span>
-                  <span className="price">{formatYen(p.price)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+          {/* 登録フォームを一覧の上に置き、続けて登録しやすくする */}
           <form className="add-product" onSubmit={addProduct}>
-            <input
-              ref={nameInputRef}
-              placeholder="商品名"
-              aria-label="新しい商品名"
-              value={newName}
-              maxLength={MAX_NAME_LENGTH}
-              onChange={(e) => setNewName(e.target.value)}
-            />
-            <input
-              placeholder="価格"
-              aria-label="新しい商品の価格"
-              inputMode="numeric"
-              value={newPrice}
-              onChange={(e) => setNewPrice(e.target.value)}
-            />
+            <label className="field">
+              <span className="field-label">商品名</span>
+              <input
+                ref={nameInputRef}
+                placeholder="例：焼きそば"
+                value={newName}
+                maxLength={MAX_NAME_LENGTH}
+                onChange={(e) => setNewName(e.target.value)}
+              />
+            </label>
+            <label className="field price-field">
+              <span className="field-label">価格（税込）</span>
+              <input
+                placeholder="例：400"
+                inputMode="numeric"
+                value={newPrice}
+                onChange={(e) => setNewPrice(e.target.value)}
+              />
+            </label>
             <button className="primary" type="submit">追加</button>
           </form>
           {addError && <p className="error">{addError}</p>}
+          {/* 登録した商品は、登録順に番号・商品名・価格を文字だけで並べる。編集・削除・並べ替えはしない */}
+          {data.products.length > 0 && (
+            <ol className="product-list">
+              {data.products.map((p, i) => (
+                <li key={p.id}>
+                  <span className="index">{i + 1}</span>
+                  <span className="name">{p.name}</span>
+                  <span className={p.price < 0 ? 'price minus' : 'price'}>{formatYen(p.price)}</span>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
 
-        <div className="panel">
-          <h2>データ</h2>
-          {/* 売上 CSV の保存（会計がないときは押せない）と全データ消去（商品も会計もないときは押せない） */}
-          <div className="row-actions">
-            <ExportCsvButton sales={data.sales} />
-            <button className="danger" onClick={resetAll} disabled={data.products.length === 0 && data.sales.length === 0}>
-              全データを消去
-            </button>
+        <div className="settings-section">
+          <h2 className="page-title">データ</h2>
+          {/* 売上 CSV の保存（会計がないときは押せない）と全データ消去（商品も会計もないときは押せない）。消す前に確認する */}
+          <div className="data-actions">
+            <div className="data-action">
+              <p className="hint">売上明細を CSV ファイルに保存します。Excel でそのまま開けます。</p>
+              <ExportCsvButton sales={data.sales} />
+            </div>
+            <div className="data-action">
+              <p className="hint">商品と売上をすべて消します。元には戻せません。</p>
+              <button className="danger" onClick={resetAll} disabled={data.products.length === 0 && data.sales.length === 0}>
+                全データを消去
+              </button>
+            </div>
           </div>
         </div>
       </div>

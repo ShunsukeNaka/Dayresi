@@ -162,19 +162,44 @@ main { flex: 1; min-height: 0; }
 .table td.num:last-child { font-weight: 700; }
 .table .minus { color: var(--minus); }
 .table .empty-cell { color: var(--muted); text-align: center; }
-.row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 
-/* 設定 */
-.panel { background: var(--surface); border: 1px solid var(--hair); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; }
-.panel h2 { font-size: 1.05rem; margin: 0 0 8px; }
-.panel .row-actions { margin-top: 8px; }
-.hint { color: var(--muted); font-size: .9rem; margin: 0 0 12px; line-height: 1.6; }
-.error { color: var(--danger); font-size: .9rem; margin: 8px 0 0; }
-.product-list { list-style: none; margin: 0 0 12px; padding: 0; }
-.product-list li { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--hair); }
-.product-list .price { font-variant-numeric: tabular-nums; }
-.add-product { display: grid; grid-template-columns: 1fr 140px auto; gap: 8px; align-items: center; }
-.add-product button { min-width: 154px; }
+/* 設定（docs/design/dayresi.pen の A-05） */
+.settings-section + .settings-section { margin-top: 32px; }
+.settings-section .page-title { margin-bottom: 4px; }
+.hint { color: var(--muted); font-size: 14px; margin: 0 0 12px; line-height: 1.6; }
+.error { color: var(--danger); font-size: 14px; font-weight: 700; margin: 0 0 12px; }
+.add-product {
+  display: grid; grid-template-columns: 1fr 180px 140px; gap: 12px; align-items: end;
+  padding: 16px; margin-bottom: 12px; background: var(--accent-soft); border-radius: var(--radius-lg);
+}
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field-label { font-size: 13px; font-weight: 700; }
+.add-product input { height: 52px; font-size: 16px; }
+.add-product button { height: 52px; font-size: 18px; }
+.product-list {
+  list-style: none; margin: 0; padding: 0; background: var(--surface);
+  border: var(--stroke) solid var(--line); border-radius: var(--radius-lg); overflow: hidden;
+}
+.product-list li { display: grid; grid-template-columns: 24px 1fr auto; gap: 16px; align-items: center; min-height: 44px; padding: 6px 20px; border-bottom: 1px solid var(--hair); }
+.product-list li:last-child { border-bottom: 0; }
+.product-list .index { font-family: var(--font-num); font-size: 14px; color: var(--muted); }
+.product-list .name { font-size: 16px; word-break: break-word; }
+.product-list .price { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.product-list .price.minus { color: var(--minus); }
+.data-actions {
+  display: grid; grid-template-columns: 1fr 1fr; margin-top: 12px; background: var(--surface);
+  border: var(--stroke) solid var(--line); border-radius: var(--radius-lg); overflow: hidden;
+}
+.data-action { padding: 20px; }
+.data-action + .data-action { border-left: var(--stroke) solid var(--line); }
+.data-action button { height: 48px; padding: 0 20px; font-size: 16px; }
+
+@media (max-width: 860px) {
+  .add-product { grid-template-columns: 1fr 120px; }
+  .add-product button { grid-column: 1 / -1; }
+  .data-actions { grid-template-columns: 1fr; }
+  .data-action + .data-action { border-left: 0; border-top: var(--stroke) solid var(--line); }
+}
 
 /* 会計ダイアログ（docs/design/dayresi.pen の A-02） */
 .checkout {
