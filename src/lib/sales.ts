@@ -63,7 +63,14 @@ export function voidableSaleIds(sales: Sale[]): Set<string> {
   return new Set(sales.filter((s) => !s.voided && typeof s.id === 'string' && count.get(s.id) === 1).map((s) => s.id))
 }
 
-export type ProductSummary = { key: string; name: string; qty: number; amount: number }
+export type ProductSummary = {
+  key: string
+  name: string
+  qty: number
+  amount: number
+  /** 売上に占める割合（0〜1）。金額がプラスの商品だけにあり、0 円以下の商品は null */
+  share: number | null
+}
 
 export type Summary = {
   total: number
@@ -76,6 +83,7 @@ export type Summary = {
  * - 売上合計と会計件数。取り消した会計は入れない（ADR 0012）
  * - 商品ごとの数量と金額を、商品の登録順に出す。マイナス価格の商品（「割引 −50円」など）も同じように出る
  * - 商品は「商品ID＋会計時の名前＋価格」ごとにまとめる
+ * - 割合は、商品の金額 ÷ 金額がプラスの商品の金額の合計。マイナスの商品を入れると合計が 100% を超えるので、プラスの商品だけで割る
  */
 export function summarize(sales: Sale[], products: Product[]): Summary {
   const active = sales.filter((s) => !s.voided)
@@ -83,7 +91,7 @@ export function summarize(sales: Sale[], products: Product[]): Summary {
   for (const sale of active) {
     for (const item of sale.items) {
       const key = `${item.productId}\u0000${item.name}\u0000${item.price}`
-      const row = map.get(key) ?? { key, name: item.name, qty: 0, amount: 0 }
+      const row = map.get(key) ?? { key, name: item.name, qty: 0, amount: 0, share: null }
       row.qty += item.qty
       row.amount += item.price * item.qty
       map.set(key, row)
@@ -97,6 +105,8 @@ export function summarize(sales: Sale[], products: Product[]): Summary {
     const ib = order.get(b.key.split('\u0000')[0]) ?? Infinity
     return ia - ib
   })
+  const plusTotal = byProduct.reduce((sum, r) => (r.amount > 0 ? sum + r.amount : sum), 0)
+  for (const r of byProduct) r.share = r.amount > 0 ? r.amount / plusTotal : null
   return {
     total: active.reduce((sum, s) => sum + s.total, 0),
     count: active.length,

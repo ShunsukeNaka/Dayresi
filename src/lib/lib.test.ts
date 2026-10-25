@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { Product, Sale } from '../types'
 import { canCheckout, canConfirmSale, createSale, itemsTotal, summarize, voidableSaleIds, voidSale } from './sales'
 import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
-import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
+import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatPercent, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesCsvFileName, salesToCsv } from './csv'
 import { loadData, parseData, saveData } from './storage'
 import { addProduct } from './products'
@@ -170,6 +170,26 @@ describe('sales', () => {
     expect(summary.total).toBe(400)
     expect(summary.count).toBe(1)
     expect(summary.byProduct.map((r) => r.name)).toEqual(['焼きそば'])
+  })
+
+  it('割合は、金額がプラスの商品の合計で割り、マイナスの商品は null になる', () => {
+    const withDiscount: Product[] = [...products, { id: 'd', name: '割引', price: -50 }]
+    const s1 = mustCreateSale(cartItems({ a: 3, b: 4, d: 2 }, withDiscount), 1700, [])
+    const summary = summarize([s1], withDiscount)
+    // 焼きそば 1200 円・ラムネ 600 円で、プラスの合計は 1800 円（割引の −100 円は入れない）
+    expect(summary.byProduct.map((r) => [r.name, r.share])).toEqual([
+      ['焼きそば', 1200 / 1800],
+      ['ラムネ', 600 / 1800],
+      ['割引', null],
+    ])
+    const sum = summary.byProduct.reduce((t, r) => t + (r.share ?? 0), 0)
+    expect(sum).toBeCloseTo(1)
+  })
+
+  it('取り消した会計は割合にも入らない', () => {
+    const s1 = mustCreateSale(cartItems({ a: 1 }, products), 400, [])
+    const s2 = { ...mustCreateSale(cartItems({ b: 1 }, products), 150, [s1]), voided: true }
+    expect(summarize([s1, s2], products).byProduct.map((r) => [r.name, r.share])).toEqual([['焼きそば', 1]])
   })
 
   it('会計がないときは 0 円・0 件・空の一覧になる', () => {
@@ -449,6 +469,12 @@ describe('format', () => {
     expect(isValidName('　 ')).toBe(false)
     expect(isValidName('あ'.repeat(MAX_NAME_LENGTH))).toBe(true)
     expect(isValidName(' ' + 'あ'.repeat(MAX_NAME_LENGTH))).toBe(false)
+  })
+
+  it('割合は小数第 1 位までの % で表示する', () => {
+    expect(formatPercent(1200 / 1800)).toBe('66.7%')
+    expect(formatPercent(1)).toBe('100.0%')
+    expect(formatPercent(0.0004)).toBe('0.0%')
   })
 
   it('マイナスの金額は符号を前に付けて表示する', () => {
