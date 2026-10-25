@@ -79,11 +79,6 @@ main { flex: 1; min-height: 0; }
 .product-btn:active { transform: scale(.97); }
 .product-btn .name { font-weight: 700; }
 .product-btn .price { color: var(--muted); }
-.product-btn .badge {
-  position: absolute; top: 8px; right: 8px; min-width: 28px; height: 28px; padding: 0 8px;
-  border-radius: 14px; background: var(--primary); color: #fff; font-size: .9rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-}
 
 .cart { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); display: flex; flex-direction: column; min-height: 0; }
 .cart-list { list-style: none; margin: 0; padding: 8px 12px; flex: 1; overflow: auto; }
