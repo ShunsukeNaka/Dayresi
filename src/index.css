@@ -146,6 +146,9 @@ main { flex: 1; min-height: 0; }
   min-height: 72px; padding: 10px 20px; border-bottom: 1px solid var(--hair);
 }
 .history-list li:last-child { border-bottom: 0; }
+/* ほかの人の会計があるときは、番号に名前を付けるので広げる（N-13） */
+.history-list.with-names li { grid-template-columns: 96px 52px 1fr 110px 84px; }
+.history-hint { margin: -8px 0 16px; }
 .history-list .no { font-family: var(--font-num); font-size: 16px; font-weight: 700; }
 .history-list .time { font-family: var(--font-num); font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .history-list .items { font-size: 16px; word-break: break-word; }

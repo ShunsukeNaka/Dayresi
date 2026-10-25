@@ -91,18 +91,19 @@ export function mergeSales(sales: Sale[], incoming: Sale[], by: string): { sales
  * すでに取消済みの会計や、ない ID を指定したときは、受け取った配列をそのまま返す
  */
 export function voidSale(sales: Sale[], id: string): Sale[] {
-  if (!sales.some((s) => s.id === id && !s.voided)) return sales
+  // 代表者のレジに取り込んだ、ほかの人の会計は取り消せない。取消は会計した人のレジで行う（spec-next.md「会計の取消」）
+  if (!sales.some((s) => s.id === id && !s.voided && s.by === undefined)) return sales
   return sales.map((s) => (s.id === id ? { ...s, voided: true } : s))
 }
 
 /**
- * 取消ボタンを出せる会計の ID。取消済みでなく、ID が文字列で、ほかの会計と重ならないものだけ
+ * 取消ボタンを出せる会計の ID。取消済みでなく、ほかの人から受け取った会計でなく、ID が文字列で、ほかの会計と重ならないものだけ
  * 保存データの壊れた会計は捨てずに残す（#64）ので、ID がない・重なる会計を取り消すと、選んでいない会計まで取り消されてしまう（#73）
  */
 export function voidableSaleIds(sales: Sale[]): Set<string> {
   const count = new Map<unknown, number>()
   for (const s of sales) count.set(s.id, (count.get(s.id) ?? 0) + 1)
-  return new Set(sales.filter((s) => !s.voided && typeof s.id === 'string' && count.get(s.id) === 1).map((s) => s.id))
+  return new Set(sales.filter((s) => !s.voided && s.by === undefined && typeof s.id === 'string' && count.get(s.id) === 1).map((s) => s.id))
 }
 
 export type ProductSummary = {

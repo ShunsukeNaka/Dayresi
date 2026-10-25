@@ -216,6 +216,17 @@ describe('voidableSaleIds', () => {
   })
 })
 
+describe('受け取った会計の取消', () => {
+  it('ほかの人から受け取った会計は取り消せず、取消ボタンも出さない', () => {
+    const own = mustCreateSale(cartItems({ a: 1 }, products), null, [])
+    const received = { ...mustCreateSale(cartItems({ b: 1 }, products), null, []), id: 'r-1', by: '田中' }
+    const sales = [own, received]
+    expect(voidSale(sales, 'r-1')).toBe(sales)
+    expect([...voidableSaleIds(sales)]).toEqual([own.id])
+    expect(voidSale(sales, own.id)[0].voided).toBe(true)
+  })
+})
+
 describe('voidSale', () => {
   const s1 = mustCreateSale(cartItems({ a: 2 }, products), 1000, [])
   const s2 = mustCreateSale(cartItems({ b: 1 }, products), 150, [s1])
@@ -250,10 +261,10 @@ describe('csv', () => {
     const s1: Sale = { ...base, id: '1', no: 1, total: 750, change: 250, items: [{ productId: 'a', name: '焼きそば', price: 400, qty: 2 }, { productId: 'd', name: '割引', price: -50, qty: 1 }] }
     const s2: Sale = { ...base, id: '2', no: 2, total: 150, change: 850, voided: true, items: [{ productId: 'b', name: 'ラムネ', price: 150, qty: 1 }] }
     const csv = salesToCsv([s1, s2])
-    expect(csv.startsWith('\uFEFF会計番号,日時,商品名,単価,数量,小計,会計合計,お預かり,おつり,状態\r\n')).toBe(true)
+    expect(csv.startsWith('\uFEFF会計番号,会計した人,日時,商品名,単価,数量,小計,会計合計,お預かり,おつり,状態\r\n')).toBe(true)
     expect(csv.endsWith('\r\n')).toBe(true)
     const rows = csv.slice(1).split('\r\n').slice(1, -1).map((r) => r.split(','))
-    expect(rows.map((r) => [r[0], r[2], r[5], r[9]])).toEqual([
+    expect(rows.map((r) => [r[0], r[3], r[6], r[10]])).toEqual([
       ['1', '焼きそば', '800', ''],
       ['1', '割引', '-50', ''],
       ['2', 'ラムネ', '150', '取消'],
@@ -266,7 +277,7 @@ describe('csv', () => {
       items: [{ productId: 'a', name: '=SUM("A1")', price: 100, qty: 1 }],
     }
     const csv = salesToCsv([sale])
-    expect(csv.startsWith('﻿会計番号,日時,商品名,単価,')).toBe(true)
+    expect(csv.startsWith('﻿会計番号,会計した人,日時,商品名,単価,')).toBe(true)
     const row = csv.split('\r\n')[1]
     expect(row).toContain(`"=SUM(""A1"")"`)
     expect(row.endsWith(',取消')).toBe(true)
@@ -280,18 +291,25 @@ describe('csv', () => {
   })
 
   it('会計が 0 件なら見出しだけを出す', () => {
-    expect(salesToCsv([])).toBe('﻿会計番号,日時,商品名,単価,数量,小計,会計合計,お預かり,おつり,状態\r\n')
+    expect(salesToCsv([])).toBe('﻿会計番号,会計した人,日時,商品名,単価,数量,小計,会計合計,お預かり,おつり,状態\r\n')
   })
 
   it('1 行に会計の値をすべて出し、日時は PC の時刻で書く', () => {
     const sale = mustCreateSale([{ productId: 'a', name: '焼きそば', price: 400, qty: 2 }], 1000, [], new Date(2026, 9, 25, 9, 5, 30))
-    expect(salesToCsv([sale]).split('\r\n')[1]).toBe('1,2026-10-25 09:05:30,焼きそば,400,2,800,800,1000,200,')
+    expect(salesToCsv([sale]).split('\r\n')[1]).toBe('1,,2026-10-25 09:05:30,焼きそば,400,2,800,800,1000,200,')
+  })
+
+  it('会計した人の列には、取り込んだ会計は送った人の名前、自分の会計は自分の名前を書く', () => {
+    const own = mustCreateSale(cartItems({ a: 1 }, products), null, [])
+    const received = { ...mustCreateSale(cartItems({ b: 1 }, products), null, []), id: 'r-1', by: '田中' }
+    const rows = salesToCsv([own, received], '山田').split('\r\n').slice(1, -1)
+    expect(rows.map((r) => r.split(',').slice(0, 2))).toEqual([['1', '山田'], ['1', '田中']])
   })
 
   it('マイナス価格は数値のまま出力する', () => {
     const sale = mustCreateSale([{ productId: 'd', name: '割引', price: -50, qty: 2 }, { productId: 'a', name: '焼きそば', price: 400, qty: 1 }], 300, [])
     const rows = salesToCsv([sale]).split('\r\n')
-    expect(rows[1].split(',').slice(2, 6)).toEqual(['割引', '-50', '2', '-100'])
+    expect(rows[1].split(',').slice(3, 7)).toEqual(['割引', '-50', '2', '-100'])
   })
 })
 
