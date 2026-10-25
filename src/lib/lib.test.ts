@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { Product, Sale, Store } from '../types'
 import { canCheckout, canConfirmSale, createSale, itemsTotal, mergeSales, summarize, voidableSaleIds, voidSale } from './sales'
 import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
-import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatPercent, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
+import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatPercent, formatTime, formatYen, isValidCouponValue, isValidName, isValidPrice, parsePrice } from './format'
 import { salesCsvFileName, salesToCsv } from './csv'
 import { loadStore, parseData, parseStore, saveStore } from './storage'
 import { DEFAULT_REGISTER_NAME, addRegister, createRegister, currentRegister, deleteRegister, findStoreRegister, importProducts, importSales, storeWith, switchRegister, updateCurrent } from './registers'
@@ -315,7 +315,7 @@ describe('csv', () => {
 
 describe('storage', () => {
   it('空のデータは空で、壊れた商品はその商品だけ捨てる', () => {
-    expect(parseData(null)).toEqual({ products: [], sales: [] })
+    expect(parseData(null)).toEqual({ products: [], coupons: [], sales: [] })
     const broken = [{ id: 1, name: 'a', price: 1 }, { id: 'x', name: '   ', price: 1 }, { id: 'y', name: 'a', price: 1.5 }, null]
     expect(parseData(JSON.stringify({ products: [products[0], ...broken], sales: [] })).products).toEqual([products[0]])
   })
@@ -333,9 +333,26 @@ describe('storage', () => {
     expect(parseData(JSON.stringify({ products: [], sales: [...bad, ok] })).sales).toEqual([ok])
   })
 
-  it('マイナス価格の商品を捨てずに読み込む', () => {
+  it('マイナスの価格の商品は、同じ ID・名前・金額の金額引きの割引券に移す（MVP の保存データも）', () => {
     const discount = { id: 'd', name: '割引', price: -50 }
-    expect(parseData(JSON.stringify({ products: [discount], sales: [] })).products).toEqual([discount])
+    const data = parseData(JSON.stringify({ products: [products[0], discount], sales: [] }))
+    expect(data.products).toEqual([products[0]])
+    expect(data.coupons).toEqual([{ id: 'd', name: '割引', kind: 'amount', value: 50 }])
+  })
+
+  it('割引券は、ルールに合わないものだけ捨て、移したものと ID が重なれば 1 つにする', () => {
+    const ok = [{ id: 'c1', name: '50円引き', kind: 'amount', value: 50 }, { id: 'c2', name: '1割引き', kind: 'percent', value: 10 }]
+    const bad = [null, { id: 'x', name: 'a', kind: 'percent', value: 101 }, { id: 'y', name: 'a', kind: 'amount', value: 0 }, { id: 'z', name: 'a', kind: 'free', value: 1 }, { id: 'w', name: '　', kind: 'amount', value: 1 }]
+    const data = parseData(JSON.stringify({ products: [{ id: 'c1', name: '50円引き', price: -50 }], coupons: [...ok, ...bad], sales: [] }))
+    expect(data.coupons).toEqual(ok)
+  })
+
+  it('割引券を作る前のレジ（coupons がない）も読み、マイナスの価格の商品を移す', () => {
+    const r = createRegister({ name: '研究室の模擬店' })
+    const old = { ...r, products: [products[0], { id: 'd', name: '割引', price: -50 }] } as Record<string, unknown>
+    delete old.coupons
+    const store = parseStore(JSON.stringify({ registers: [old], currentId: r.id }))
+    expect(currentRegister(store)).toMatchObject({ products: [products[0]], coupons: [{ id: 'd', name: '割引', kind: 'amount', value: 50 }] })
   })
 
   describe('レジの一覧（dayresi:v3）', () => {
@@ -533,9 +550,9 @@ describe('registers', () => {
 
 describe('products', () => {
   it('商品を末尾に足し、ID を UUID で振る', () => {
-    const next = addProduct(products, '割引', -50)
-    expect(next.map((p) => p.name)).toEqual(['焼きそば', 'ラムネ', '割引'])
-    expect(next[2]).toMatchObject({ name: '割引', price: -50 })
+    const next = addProduct(products, 'かき氷', 300)
+    expect(next.map((p) => p.name)).toEqual(['焼きそば', 'ラムネ', 'かき氷'])
+    expect(next[2]).toMatchObject({ name: 'かき氷', price: 300 })
     expect(next[2].id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
     expect(products).toHaveLength(2)
   })
@@ -560,9 +577,10 @@ describe('reducer', () => {
   const cur = (store: Store) => currentRegister(store)
 
   it('商品を登録し、ルールに合わない商品では状態を変えない', () => {
-    const state = reducer(empty, { type: 'addProduct', name: '割引', price: -50 })
-    expect(cur(state).products.map((p) => p.name)).toEqual(['焼きそば', 'ラムネ', '割引'])
+    const state = reducer(empty, { type: 'addProduct', name: 'かき氷', price: 0 })
+    expect(cur(state).products.map((p) => p.name)).toEqual(['焼きそば', 'ラムネ', 'かき氷'])
     expect(reducer(empty, { type: 'addProduct', name: '　', price: 100 })).toBe(empty)
+    expect(reducer(empty, { type: 'addProduct', name: '割引', price: -50 })).toBe(empty)
   })
 
   it('会計を確定し、1 から番号を振る', () => {
@@ -594,6 +612,8 @@ describe('reducer', () => {
     expect(cur(cleared)).toMatchObject({ id: cur(state).id, name: DEFAULT_REGISTER_NAME, products: [], sales: [] })
     expect(cleared.registers[1]).toBe(other)
     expect(reducer(cleared, { type: 'resetAll' })).toBe(cleared)
+    const withCoupon = updateCurrent(empty, (r) => ({ ...r, coupons: [{ id: 'c', name: '50円引き', kind: 'amount', value: 50 }] }))
+    expect(cur(reducer(withCoupon, { type: 'resetAll' })).coupons).toEqual([])
   })
 
   it('新しいレジを代表者として作って切り替え、名前がルールに合わなければ作らない', () => {
@@ -638,28 +658,32 @@ describe('reducer', () => {
   it('操作は今のレジにだけ働く', () => {
     const other = createRegister({ name: 'サークルの屋台', products })
     const state: Store = { registers: [...empty.registers, other], currentId: other.id }
-    const next = reducer(state, { type: 'addProduct', name: '割引', price: -50 })
+    const next = reducer(state, { type: 'addProduct', name: 'かき氷', price: 300 })
     expect(next.registers[0]).toBe(empty.registers[0])
     expect(next.registers[1].products).toHaveLength(3)
   })
 })
 
 describe('format', () => {
-  it('マイナスを含む価格の入力を受け付け、範囲外や小数は弾く', () => {
+  it('価格の入力を受け付け、マイナス・範囲外・小数は弾く（割引は割引券で行う）', () => {
     expect(parsePrice('400')).toBe(400)
-    expect(parsePrice(' -50 ')).toBe(-50)
-    expect(parsePrice('−50')).toBe(-50)
-    expect(parsePrice('－50')).toBe(-50)
     expect(parsePrice('0')).toBe(0)
-    for (const bad of ['', '-', '1.5', '50-', 'abc', '10000000', '-10000000']) expect(parsePrice(bad)).toBeNull()
-    expect(isValidPrice(-9_999_999)).toBe(true)
-    expect(isValidPrice(-10_000_000)).toBe(false)
+    for (const bad of ['', '-', '1.5', '50-', 'abc', '10000000', ' -50 ', '−50', '－50']) expect(parsePrice(bad)).toBeNull()
+    expect(isValidPrice(-1)).toBe(false)
+  })
+
+  it('割引券の値は、金額引きは 1〜9,999,999 円、% 引きは 1〜100 の整数', () => {
+    expect(isValidCouponValue('amount', 1)).toBe(true)
+    expect(isValidCouponValue('amount', 9_999_999)).toBe(true)
+    expect(isValidCouponValue('percent', 100)).toBe(true)
+    for (const [k, v] of [['amount', 0], ['amount', 10_000_000], ['percent', 101], ['percent', 0.5], ['other', 10], ['amount', '50']]) {
+      expect(isValidCouponValue(k, v)).toBe(false)
+    }
   })
 
   it('全角の数字を受け付け、カンマ・¥・円は弾く', () => {
     expect(parsePrice('４００')).toBe(400)
-    expect(parsePrice('－５０')).toBe(-50)
-    expect(parsePrice('−５０')).toBe(-50)
+    expect(parsePrice('－５０')).toBeNull()
     expect(parsePrice('　４００　')).toBe(400)
     expect(parsePrice('４0０')).toBe(400)
     expect(parsePrice('９９９９９９９')).toBe(9_999_999)
@@ -668,7 +692,7 @@ describe('format', () => {
 
   it('価格は上限・下限ちょうどまで受け付ける', () => {
     expect(parsePrice('9999999')).toBe(9_999_999)
-    expect(parsePrice('-9999999')).toBe(-9_999_999)
+    expect(isValidPrice(0)).toBe(true)
     expect(isValidPrice(9_999_999)).toBe(true)
     expect(isValidPrice(10_000_000)).toBe(false)
     expect(isValidPrice(1.5)).toBe(false)
@@ -720,7 +744,7 @@ describe('format', () => {
 })
 
 describe('share（商品を配る）', () => {
-  const tenProducts: Product[] = Array.from({ length: 10 }, (_, i) => ({ id: crypto.randomUUID(), name: `たこ焼き（8個）${i}`, price: i === 9 ? -50 : 400 + i * 10 }))
+  const tenProducts: Product[] = Array.from({ length: 10 }, (_, i) => ({ id: crypto.randomUUID(), name: `たこ焼き（8個）${i}`, price: 400 + i * 10 }))
 
   it('商品・レジの名前・店の印を詰めて、そのまま読み出せる', async () => {
     const fragment = await encodeProductsShare({ storeId: 'store-1', name: '研究室の模擬店', products: tenProducts })
