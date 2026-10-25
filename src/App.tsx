@@ -9,6 +9,7 @@ import { HistoryView } from './components/HistoryView'
 import { SummaryView } from './components/SummaryView'
 import { SettingsView } from './components/SettingsView'
 
+/** 画面はレジ・履歴・集計・設定の 4 つで、上のタブで切り替える */
 type Tab = 'register' | 'history' | 'summary' | 'settings'
 
 const TABS: { id: Tab; label: string }[] = [
@@ -20,6 +21,7 @@ const TABS: { id: Tab; label: string }[] = [
 
 export default function App() {
   const [data, dispatch] = useAppData()
+  // 商品がないときは、まず商品を登録できるよう設定画面から始める
   const [tab, setTab] = useState<Tab>(data.products.length > 0 ? 'register' : 'settings')
   const [cart, setCart] = useState<Cart>({})
   const [checkoutOpen, setCheckoutOpen] = useState(false)
