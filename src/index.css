@@ -310,6 +310,17 @@ main { flex: 1; min-height: 0; }
   display: flex; align-items: center; justify-content: center; font-family: var(--font-num); font-size: 15px; font-weight: 700;
 }
 
+/* 配られた商品の取り込みの確認（N-06・P-05） */
+.modal-lead { margin: 0; font-size: 16px; line-height: 1.6; }
+.preview-list { border: var(--stroke) solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+.preview-head { height: 36px; padding: 0 16px; display: flex; align-items: center; background: var(--subtle); border-bottom: var(--stroke) solid var(--line); font-size: 13px; font-weight: 700; color: var(--muted); }
+.preview-list ul { list-style: none; margin: 0; padding: 0; }
+.preview-list li { min-height: 40px; padding: 6px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--hair); font-size: 15px; }
+.preview-list li:last-child { border-bottom: 0; }
+.preview-list .price { font-family: var(--font-num); font-weight: 700; }
+.preview-list .price.minus { color: var(--minus); }
+.preview-rest { color: var(--muted); }
+
 /* 商品を配る（N-07）と、QR とリンクで渡すダイアログ（N-08・N-10・N-11） */
 .share-section {
   display: flex; align-items: center; gap: 20px; margin-top: 12px; padding: 20px;

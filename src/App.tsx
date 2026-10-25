@@ -1,7 +1,7 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Cart } from './types'
 import { useAppData } from './state'
-import { ROLE_LABEL, currentRegister } from './lib/registers'
+import { ROLE_LABEL, currentRegister, findStoreRegister } from './lib/registers'
 import { canCheckout, canConfirmSale, itemsTotal } from './lib/sales'
 import { addToCart, cartItems, changeQty as changeCartQty, clearCart } from './lib/cart'
 import { RegisterView } from './components/RegisterView'
@@ -10,6 +10,8 @@ import { HistoryView } from './components/HistoryView'
 import { SummaryView } from './components/SummaryView'
 import { SettingsView } from './components/SettingsView'
 import { RegisterDialog } from './components/RegisterDialog'
+import { ImportProductsDialog } from './components/ImportProductsDialog'
+import { decodeShare, type ProductsShare } from './lib/share'
 
 /** 画面はレジ・履歴・集計・設定の 4 つで、上のタブで切り替える */
 type Tab = 'register' | 'history' | 'summary' | 'settings'
@@ -28,6 +30,23 @@ export default function App() {
   const [cart, setCart] = useState<Cart>({})
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [registerOpen, setRegisterOpen] = useState(false)
+  // 開いたリンク（QR）の # 以降にあった、配られた商品
+  const [incoming, setIncoming] = useState<ProductsShare | null>(null)
+
+  // リンクを開いたとき（開いているページで別のリンクを開いたときも）、# 以降の引き渡しのデータを読む。読んだら # 以降は消す
+  useEffect(() => {
+    const read = () => {
+      const hash = location.hash
+      if (!hash) return
+      history.replaceState(null, '', location.pathname + location.search)
+      void decodeShare(hash).then((share) => {
+        if (share) setIncoming(share)
+      })
+    }
+    read()
+    window.addEventListener('hashchange', read)
+    return () => window.removeEventListener('hashchange', read)
+  }, [])
   // 画面は、今使っているレジの商品と会計を出す
   const data = currentRegister(store)
 
@@ -115,6 +134,21 @@ export default function App() {
           }}
           onCreated={() => setTab('settings')}
           onClose={() => setRegisterOpen(false)}
+        />
+      )}
+
+      {incoming && (
+        <ImportProductsDialog
+          share={incoming}
+          existing={findStoreRegister(store, incoming.storeId)}
+          onImport={(myName) => {
+            dispatch({ type: 'importProducts', share: incoming, myName })
+            setCart(clearCart())
+            setCheckoutOpen(false)
+            setTab('register')
+            setIncoming(null)
+          }}
+          onClose={() => setIncoming(null)}
         />
       )}
 
