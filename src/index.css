@@ -72,6 +72,7 @@ input::placeholder { color: var(--disabled-text); }
 .tabs { display: flex; gap: 4px; }
 .tabs button { background: transparent; color: var(--bar-muted); padding: 8px 20px; font-size: 15px; font-weight: 500; }
 .tabs button.active { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.tab-icon { display: none; }
 
 main { flex: 1; min-height: 0; }
 .tab { height: 100%; overflow: auto; padding: 16px 20px; }
@@ -388,11 +389,19 @@ main { flex: 1; min-height: 0; }
   .modal-actions { margin-top: auto; }
   .modal-actions button.primary { width: 100%; }
   .choice-list { grid-template-columns: 1fr; }
-  /* 上部バーは 2 段にして、レジの切り替えとタブが重ならないようにする（スマホ版の上部バーとタブは別の Issue で決める） */
-  .topbar { flex-wrap: wrap; height: auto; padding: 8px 12px; gap: 8px; }
-  .topbar-left { flex-basis: 100%; gap: 10px; }
+  /* 上部バーは Dayresi とレジの切り替えだけにし、タブは画面の下に置く（docs/design/dayresi.pen の M の段） */
+  .topbar { height: 56px; padding: 0 12px; gap: 10px; }
+  .topbar-left { gap: 10px; }
   .topbar h1 { font-size: 18px; }
   .register-switch { flex: 1; max-width: none; justify-content: space-between; }
-  .tabs { flex-basis: 100%; }
-  .tabs button { flex: 1; padding: 8px 4px; }
+  .tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; gap: 4px;
+    height: calc(64px + env(safe-area-inset-bottom)); padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
+    background: var(--surface); border-top: var(--stroke) solid var(--line);
+  }
+  .tabs button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; color: var(--muted); font-size: 12px; }
+  .tabs button.active { color: var(--on-accent); font-weight: 800; }
+  .tab-icon { display: block; }
+  /* 下のタブの分だけ、画面の中身を上にずらす */
+  main { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
 }
