@@ -72,6 +72,8 @@ main { flex: 1; min-height: 0; }
 .container.page { max-width: 960px; }
 .page-title { font-size: 28px; font-weight: 800; margin: 0 0 20px; }
 .empty { color: var(--muted); padding: 32px; text-align: center; }
+/* 画面には出さず、読み上げだけに使う文字 */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* レジ（docs/design/dayresi.pen の A-01） */
 .register { display: grid; grid-template-columns: 1fr 400px; gap: 24px; padding: 24px; overflow: hidden; }
@@ -91,6 +93,13 @@ main { flex: 1; min-height: 0; }
 .product-btn .name { font-size: 18px; font-weight: 700; }
 .product-btn .price { font-size: 16px; font-weight: 500; color: var(--muted); }
 .product-btn .price.minus { color: var(--minus); }
+/* カートに入っている商品（SPEC「会計」）。色を変え、左上にカート内の数量を出す */
+.product-btn.in-cart { background: var(--accent-soft); border: 3px solid var(--accent); }
+.qty-badge {
+  position: absolute; top: -3px; left: -3px; min-width: 30px; height: 30px; padding: 0 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--ink); color: #fff; font-family: var(--font-num); font-size: 15px; font-weight: 700;
+}
 
 .cart {
   background: var(--surface); border: var(--stroke) solid var(--line); border-radius: var(--radius-lg);
