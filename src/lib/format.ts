@@ -54,6 +54,17 @@ export function parsePrice(s: string): number | null {
   return isValidPrice(n) ? n : null
 }
 
+/**
+ * 割引券の値の入力を数にする。不正なら null。数字の受け付け方は価格と同じ（全角の数字も受け付ける）
+ * 金額引きは 1〜MAX_PRICE 円、% 引きは 1〜MAX_PERCENT
+ */
+export function parseCouponValue(kind: 'amount' | 'percent', s: string): number | null {
+  const t = s.trim().replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+  if (!/^\d+$/.test(t)) return null
+  const n = Number(t)
+  return isValidCouponValue(kind, n) ? n : null
+}
+
 /** 割引券の値がルールに合うか。金額引きは 1〜MAX_PRICE 円、% 引きは 1〜MAX_PERCENT の整数 */
 export function isValidCouponValue(kind: unknown, value: unknown): boolean {
   if (typeof value !== 'number' || !Number.isInteger(value) || value < 1) return false

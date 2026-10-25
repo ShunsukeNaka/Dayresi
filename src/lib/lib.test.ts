@@ -2,13 +2,13 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { Product, Sale, Store } from '../types'
 import { canCheckout, canConfirmSale, createSale, itemsTotal, mergeSales, saleTotal, summarize, voidableSaleIds, voidSale } from './sales'
 import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
-import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatPercent, formatTime, formatYen, isValidCouponValue, isValidName, isValidPrice, parsePrice } from './format'
+import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatPercent, formatTime, formatYen, isValidCouponValue, isValidName, isValidPrice, parseCouponValue, parsePrice } from './format'
 import { salesCsvFileName, salesToCsv } from './csv'
 import { loadStore, parseData, parseStore, saveStore } from './storage'
 import { DEFAULT_REGISTER_NAME, addRegister, createRegister, currentRegister, deleteRegister, findStoreRegister, importProducts, importSales, storeWith, switchRegister, updateCurrent } from './registers'
 import { addProduct } from './products'
 import { reducer } from '../state'
-import { applyCoupons } from './coupons'
+import { addCoupon, applyCoupons, couponLabel } from './coupons'
 import { decodeShare, encodeProductsShare, encodeSalesShare, shareUrl } from './share'
 import { MAX_QR_VERSION, qrModules } from './qr'
 
@@ -985,5 +985,34 @@ describe('share（割引券と割引）', () => {
     expect(currentRegister(store).coupons).toEqual(coupons)
     const again = importProducts(store, { storeId: 's', name: '店', products, coupons: [coupons[0]] }, '')
     expect(currentRegister(again.store).coupons).toEqual([coupons[0]])
+  })
+})
+
+describe('割引券の登録', () => {
+  it('割引券を末尾に足し、ルールに合わない名前・値では足さない', () => {
+    const one = addCoupon([], '50円引き', 'amount', 50)
+    expect(one).toMatchObject([{ name: '50円引き', kind: 'amount', value: 50 }])
+    expect(one[0].id).toMatch(/^[0-9a-f-]{36}$/)
+    const two = addCoupon(one, '1割引き', 'percent', 10)
+    expect(two.map((c) => c.name)).toEqual(['50円引き', '1割引き'])
+    for (const [n, k, v] of [['　', 'amount', 50], ['a', 'percent', 101], ['a', 'amount', 0]] as const) expect(addCoupon(one, n, k, v)).toBe(one)
+  })
+
+  it('割引券の値の表示と入力', () => {
+    expect(couponLabel({ kind: 'amount', value: 1500 })).toBe('−¥1,500')
+    expect(couponLabel({ kind: 'percent', value: 10 })).toBe('10%引き')
+    expect(parseCouponValue('amount', ' ５０ ')).toBe(50)
+    expect(parseCouponValue('percent', '100')).toBe(100)
+    for (const [k, v] of [['percent', '101'], ['amount', '0'], ['amount', '-50'], ['amount', '1.5'], ['amount', '']] as const) expect(parseCouponValue(k, v)).toBeNull()
+  })
+
+  it('代表者のレジでだけ割引券を登録できる', () => {
+    const owner = storeWith()
+    const next = reducer(owner, { type: 'addCoupon', name: '50円引き', kind: 'amount', value: 50 })
+    expect(currentRegister(next).coupons).toHaveLength(1)
+    expect(reducer(owner, { type: 'addCoupon', name: '　', kind: 'amount', value: 50 })).toBe(owner)
+    const member = createRegister({ name: '店', role: 'member' })
+    const ms: Store = { registers: [member], currentId: member.id }
+    expect(reducer(ms, { type: 'addCoupon', name: '50円引き', kind: 'amount', value: 50 })).toBe(ms)
   })
 })
