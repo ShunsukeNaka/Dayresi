@@ -1,5 +1,14 @@
+/**
+ * 売上 CSV の形式（#55）
+ * - 1 行 = 会計の明細 1 件。1 行目は見出し
+ * - 列：会計番号、日時、商品名、単価、数量、小計、会計合計、お預かり、おつり、状態
+ * - 取り消した会計も出し、状態の列に「取消」と書く（取り消していなければ空）
+ * - 文字コードは BOM 付き UTF-8（Excel で文字化けしないように）。改行は CRLF
+ * - カンマ・改行・「"」を含む値は「"」で囲む
+ * - ファイル名は dayresi-sales-YYYYMMDD-HHmm.csv（保存した日時）
+ */
 import type { Sale } from '../types'
-import { formatDateTime } from './format'
+import { fileStamp, formatDateTime } from './format'
 
 const HEADER = ['会計番号', '日時', '商品名', '単価', '数量', '小計', '会計合計', 'お預かり', 'おつり', '状態']
 
@@ -8,7 +17,6 @@ function escapeField(value: string | number): string {
   return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
 }
 
-/** 1 行 = 会計の 1 明細。Excel で文字化けしないよう BOM を付ける */
 export function salesToCsv(sales: Sale[]): string {
   const rows: (string | number)[][] = [HEADER]
   for (const sale of sales) {
@@ -28,4 +36,8 @@ export function salesToCsv(sales: Sale[]): string {
     }
   }
   return '﻿' + rows.map((r) => r.map(escapeField).join(',')).join('\r\n') + '\r\n'
+}
+
+export function salesCsvFileName(date = new Date()): string {
+  return `dayresi-sales-${fileStamp(date)}.csv`
 }
