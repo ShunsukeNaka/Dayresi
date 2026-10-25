@@ -1,5 +1,4 @@
 import type { Cart, Product, Sale, SaleItem } from '../types'
-import { newId } from './format'
 
 /** カートに入れられる 1 つの商品の数量の上限 */
 export const MAX_QTY = 999
@@ -23,7 +22,7 @@ export function canCheckout(items: SaleItem[]): boolean {
 export function createSale(items: SaleItem[], paid: number, prevSales: Sale[], now = new Date()): Sale {
   const total = itemsTotal(items)
   return {
-    id: newId(),
+    id: crypto.randomUUID(),
     no: prevSales.reduce((max, s) => Math.max(max, s.no), 0) + 1,
     at: now.toISOString(),
     items,
