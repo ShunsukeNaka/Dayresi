@@ -21,32 +21,37 @@ export function HistoryView({ sales, onVoid }: Props) {
 
   return (
     <section className="tab">
-      <div className="container">
+      <div className="container page">
+        <h2 className="page-title">履歴</h2>
         {sales.length === 0 && <p className="empty">まだ会計はありません。</p>}
-        <ul className="history-list">
-          {newestFirst.map(({ s, index }) => (
-            <li key={index} className={s.voided ? 'voided' : ''}>
-              <div className="meta">
-                {`#${s.no}`}　{formatTime(s.at)}
-                {s.voided && <span className="tag">取消済</span>}
-              </div>
-              <div className="amount">{formatYen(s.total)}</div>
-              <div className="items">{s.items.map((i) => `${i.name}×${i.qty}`).join('、')}</div>
-              <div className="history-ops">
-                {voidable.has(s.id) && (
-                  <button
-                    className="secondary"
-                    onClick={() => {
-                      if (confirm(`会計 #${s.no}（${formatYen(s.total)}）を取り消しますか？\n取り消すと集計から除かれ、元に戻せません。`)) onVoid(s.id)
-                    }}
-                  >
-                    取消
-                  </button>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
+        {/* 1 行に 会計番号・時刻・明細・合計・取消 を並べる */}
+        {sales.length > 0 && (
+          <ul className="history-list">
+            {newestFirst.map(({ s, index }) => (
+              <li key={index} className={s.voided ? 'voided' : ''}>
+                <span className="no">{`#${s.no}`}</span>
+                <span className="time">{formatTime(s.at)}</span>
+                <span className="items">
+                  {s.voided && <span className="tag">取消済</span>}
+                  {s.items.map((i) => `${i.name}×${i.qty}`).join('、')}
+                </span>
+                <span className="amount">{formatYen(s.total)}</span>
+                <span className="history-ops">
+                  {voidable.has(s.id) && (
+                    <button
+                      className="secondary"
+                      onClick={() => {
+                        if (confirm(`会計 #${s.no}（${formatYen(s.total)}）を取り消しますか？\n取り消すと集計から除かれ、元に戻せません。`)) onVoid(s.id)
+                      }}
+                    >
+                      取消
+                    </button>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </section>
   )
