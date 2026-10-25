@@ -1,13 +1,4 @@
-import type { Cart, Product, Sale, SaleItem } from '../types'
-
-/** カートに入れられる 1 つの商品の数量の上限 */
-export const MAX_QTY = 999
-
-export function cartItems(cart: Cart, products: Product[]): SaleItem[] {
-  return products
-    .filter((p) => (cart[p.id] ?? 0) > 0)
-    .map((p) => ({ productId: p.id, name: p.name, price: p.price, qty: cart[p.id] }))
-}
+import type { Product, Sale, SaleItem } from '../types'
 
 export function itemsTotal(items: SaleItem[]): number {
   return items.reduce((sum, i) => sum + i.price * i.qty, 0)

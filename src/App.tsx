@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react'
 import type { Cart } from './types'
 import { useAppData } from './state'
-import { MAX_QTY, canCheckout, cartItems, createSale, itemsTotal } from './lib/sales'
+import { canCheckout, createSale, itemsTotal } from './lib/sales'
+import { cartItems, changeQty as changeCartQty, clearCart } from './lib/cart'
 import { RegisterView } from './components/RegisterView'
 import { CheckoutDialog } from './components/CheckoutDialog'
 import { HistoryView } from './components/HistoryView'
@@ -28,13 +29,7 @@ export default function App() {
   const total = itemsTotal(items)
 
   const changeQty = useCallback((id: string, delta: number) => {
-    setCart((prev) => {
-      const qty = Math.max(0, Math.min(MAX_QTY, (prev[id] ?? 0) + delta))
-      const next = { ...prev }
-      if (qty === 0) delete next[id]
-      else next[id] = qty
-      return next
-    })
+    setCart((prev) => changeCartQty(prev, id, delta))
   }, [])
 
   const openCheckout = () => {
@@ -44,7 +39,7 @@ export default function App() {
   const confirmCheckout = (paid: number) => {
     const sale = createSale(items, paid, data.sales)
     dispatch({ type: 'recordSale', sale })
-    setCart({})
+    setCart(clearCart())
     setCheckoutOpen(false)
   }
 
@@ -75,7 +70,7 @@ export default function App() {
             items={items}
             total={total}
             onChangeQty={changeQty}
-            onClear={() => setCart({})}
+            onClear={() => setCart(clearCart())}
             onCheckout={openCheckout}
             onGoSettings={() => setTab('settings')}
           />
