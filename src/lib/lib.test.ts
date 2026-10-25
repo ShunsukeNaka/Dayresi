@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import type { Product, Sale } from '../types'
+import type { Product, Sale, Store } from '../types'
 import { canCheckout, canConfirmSale, createSale, itemsTotal, summarize, voidableSaleIds, voidSale } from './sales'
 import { MAX_QTY, addToCart, cartItems, changeQty, clearCart } from './cart'
 import { MAX_NAME_LENGTH, fileStamp, formatDateTime, formatPercent, formatTime, formatYen, isValidName, isValidPrice, parsePrice } from './format'
 import { salesCsvFileName, salesToCsv } from './csv'
-import { loadData, parseData, saveData } from './storage'
+import { loadStore, parseData, parseStore, saveStore } from './storage'
+import { DEFAULT_REGISTER_NAME, createRegister, currentRegister, storeWith, updateCurrent } from './registers'
 import { addProduct } from './products'
 import { reducer } from '../state'
 
@@ -317,6 +318,35 @@ describe('storage', () => {
     expect(parseData(JSON.stringify({ products: [discount], sales: [] })).products).toEqual([discount])
   })
 
+  describe('レジの一覧（dayresi:v3）', () => {
+    it('レジが 1 つもない・読めないときは、代表者のマイレジを 1 つ作る', () => {
+      for (const raw of [null, '{}', JSON.stringify({ registers: [] }), JSON.stringify({ registers: [null, 1] })]) {
+        const store = parseStore(raw)
+        expect(store.registers).toHaveLength(1)
+        expect(currentRegister(store)).toMatchObject({ name: DEFAULT_REGISTER_NAME, role: 'owner', myName: '', products: [], sales: [] })
+      }
+    })
+
+    it('壊れた値は既定の値で補い、商品と会計は MVP と同じ決まりで読む', () => {
+      const ok = createSale(cartItems({ a: 1 }, products), 400, [])
+      const raw = JSON.stringify({ registers: [{ name: '', role: 'x', myName: 5, products: [products[0], { id: 1 }], sales: [ok, null] }], currentId: 'none' })
+      const store = parseStore(raw)
+      const r = currentRegister(store)
+      expect(r).toMatchObject({ name: DEFAULT_REGISTER_NAME, role: 'owner', myName: '', products: [products[0]], sales: [ok] })
+      expect(r.id).toMatch(/^[0-9a-f-]{36}$/)
+      expect(r.storeId).toMatch(/^[0-9a-f-]{36}$/)
+      expect(store.currentId).toBe(r.id)
+    })
+
+    it('会計する人のレジと今のレジを、そのまま読む', () => {
+      const owner = createRegister({ name: '研究室の模擬店', myName: '山田', products })
+      const member = createRegister({ name: 'サークルの屋台', role: 'member', myName: '田中', storeId: 'store-1' })
+      const store = parseStore(JSON.stringify({ registers: [owner, member], currentId: member.id }))
+      expect(store).toEqual({ registers: [owner, member], currentId: member.id })
+      expect(currentRegister(store)).toEqual(member)
+    })
+  })
+
   describe('localStorage', () => {
     const original = globalThis.localStorage
     const stub = (entries: Record<string, string>) => {
@@ -332,41 +362,81 @@ describe('storage', () => {
       globalThis.localStorage = original
     })
 
-    it('dayresi:v2 から読み、dayresi:v2 に保存する', () => {
-      const map = stub({ 'dayresi:v2': JSON.stringify({ products: [products[0]], sales: [] }) })
-      expect(loadData().products).toEqual([products[0]])
-      saveData({ products, sales: [] })
-      expect(JSON.parse(map.get('dayresi:v2')!).products).toEqual(products)
+    it('dayresi:v3 から読み、dayresi:v3 に保存する', () => {
+      const store = storeWith({ products })
+      const map = stub({ 'dayresi:v3': JSON.stringify(store) })
+      expect(loadStore()).toEqual(store)
+      const next = updateCurrent(store, (r) => ({ ...r, products: [products[1]] }))
+      saveStore(next)
+      expect(JSON.parse(map.get('dayresi:v3')!)).toEqual(next)
     })
 
-    it('JSON として読めないデータは捨てて空で始める', () => {
-      stub({ 'dayresi:v2': '{broken' })
-      expect(loadData()).toEqual({ products: [], sales: [] })
-      stub({ 'dayresi:v2': 'null' })
-      expect(loadData()).toEqual({ products: [], sales: [] })
+    it('dayresi:v3 がなければ、MVP の dayresi:v2 をマイレジに引き継ぎ、v2 は消さない', () => {
+      const sale = createSale(cartItems({ a: 1 }, products), 400, [])
+      const v2 = JSON.stringify({ products, sales: [sale] })
+      const map = stub({ 'dayresi:v2': v2 })
+      const store = loadStore()
+      expect(store.registers).toHaveLength(1)
+      expect(currentRegister(store)).toMatchObject({ name: DEFAULT_REGISTER_NAME, role: 'owner', products, sales: [sale] })
+      saveStore(store)
+      expect(map.get('dayresi:v2')).toBe(v2)
+    })
+
+    it('dayresi:v3 があれば、dayresi:v2 は読まない', () => {
+      const store = storeWith()
+      stub({ 'dayresi:v3': JSON.stringify(store), 'dayresi:v2': JSON.stringify({ products, sales: [] }) })
+      expect(currentRegister(loadStore()).products).toEqual([])
+    })
+
+    it('JSON として読めないデータは捨てて、マイレジだけで始める', () => {
+      const cases: Record<string, string>[] = [{ 'dayresi:v3': '{broken' }, { 'dayresi:v3': 'null' }, { 'dayresi:v2': '{broken' }]
+      for (const entries of cases) {
+        stub(entries)
+        const store = loadStore()
+        expect(store.registers).toHaveLength(1)
+        expect(currentRegister(store)).toMatchObject({ name: DEFAULT_REGISTER_NAME, products: [], sales: [] })
+      }
     })
 
     it('保存に失敗しても例外を投げない', () => {
       stub({})
       globalThis.localStorage.setItem = () => { throw new DOMException('quota', 'QuotaExceededError') }
-      expect(() => saveData({ products, sales: [] })).not.toThrow()
-    })
-
-    it('全データ消去で空のデータを保存すると、商品も会計もなくなる', () => {
-      const sale = createSale(cartItems({ a: 1 }, products), 400, [])
-      const map = stub({ 'dayresi:v2': JSON.stringify({ products, sales: [sale] }) })
-      saveData(reducer(loadData(), { type: 'resetAll' }))
-      expect(JSON.parse(map.get('dayresi:v2')!)).toEqual({ products: [], sales: [] })
-      expect(loadData()).toEqual({ products: [], sales: [] })
+      expect(() => saveStore(storeWith({ products }))).not.toThrow()
     })
 
     it('作り直す前の dayresi:v1 は読まず、保存しても消さない', () => {
       const v1 = JSON.stringify({ products: [products[0]], sales: [] })
       const map = stub({ 'dayresi:v1': v1 })
-      expect(loadData()).toEqual({ products: [], sales: [] })
-      saveData({ products, sales: [] })
+      expect(currentRegister(loadStore()).products).toEqual([])
+      saveStore(storeWith({ products }))
       expect(map.get('dayresi:v1')).toBe(v1)
     })
+  })
+})
+
+describe('registers', () => {
+  it('新しいレジは代表者で、ID と店の印を UUID で振る。会計する人のレジは店の印を受け継ぐ', () => {
+    const owner = createRegister({ name: '研究室の模擬店' })
+    expect(owner).toMatchObject({ name: '研究室の模擬店', role: 'owner', myName: '', products: [], sales: [] })
+    expect(owner.id).not.toBe(owner.storeId)
+    const member = createRegister({ name: '研究室の模擬店', role: 'member', storeId: owner.storeId, products })
+    expect(member.storeId).toBe(owner.storeId)
+    expect(member.id).not.toBe(owner.id)
+  })
+
+  it('今のレジだけを変え、変わらなければ同じ保存データを返す', () => {
+    const a = createRegister({ name: 'A' })
+    const b = createRegister({ name: 'B' })
+    const store: Store = { registers: [a, b], currentId: b.id }
+    const next = updateCurrent(store, (r) => ({ ...r, products }))
+    expect(next.registers[0]).toBe(a)
+    expect(next.registers[1].products).toEqual(products)
+    expect(updateCurrent(store, (r) => r)).toBe(store)
+  })
+
+  it('currentId がどのレジとも合わないときは、最初のレジを今のレジにする', () => {
+    const a = createRegister({ name: 'A' })
+    expect(currentRegister({ registers: [a], currentId: 'none' })).toBe(a)
   })
 })
 
@@ -395,18 +465,19 @@ describe('products', () => {
 })
 
 describe('reducer', () => {
-  const empty = { products, sales: [] }
+  const empty = storeWith({ products })
+  const cur = (store: Store) => currentRegister(store)
 
   it('商品を登録し、ルールに合わない商品では状態を変えない', () => {
     const state = reducer(empty, { type: 'addProduct', name: '割引', price: -50 })
-    expect(state.products.map((p) => p.name)).toEqual(['焼きそば', 'ラムネ', '割引'])
+    expect(cur(state).products.map((p) => p.name)).toEqual(['焼きそば', 'ラムネ', '割引'])
     expect(reducer(empty, { type: 'addProduct', name: '　', price: 100 })).toBe(empty)
   })
 
   it('会計を確定し、1 から番号を振る', () => {
     let state = reducer(empty, { type: 'checkout', items: cartItems({ a: 1 }, products), paid: 1000 })
     state = reducer(state, { type: 'checkout', items: cartItems({ b: 2 }, products), paid: null })
-    expect(state.sales.map((s) => [s.no, s.total, s.paid, s.change])).toEqual([[1, 400, 1000, 600], [2, 300, 300, 0]])
+    expect(cur(state).sales.map((s) => [s.no, s.total, s.paid, s.change])).toEqual([[1, 400, 1000, 600], [2, 300, 300, 0]])
   })
 
   it('確定できない会計では状態を変えない', () => {
@@ -418,15 +489,28 @@ describe('reducer', () => {
 
   it('会計を取り消し、取消済みやない ID では状態を変えない', () => {
     let state = reducer(empty, { type: 'checkout', items: cartItems({ a: 1 }, products), paid: null })
-    state = reducer(state, { type: 'voidSale', id: state.sales[0].id })
-    expect(state.sales[0].voided).toBe(true)
-    expect(reducer(state, { type: 'voidSale', id: state.sales[0].id })).toBe(state)
+    state = reducer(state, { type: 'voidSale', id: cur(state).sales[0].id })
+    expect(cur(state).sales[0].voided).toBe(true)
+    expect(reducer(state, { type: 'voidSale', id: cur(state).sales[0].id })).toBe(state)
     expect(reducer(state, { type: 'voidSale', id: 'none' })).toBe(state)
   })
 
-  it('全データ消去で商品と会計がすべて消える', () => {
-    const state = reducer(empty, { type: 'checkout', items: cartItems({ a: 1 }, products), paid: null })
-    expect(reducer(state, { type: 'resetAll' })).toEqual({ products: [], sales: [] })
+  it('全データ消去で、今のレジの商品と会計だけが消え、ほかのレジとレジそのものは残る', () => {
+    const other = createRegister({ name: 'サークルの屋台', role: 'member', products })
+    let state: Store = { ...empty, registers: [...empty.registers, other] }
+    state = reducer(state, { type: 'checkout', items: cartItems({ a: 1 }, products), paid: null })
+    const cleared = reducer(state, { type: 'resetAll' })
+    expect(cur(cleared)).toMatchObject({ id: cur(state).id, name: DEFAULT_REGISTER_NAME, products: [], sales: [] })
+    expect(cleared.registers[1]).toBe(other)
+    expect(reducer(cleared, { type: 'resetAll' })).toBe(cleared)
+  })
+
+  it('操作は今のレジにだけ働く', () => {
+    const other = createRegister({ name: 'サークルの屋台', products })
+    const state: Store = { registers: [...empty.registers, other], currentId: other.id }
+    const next = reducer(state, { type: 'addProduct', name: '割引', price: -50 })
+    expect(next.registers[0]).toBe(empty.registers[0])
+    expect(next.registers[1].products).toHaveLength(3)
   })
 })
 

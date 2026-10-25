@@ -44,12 +44,39 @@ export type Sale = {
 }
 
 /**
- * 保存するデータ。その PC のブラウザの localStorage（キー dayresi:v2）にだけ保存し、サーバーには送らない
- * 中身は商品と会計だけで、カートは保存しない（#52）
+ * レジの中身。商品と会計だけで、カートは持たない（#52）
  */
 export type AppData = {
   products: Product[]
   sales: Sale[]
+}
+
+/** レジでの役割。owner は代表者（商品を登録して配る）、member は会計する人（配られた商品で会計する）（spec-next.md「役割」） */
+export type Role = 'owner' | 'member'
+
+/**
+ * レジ。1 つの店の、商品・会計・自分の名前などのまとまり（spec-next.md「レジ」）
+ * 1 台の端末でレジをいくつも持ち、切り替えて使う
+ */
+export type Register = AppData & {
+  /** この端末の中でレジを見分ける ID。crypto.randomUUID() で振る */
+  id: string
+  /** 店ごとの印。代表者がレジを作るときに振り、配った商品と一緒に会計する人へ渡る。同じ店のレジかどうかを見分ける */
+  storeId: string
+  /** レジの名前（例：研究室の模擬店）。会計する人のレジでは、代表者が付けた名前 */
+  name: string
+  role: Role
+  /** 自分の名前（例：田中）。まだ入れていないときは空文字 */
+  myName: string
+}
+
+/**
+ * 保存するデータ。その PC のブラウザの localStorage（キー dayresi:v3）にだけ保存し、サーバーには送らない
+ * レジの一覧と、今使っているレジ。レジは必ず 1 つ以上ある（ないときは「マイレジ」を自動で作る）
+ */
+export type Store = {
+  registers: Register[]
+  currentId: string
 }
 
 /**

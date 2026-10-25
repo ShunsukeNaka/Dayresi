@@ -1,15 +1,17 @@
 import { useEffect, useReducer, useRef } from 'react'
-import type { AppData, SaleItem } from './types'
+import type { SaleItem, Store } from './types'
 import { addProduct } from './lib/products'
-import { emptyData, loadData, saveData } from './lib/storage'
+import { loadStore, saveStore } from './lib/storage'
+import { updateCurrent } from './lib/registers'
 import { createSale, voidSale } from './lib/sales'
 
 /**
  * 商品と会計を変える操作。画面はこれを通してだけデータを変える（カートは画面の state で持ち、ここには入れない）
+ * どの操作も、今使っているレジに対して行う
  * - addProduct：商品を末尾に登録する。名前か価格がルールに合わなければ何もしない
  * - checkout：明細とお預かり（未入力は null で「ちょうど」）から会計を確定する。確定できなければ何もしない
  * - voidSale：会計を取り消す（消さずに取消済みにする）。取消済みやない ID なら何もしない
- * - resetAll：全データ消去。商品と会計をすべて消す
+ * - resetAll：全データ消去。今のレジの商品と会計をすべて消す（ほかのレジは残す）
  */
 export type Action =
   | { type: 'addProduct'; name: string; price: number }
@@ -18,28 +20,30 @@ export type Action =
   | { type: 'resetAll' }
 
 /** 何も変わらない操作では同じ状態を返し、保存し直さない */
-export function reducer(state: AppData, action: Action): AppData {
-  switch (action.type) {
-    case 'addProduct': {
-      const products = addProduct(state.products, action.name, action.price)
-      return products === state.products ? state : { ...state, products }
+export function reducer(state: Store, action: Action): Store {
+  return updateCurrent(state, (register) => {
+    switch (action.type) {
+      case 'addProduct': {
+        const products = addProduct(register.products, action.name, action.price)
+        return products === register.products ? register : { ...register, products }
+      }
+      case 'checkout': {
+        const sale = createSale(action.items, action.paid, register.sales)
+        return sale ? { ...register, sales: [...register.sales, sale] } : register
+      }
+      case 'voidSale': {
+        const sales = voidSale(register.sales, action.id)
+        return sales === register.sales ? register : { ...register, sales }
+      }
+      case 'resetAll':
+        return register.products.length === 0 && register.sales.length === 0 ? register : { ...register, products: [], sales: [] }
     }
-    case 'checkout': {
-      const sale = createSale(action.items, action.paid, state.sales)
-      return sale ? { ...state, sales: [...state.sales, sale] } : state
-    }
-    case 'voidSale': {
-      const sales = voidSale(state.sales, action.id)
-      return sales === state.sales ? state : { ...state, sales }
-    }
-    case 'resetAll':
-      return emptyData()
-  }
+  })
 }
 
 /** 状態が変わるたびに localStorage へ保存する。保存に失敗しても知らせない（#50） */
 export function useAppData() {
-  const [data, dispatch] = useReducer(reducer, undefined, loadData)
+  const [data, dispatch] = useReducer(reducer, undefined, loadStore)
   const first = useRef(true)
 
   useEffect(() => {
@@ -47,7 +51,7 @@ export function useAppData() {
       first.current = false
       return
     }
-    saveData(data)
+    saveStore(data)
   }, [data])
 
   return [data, dispatch] as const
