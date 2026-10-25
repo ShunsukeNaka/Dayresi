@@ -3,6 +3,7 @@ import type { Cart } from './types'
 import { useAppData } from './state'
 import { ROLE_LABEL, currentRegister, findStoreRegister, importSales, type ImportSalesResult } from './lib/registers'
 import { canCheckout, canConfirmSale, itemsTotal } from './lib/sales'
+import { applyCoupons, changeCartCouponQty, removeCartCoupon, toggleCartCoupon, type CartCoupons } from './lib/coupons'
 import { addToCart, cartItems, changeQty as changeCartQty, clearCart } from './lib/cart'
 import { RegisterView } from './components/RegisterView'
 import { CheckoutDialog } from './components/CheckoutDialog'
@@ -30,6 +31,8 @@ export default function App() {
   // 商品がないときは、まず商品を登録できるよう設定画面から始める
   const [tab, setTab] = useState<Tab>(() => (currentRegister(store).products.length > 0 ? 'register' : 'settings'))
   const [cart, setCart] = useState<Cart>({})
+  // カートで選んだ割引券（割引券ID → 枚数）。カートと同じく保存しない
+  const [cartCoupons, setCartCoupons] = useState<CartCoupons>({})
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [registerOpen, setRegisterOpen] = useState(false)
   // 開いたリンク（QR）の # 以降にあった、配られた商品
@@ -57,6 +60,7 @@ export default function App() {
           dispatch({ type: 'importSales', share })
           if (result.kind === 'merged' && findStoreRegister(before, share.storeId)?.id !== before.currentId) {
             setCart(clearCart())
+            setCartCoupons({})
             setCheckoutOpen(false)
           }
           setSalesResult({ by: share.by, result })
@@ -72,7 +76,14 @@ export default function App() {
 
   // 全データ消去で消えた商品はカートに残っていても cartItems が除外する
   const items = cartItems(cart, data.products)
-  const total = itemsTotal(items)
+  const subtotal = itemsTotal(items)
+  // 割引のあとの合計と、割引券ごとの引いた金額（spec-next.md「割引券」）
+  const { discounts, total } = applyCoupons(subtotal, data.coupons, cartCoupons)
+
+  const clearAll = () => {
+    setCart(clearCart())
+    setCartCoupons({})
+  }
 
   const addItem = useCallback((id: string) => {
     setCart((prev) => addToCart(prev, id))
@@ -88,9 +99,9 @@ export default function App() {
 
   const confirmCheckout = (paid: number | null) => {
     // 確定できる会計だけを渡すので、reducer で必ず記録される
-    if (!canConfirmSale(items, paid)) return
-    dispatch({ type: 'checkout', items, paid })
-    setCart(clearCart())
+    if (!canConfirmSale(items, paid, data.coupons, cartCoupons)) return
+    dispatch({ type: 'checkout', items, paid, coupons: cartCoupons })
+    clearAll()
     setCheckoutOpen(false)
   }
 
@@ -127,10 +138,17 @@ export default function App() {
           <RegisterView
             products={data.products}
             items={items}
+            coupons={data.coupons}
+            cartCoupons={cartCoupons}
+            discounts={discounts}
+            subtotal={subtotal}
             total={total}
             onAddItem={addItem}
             onChangeQty={changeQty}
-            onClear={() => setCart(clearCart())}
+            onToggleCoupon={(id) => setCartCoupons((prev) => toggleCartCoupon(prev, data.coupons, id))}
+            onChangeCouponQty={(id, delta) => setCartCoupons((prev) => changeCartCouponQty(prev, id, delta))}
+            onRemoveCoupon={(id) => setCartCoupons((prev) => removeCartCoupon(prev, id))}
+            onClear={clearAll}
             onCheckout={openCheckout}
             onGoSettings={() => setTab('settings')}
           />
@@ -150,7 +168,7 @@ export default function App() {
           dispatch={dispatch}
           // レジが変わったら、前のレジのカートと会計ダイアログは閉じる
           onRegisterChange={() => {
-            setCart(clearCart())
+            clearAll()
             setCheckoutOpen(false)
           }}
           onCreated={() => setTab('settings')}
@@ -165,6 +183,7 @@ export default function App() {
           onImport={(myName) => {
             dispatch({ type: 'importProducts', share: incoming, myName })
             setCart(clearCart())
+            setCartCoupons({})
             setCheckoutOpen(false)
             setTab('register')
             setIncoming(null)
@@ -182,7 +201,7 @@ export default function App() {
       )}
 
       {checkoutOpen && (
-        <CheckoutDialog total={total} onConfirm={confirmCheckout} onCancel={() => setCheckoutOpen(false)} />
+        <CheckoutDialog total={total} subtotal={subtotal} discounts={discounts} onConfirm={confirmCheckout} onCancel={() => setCheckoutOpen(false)} />
       )}
     </>
   )

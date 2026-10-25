@@ -1,21 +1,38 @@
 import { useState } from 'react'
-import type { Product, SaleItem } from '../types'
+import type { Coupon, Product, SaleDiscount, SaleItem } from '../types'
+import type { CartCoupons } from '../lib/coupons'
+import { couponLabel } from '../lib/coupons'
 import { formatYen } from '../lib/format'
 import { canCheckout } from '../lib/sales'
 
 type Props = {
   products: Product[]
   items: SaleItem[]
+  /** 割引券（spec-next.md「割引券」） */
+  coupons: Coupon[]
+  cartCoupons: CartCoupons
+  /** 割引券ごとの、実際に引いた金額 */
+  discounts: SaleDiscount[]
+  /** 割引の前の合計 */
+  subtotal: number
+  /** 割引のあとの合計 */
   total: number
   /** 商品ボタンを押したとき。カートに 1 つ入れる */
   onAddItem: (id: string) => void
   onChangeQty: (id: string, delta: number) => void
+  /** 割引券のボタンを押したとき（金額引きは 1 枚増やし、% 引きは使う／使わないを切り替える） */
+  onToggleCoupon: (id: string) => void
+  onChangeCouponQty: (id: string, delta: number) => void
+  onRemoveCoupon: (id: string) => void
   onClear: () => void
   onCheckout: () => void
   onGoSettings: () => void
 }
 
-export function RegisterView({ products, items, total, onAddItem, onChangeQty, onClear, onCheckout, onGoSettings }: Props) {
+export function RegisterView({
+  products, items, coupons, cartCoupons, discounts, subtotal, total,
+  onAddItem, onChangeQty, onToggleCoupon, onChangeCouponQty, onRemoveCoupon, onClear, onCheckout, onGoSettings,
+}: Props) {
   // 商品ID → カート内の数量。カートに入っている商品のボタンに数量を出す
   const qtyById = new Map(items.map((i) => [i.productId, i.qty]))
   // スマホでは、カートを下の帯にたたみ、「カートを見る」で下から開く（docs/design/dayresi.pen の M-01・M-01b）。PC では使わない
@@ -50,6 +67,26 @@ export function RegisterView({ products, items, total, onAddItem, onChangeQty, o
             </button>
           )
         })}
+        {/* 割引券（docs/design/dayresi.pen の K-01）。商品と同じように押してカートに入れる */}
+        {products.length > 0 && coupons.length > 0 && <div className="coupon-head">割引券</div>}
+        {products.length > 0 && coupons.map((c) => {
+          const qty = cartCoupons[c.id] ?? 0
+          return (
+            <button key={c.id} className={qty > 0 ? 'coupon-btn in-cart' : 'coupon-btn'} onClick={() => onToggleCoupon(c.id)} aria-pressed={qty > 0}>
+              {qty > 0 && (
+                <>
+                  <span className="qty-badge" aria-hidden="true">{c.kind === 'percent' ? '✓' : qty}</span>
+                  <span className="sr-only">{c.kind === 'percent' ? '使っています' : `${qty}枚使っています`}</span>
+                </>
+              )}
+              <span className="coupon-icon" aria-hidden="true">{c.kind === 'percent' ? '%' : '券'}</span>
+              <span className="coupon-text">
+                <span className="name">{c.name}</span>
+                <span className="price minus">{couponLabel(c)}</span>
+              </span>
+            </button>
+          )
+        })}
       </div>
 
       {/*
@@ -78,7 +115,30 @@ export function RegisterView({ products, items, total, onAddItem, onChangeQty, o
               <span className="sub">{formatYen(item.price * item.qty)}</span>
             </li>
           ))}
+          {discounts.map((d) => (
+            <li key={d.couponId} className="cart-coupon">
+              <span className="cart-name"><span className="coupon-mark" aria-hidden="true">{d.kind === 'percent' ? '%' : '券'}</span>{d.name}</span>
+              {d.kind === 'amount' ? (
+                <span className="qty">
+                  <button aria-label={`${d.name}を1枚減らす`} onClick={() => onChangeCouponQty(d.couponId, -1)}>−</button>
+                  <span className="qty-num">{d.qty}</span>
+                  <button aria-label={`${d.name}を1枚増やす`} onClick={() => onChangeCouponQty(d.couponId, 1)}>＋</button>
+                </span>
+              ) : (
+                <span className="qty">
+                  <button aria-label={`${d.name}を外す`} onClick={() => onRemoveCoupon(d.couponId)}>×</button>
+                </span>
+              )}
+              <span className="sub minus">{formatYen(-d.amount)}</span>
+            </li>
+          ))}
         </ul>
+        {discounts.length > 0 && (
+          <dl className="cart-subtotal">
+            <div><dt>小計</dt><dd>{formatYen(subtotal)}</dd></div>
+            <div><dt>割引</dt><dd className="minus">{formatYen(total - subtotal)}</dd></div>
+          </dl>
+        )}
         <div className="cart-total">
           <span>合計</span>
           <strong>{formatYen(total)}</strong>

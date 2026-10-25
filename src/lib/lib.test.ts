@@ -8,7 +8,7 @@ import { loadStore, parseData, parseStore, saveStore } from './storage'
 import { DEFAULT_REGISTER_NAME, addRegister, createRegister, currentRegister, deleteRegister, findStoreRegister, importProducts, importSales, storeWith, switchRegister, updateCurrent } from './registers'
 import { addProduct } from './products'
 import { reducer } from '../state'
-import { addCoupon, applyCoupons, couponLabel } from './coupons'
+import { MAX_COUPON_QTY, addCoupon, applyCoupons, changeCartCouponQty, couponLabel, removeCartCoupon, toggleCartCoupon } from './coupons'
 import { decodeShare, encodeProductsShare, encodeSalesShare, shareUrl } from './share'
 import { MAX_QR_VERSION, qrModules } from './qr'
 
@@ -1014,5 +1014,34 @@ describe('割引券の登録', () => {
     const member = createRegister({ name: '店', role: 'member' })
     const ms: Store = { registers: [member], currentId: member.id }
     expect(reducer(ms, { type: 'addCoupon', name: '50円引き', kind: 'amount', value: 50 })).toBe(ms)
+  })
+})
+
+describe('カートの割引券', () => {
+  const coupons = [
+    { id: 'y50', name: '50円引き', kind: 'amount' as const, value: 50 },
+    { id: 'p10', name: '1割引き', kind: 'percent' as const, value: 10 },
+    { id: 'p20', name: '2割引き', kind: 'percent' as const, value: 20 },
+  ]
+
+  it('金額引きは押すたびに 1 枚増え、上限で止まる', () => {
+    expect(toggleCartCoupon(toggleCartCoupon({}, coupons, 'y50'), coupons, 'y50')).toEqual({ y50: 2 })
+    expect(toggleCartCoupon({ y50: MAX_COUPON_QTY }, coupons, 'y50')).toEqual({ y50: MAX_COUPON_QTY })
+  })
+
+  it('% 引きは押すと使う／使わないが切り替わり、ほかの % 引きは外れる（1 枚まで）', () => {
+    const on = toggleCartCoupon({ y50: 1 }, coupons, 'p10')
+    expect(on).toEqual({ y50: 1, p10: 1 })
+    expect(toggleCartCoupon(on, coupons, 'p20')).toEqual({ y50: 1, p20: 1 })
+    expect(toggleCartCoupon(on, coupons, 'p10')).toEqual({ y50: 1 })
+  })
+
+  it('ない割引券は無視する。枚数の増減で 0 になったら外し、× で外す', () => {
+    const cart = { y50: 1 }
+    expect(toggleCartCoupon(cart, coupons, 'none')).toBe(cart)
+    expect(changeCartCouponQty({ y50: 2 }, 'y50', -1)).toEqual({ y50: 1 })
+    expect(changeCartCouponQty({ y50: 1 }, 'y50', -1)).toEqual({})
+    expect(removeCartCoupon({ y50: 1, p10: 1 }, 'p10')).toEqual({ y50: 1 })
+    expect(removeCartCoupon(cart, 'p10')).toBe(cart)
   })
 })
