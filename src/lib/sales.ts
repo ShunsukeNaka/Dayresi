@@ -42,7 +42,12 @@ export type Summary = {
   byProduct: ProductSummary[]
 }
 
-/** 取消済みの会計を除いて集計する。商品は「商品ID＋会計時の名前＋価格」ごとにまとめる */
+/**
+ * 売上を集計する（SPEC「集計」）
+ * - 売上合計と会計件数。取り消した会計は入れない（ADR 0012）
+ * - 商品ごとの数量と金額を、商品の登録順に出す。マイナス価格の商品（「割引 −50円」など）も同じように出る
+ * - 商品は「商品ID＋会計時の名前＋価格」ごとにまとめる
+ */
 export function summarize(sales: Sale[], products: Product[]): Summary {
   const active = sales.filter((s) => !s.voided)
   const map = new Map<string, ProductSummary>()
@@ -55,7 +60,8 @@ export function summarize(sales: Sale[], products: Product[]): Summary {
       map.set(key, row)
     }
   }
-  // 現在の商品の並び順に合わせ、削除済み商品は末尾に置く
+  // 商品の登録順に並べる。商品の編集・削除はないので会計の商品は一覧に必ずあるが、
+  // 一覧にない商品があっても集計から落とさないよう末尾に置く
   const order = new Map(products.map((p, i) => [p.id, i]))
   const byProduct = [...map.values()].sort((a, b) => {
     const ia = order.get(a.key.split('\u0000')[0]) ?? Infinity
