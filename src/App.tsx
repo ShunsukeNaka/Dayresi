@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import type { Cart } from './types'
 import { useAppData } from './state'
 import { canCheckout, canConfirmSale, itemsTotal } from './lib/sales'
-import { cartItems, changeQty as changeCartQty, clearCart } from './lib/cart'
+import { addToCart, cartItems, changeQty as changeCartQty, clearCart } from './lib/cart'
 import { RegisterView } from './components/RegisterView'
 import { CheckoutDialog } from './components/CheckoutDialog'
 import { HistoryView } from './components/HistoryView'
@@ -29,6 +29,10 @@ export default function App() {
   // 全データ消去で消えた商品はカートに残っていても cartItems が除外する
   const items = cartItems(cart, data.products)
   const total = itemsTotal(items)
+
+  const addItem = useCallback((id: string) => {
+    setCart((prev) => addToCart(prev, id))
+  }, [])
 
   const changeQty = useCallback((id: string, delta: number) => {
     setCart((prev) => changeCartQty(prev, id, delta))
@@ -69,9 +73,9 @@ export default function App() {
         {tab === 'register' && (
           <RegisterView
             products={data.products}
-            cart={cart}
             items={items}
             total={total}
+            onAddItem={addItem}
             onChangeQty={changeQty}
             onClear={() => setCart(clearCart())}
             onCheckout={openCheckout}

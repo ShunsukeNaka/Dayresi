@@ -1,20 +1,22 @@
-import type { Cart, Product, SaleItem } from '../types'
+import type { Product, SaleItem } from '../types'
 import { formatYen } from '../lib/format'
 
 type Props = {
   products: Product[]
-  cart: Cart
   items: SaleItem[]
   total: number
+  /** 商品ボタンを押したとき。カートに 1 つ入れる */
+  onAddItem: (id: string) => void
   onChangeQty: (id: string, delta: number) => void
   onClear: () => void
   onCheckout: () => void
   onGoSettings: () => void
 }
 
-export function RegisterView({ products, cart, items, total, onChangeQty, onClear, onCheckout, onGoSettings }: Props) {
+export function RegisterView({ products, items, total, onAddItem, onChangeQty, onClear, onCheckout, onGoSettings }: Props) {
   return (
     <section className="tab register">
+      {/* 商品ボタン。登録順に並べ、商品名と価格を出す。押すとカートに 1 つ入る。カート内の数は出さない（SPEC にない） */}
       <div className="product-grid">
         {products.length === 0 && (
           <div className="empty">
@@ -23,8 +25,7 @@ export function RegisterView({ products, cart, items, total, onChangeQty, onClea
           </div>
         )}
         {products.map((p) => (
-          <button key={p.id} className="product-btn" onClick={() => onChangeQty(p.id, 1)}>
-            {(cart[p.id] ?? 0) > 0 && <span className="badge">{cart[p.id]}</span>}
+          <button key={p.id} className="product-btn" onClick={() => onAddItem(p.id)}>
             <span className="name">{p.name}</span>
             <span className="price">{formatYen(p.price)}</span>
           </button>
