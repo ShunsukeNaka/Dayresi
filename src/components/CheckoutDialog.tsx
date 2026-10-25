@@ -6,7 +6,8 @@ const QUICK_BILLS = [1000, 5000, 10000]
 
 type Props = {
   total: number
-  onConfirm: (paid: number) => void
+  /** お預かり金額。未入力（「ちょうど」）なら null */
+  onConfirm: (paid: number | null) => void
   onCancel: () => void
 }
 
@@ -73,7 +74,7 @@ export function CheckoutDialog({ total, onConfirm, onCancel }: Props) {
 
       <div className="dialog-actions">
         <button className="secondary" onClick={onCancel}>戻る</button>
-        <button className="primary" onClick={() => onConfirm(paid)} disabled={!canConfirm}>会計確定</button>
+        <button className="primary" onClick={() => onConfirm(input === '' ? null : paid)} disabled={!canConfirm}>会計確定</button>
       </div>
     </dialog>
   )

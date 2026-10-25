@@ -36,8 +36,9 @@ export default function App() {
     if (canCheckout(items)) setCheckoutOpen(true)
   }
 
-  const confirmCheckout = (paid: number) => {
+  const confirmCheckout = (paid: number | null) => {
     const sale = createSale(items, paid, data.sales)
+    if (!sale) return
     dispatch({ type: 'recordSale', sale })
     setCart(clearCart())
     setCheckoutOpen(false)

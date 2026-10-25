@@ -10,19 +10,34 @@ export function canCheckout(items: SaleItem[]): boolean {
   return items.length > 0 && itemsTotal(items) >= 0
 }
 
-/** 支払方法は分けない。キャッシュレスで受け取った分も、お預かり金額を入れて（または「ちょうど」で）記録する */
-export function createSale(items: SaleItem[], paid: number, prevSales: Sale[], now = new Date()): Sale {
+/**
+ * 会計を確定する。お預かりが未入力（null）なら「ちょうど」として、お預かり＝合計にする
+ * 確定できないとき（canCheckout が偽、お預かりが合計より少ない）は会計を作らず null を返す
+ * 支払方法は分けない。キャッシュレスで受け取った分も、お預かり金額を入れて（または「ちょうど」で）記録する（ADR 0018）
+ */
+export function createSale(items: SaleItem[], paid: number | null, prevSales: Sale[], now = new Date()): Sale | null {
+  if (!canCheckout(items)) return null
   const total = itemsTotal(items)
+  const received = paid ?? total
+  if (received < total) return null
   return {
     id: crypto.randomUUID(),
-    no: prevSales.reduce((max, s) => Math.max(max, s.no), 0) + 1,
+    no: nextSaleNo(prevSales),
     at: now.toISOString(),
     items,
     total,
-    paid,
-    change: paid - total,
+    paid: received,
+    change: received - total,
     voided: false,
   }
+}
+
+/**
+ * 次の会計番号。今ある会計の番号の最大値＋1 で、取り消した会計も数える（番号を詰めない）。会計がなければ 1
+ * 保存データの壊れた会計は捨てずに残す（#64）ので、整数でない番号は数えない
+ */
+function nextSaleNo(sales: Sale[]): number {
+  return sales.reduce((max, s) => (Number.isInteger(s.no) ? Math.max(max, s.no) : max), 0) + 1
 }
 
 /**
