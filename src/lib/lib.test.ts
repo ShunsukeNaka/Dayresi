@@ -113,7 +113,29 @@ describe('format', () => {
     expect(isValidPrice(-10_000_000)).toBe(false)
   })
 
+  it('全角の数字を受け付け、カンマ・¥・円は弾く', () => {
+    expect(parsePrice('４００')).toBe(400)
+    expect(parsePrice('－５０')).toBe(-50)
+    expect(parsePrice('−５０')).toBe(-50)
+    expect(parsePrice('　４００　')).toBe(400)
+    expect(parsePrice('４0０')).toBe(400)
+    expect(parsePrice('９９９９９９９')).toBe(9_999_999)
+    for (const bad of ['１０００００００', '１．５', '1,000', '１，０００', '¥400', '￥400', '400円', '４００円']) expect(parsePrice(bad)).toBeNull()
+  })
+
+  it('価格は上限・下限ちょうどまで受け付ける', () => {
+    expect(parsePrice('9999999')).toBe(9_999_999)
+    expect(parsePrice('-9999999')).toBe(-9_999_999)
+    expect(isValidPrice(9_999_999)).toBe(true)
+    expect(isValidPrice(10_000_000)).toBe(false)
+    expect(isValidPrice(1.5)).toBe(false)
+    expect(isValidPrice('400')).toBe(false)
+  })
+
   it('商品名は空白だけを弾き、前後の空白も含めて文字数を数える', () => {
+    expect(isValidName('')).toBe(false)
+    expect(isValidName('   ')).toBe(false)
+    expect(isValidName(400)).toBe(false)
     expect(isValidName(' 焼きそば ')).toBe(true)
     expect(isValidName('　 ')).toBe(false)
     expect(isValidName('あ'.repeat(MAX_NAME_LENGTH))).toBe(true)
