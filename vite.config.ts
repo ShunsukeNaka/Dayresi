@@ -28,7 +28,8 @@ export default defineConfig({
         icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg}'],
+        // 金額のフォント（Inter）は、数字と ¥ が入るラテン文字の分だけキャッシュする。ほかの言語の分は使わない
+        globPatterns: ['**/*.{js,css,html,svg}', '**/inter-latin-wght-normal-*.woff2'],
       },
     }),
   ],

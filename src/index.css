@@ -13,6 +13,9 @@
   --topbar: #1f2937;
   --topbar-text: #f9fafb;
   --radius: 12px;
+  /* 本文は PC にある日本語のフォント。金額は同梱した Inter で、日本語の文字は本文のフォントで出す */
+  --font-ui: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, system-ui, sans-serif;
+  --font-num: "Inter Variable", var(--font-ui);
   color-scheme: light;
 }
 
@@ -21,7 +24,12 @@ html, body, #root { margin: 0; height: 100%; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", sans-serif;
+  font-family: var(--font-ui);
+}
+/* 金額・数量・テンキーの数字 */
+.product-btn .price, .qty-num, .sub, .cart-total strong, .history-list .amount,
+.card .value, .table .num, .product-list .price, .pay-rows dd, .quick button, .keypad button {
+  font-family: var(--font-num);
 }
 #root { display: flex; flex-direction: column; height: 100dvh; }
 button, input { font: inherit; color: inherit; }
