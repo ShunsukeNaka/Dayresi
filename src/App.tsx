@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import type { Cart } from './types'
 import { useAppData } from './state'
+import { currentRegister } from './lib/registers'
 import { canCheckout, canConfirmSale, itemsTotal } from './lib/sales'
 import { addToCart, cartItems, changeQty as changeCartQty, clearCart } from './lib/cart'
 import { RegisterView } from './components/RegisterView'
@@ -20,11 +21,13 @@ const TABS: { id: Tab; label: string }[] = [
 ]
 
 export default function App() {
-  const [data, dispatch] = useAppData()
+  const [store, dispatch] = useAppData()
   // 商品がないときは、まず商品を登録できるよう設定画面から始める
-  const [tab, setTab] = useState<Tab>(data.products.length > 0 ? 'register' : 'settings')
+  const [tab, setTab] = useState<Tab>(() => (currentRegister(store).products.length > 0 ? 'register' : 'settings'))
   const [cart, setCart] = useState<Cart>({})
   const [checkoutOpen, setCheckoutOpen] = useState(false)
+  // 画面は、今使っているレジの商品と会計を出す
+  const data = currentRegister(store)
 
   // 全データ消去で消えた商品はカートに残っていても cartItems が除外する
   const items = cartItems(cart, data.products)
