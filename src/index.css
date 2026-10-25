@@ -1,4 +1,4 @@
-/* 色はライト・ダークの 2 組。PC のダークモードに自動で合わせる（SPEC「非機能」）。ボタンは大きく、シンプルにする */
+/* 色はライトの 1 組だけ。ダークモードは作らない（SPEC「非機能」）。ボタンは大きく、シンプルにする */
 :root {
   --bg: #f3f4f6;
   --surface: #ffffff;
@@ -13,21 +13,7 @@
   --topbar: #1f2937;
   --topbar-text: #f9fafb;
   --radius: 12px;
-  color-scheme: light dark;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0b0f17;
-    --surface: #161b26;
-    --surface-2: #1d2331;
-    --text: #e5e7eb;
-    --muted: #9ca3af;
-    --border: #2a3140;
-    --primary: #3b82f6;
-    --danger: #ef4444;
-    --accent: #10b981;
-    --topbar: #0f141e;
-  }
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
