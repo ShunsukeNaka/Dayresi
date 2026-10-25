@@ -36,7 +36,6 @@ export type ProductSummary = { key: string; name: string; qty: number; amount: n
 export type Summary = {
   total: number
   count: number
-  voidedCount: number
   byProduct: ProductSummary[]
 }
 
@@ -63,7 +62,6 @@ export function summarize(sales: Sale[], products: Product[]): Summary {
   return {
     total: active.reduce((sum, s) => sum + s.total, 0),
     count: active.length,
-    voidedCount: sales.length - active.length,
     byProduct,
   }
 }

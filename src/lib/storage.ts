@@ -33,21 +33,14 @@ export function loadData(): AppData {
   try {
     return parseData(localStorage.getItem(KEY))
   } catch {
-    // 壊れたデータは退避してから空で始める
-    try {
-      const raw = localStorage.getItem(KEY)
-      if (raw) localStorage.setItem(`${KEY}:broken:${Date.now()}`, raw)
-    } catch { /* 保存できない環境では諦める */ }
+    // 壊れたデータは捨てて空で始める（次の保存で上書きされる）
     return emptyData()
   }
 }
 
-/** 保存できたら true */
-export function saveData(data: AppData): boolean {
+/** 保存に失敗しても知らせず、会計を続けられるようにする */
+export function saveData(data: AppData): void {
   try {
     localStorage.setItem(KEY, JSON.stringify(data))
-    return true
-  } catch {
-    return false
-  }
+  } catch { /* 容量不足やプライベートブラウズでは保存できない */ }
 }

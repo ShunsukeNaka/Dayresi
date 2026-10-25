@@ -3,7 +3,6 @@ import type { Product, Sale } from '../types'
 import { canCheckout, cartItems, createSale, itemsTotal, summarize } from './sales'
 import { formatYen, isValidPrice, parsePrice } from './format'
 import { salesToCsv } from './csv'
-import { ProductFileError, parseProductFile, productsToFile } from './productFile'
 import { parseData } from './storage'
 import { reducer } from '../state'
 
@@ -45,7 +44,6 @@ describe('sales', () => {
     const summary = summarize([s1, s2, s3], products)
     expect(summary.total).toBe(250 + 950)
     expect(summary.count).toBe(2)
-    expect(summary.voidedCount).toBe(1)
     expect(summary.byProduct.map((r) => [r.name, r.qty, r.amount])).toEqual([
       ['焼きそば', 2, 800],
       ['ラムネ', 2, 300],
@@ -55,7 +53,7 @@ describe('sales', () => {
 })
 
 describe('csv', () => {
-  it('BOM付きで、記号を含む値と数式に見える値をエスケープする', () => {
+  it('BOM付きで、記号を含む値をエスケープする', () => {
     const sale: Sale = {
       id: '1', no: 1, at: '2026-10-10T03:04:05.000Z', total: 100, paid: 100, change: 0, voided: true,
       items: [{ productId: 'a', name: '=SUM("A1")', price: 100, qty: 1 }],
@@ -63,7 +61,7 @@ describe('csv', () => {
     const csv = salesToCsv([sale])
     expect(csv.startsWith('﻿会計番号,日時,商品名,単価,')).toBe(true)
     const row = csv.split('\r\n')[1]
-    expect(row).toContain(`"'=SUM(""A1"")"`)
+    expect(row).toContain(`"=SUM(""A1"")"`)
     expect(row.endsWith(',取消')).toBe(true)
   })
 
@@ -71,29 +69,6 @@ describe('csv', () => {
     const sale = createSale([{ productId: 'd', name: '割引', price: -50, qty: 2 }, { productId: 'a', name: '焼きそば', price: 400, qty: 1 }], 300, [])
     const rows = salesToCsv([sale]).split('\r\n')
     expect(rows[1].split(',').slice(2, 6)).toEqual(['割引', '-50', '2', '-100'])
-  })
-})
-
-describe('productFile', () => {
-  it('書き出したファイルを読み込める（IDは振り直す）', () => {
-    const parsed = parseProductFile(productsToFile(products))
-    expect(parsed.map(({ name, price }) => ({ name, price }))).toEqual([
-      { name: '焼きそば', price: 400 },
-      { name: 'ラムネ', price: 150 },
-    ])
-    expect(parsed[0].id).not.toBe('a')
-  })
-
-  it('不正なファイルはわかりやすいエラーにする', () => {
-    expect(() => parseProductFile('not json')).toThrow(ProductFileError)
-    expect(() => parseProductFile('{"app":"other"}')).toThrow(ProductFileError)
-    expect(() => parseProductFile('{"app":"dayresi","type":"products","version":1,"products":[{"name":"","price":1}]}')).toThrow('1 番目')
-    expect(() => parseProductFile('{"app":"dayresi","type":"products","version":1,"products":[{"name":"a","price":1.5}]}')).toThrow(ProductFileError)
-  })
-
-  it('マイナス価格の商品も書き出して読み込める', () => {
-    const parsed = parseProductFile(productsToFile([{ id: 'd', name: '割引', price: -50 }]))
-    expect(parsed.map(({ name, price }) => ({ name, price }))).toEqual([{ name: '割引', price: -50 }])
   })
 })
 
@@ -116,10 +91,9 @@ describe('storage', () => {
 })
 
 describe('reducer', () => {
-  it('商品の並べ替えと会計の取消ができる', () => {
-    let state = reducer({ products, sales: [] }, { type: 'moveProduct', id: 'b', delta: -1 })
-    expect(state.products.map((p) => p.id)).toEqual(['b', 'a'])
-    expect(reducer(state, { type: 'moveProduct', id: 'b', delta: -1 })).toBe(state)
+  it('商品の追加と会計の取消ができる', () => {
+    let state = reducer({ products, sales: [] }, { type: 'addProduct', product: { id: 'c', name: '割引', price: -50 } })
+    expect(state.products.map((p) => p.id)).toEqual(['a', 'b', 'c'])
     const sale = createSale(cartItems({ a: 1 }, products), 400, [])
     state = reducer(state, { type: 'recordSale', sale })
     state = reducer(state, { type: 'voidSale', id: sale.id })

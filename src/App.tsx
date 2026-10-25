@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import type { Cart } from './types'
 import { useAppData } from './state'
 import { canCheckout, cartItems, createSale, itemsTotal } from './lib/sales'
-import { formatYen } from './lib/format'
 import { RegisterView } from './components/RegisterView'
 import { CheckoutDialog } from './components/CheckoutDialog'
 import { HistoryView } from './components/HistoryView'
@@ -19,29 +18,12 @@ const TABS: { id: Tab; label: string }[] = [
 ]
 
 export default function App() {
-  const [toast, setToast] = useState<string | null>(null)
-  const toastTimer = useRef<number | undefined>(undefined)
-  const showToast = useCallback((message: string) => {
-    setToast(message)
-    window.clearTimeout(toastTimer.current)
-    toastTimer.current = window.setTimeout(() => setToast(null), 3000)
-  }, [])
-
-  const onSaveError = useCallback(
-    () => showToast('保存に失敗しました。ブラウザの保存領域を確認してください。'),
-    [showToast],
-  )
-  const [data, dispatch] = useAppData(onSaveError)
+  const [data, dispatch] = useAppData()
   const [tab, setTab] = useState<Tab>(data.products.length > 0 ? 'register' : 'settings')
   const [cart, setCart] = useState<Cart>({})
   const [checkoutOpen, setCheckoutOpen] = useState(false)
 
-  // 消されにくい保存領域をブラウザに依頼する（対応ブラウザのみ）
-  useEffect(() => {
-    navigator.storage?.persist?.().catch(() => {})
-  }, [])
-
-  // 削除された商品はカートに残っていても cartItems が除外する
+  // 全データ消去で消えた商品はカートに残っていても cartItems が除外する
   const items = cartItems(cart, data.products)
   const total = itemsTotal(items)
 
@@ -64,7 +46,6 @@ export default function App() {
     dispatch({ type: 'recordSale', sale })
     setCart({})
     setCheckoutOpen(false)
-    showToast(`会計 ${sale.no} 番を記録しました（おつり ${formatYen(sale.change)}）`)
   }
 
   return (
@@ -104,17 +85,13 @@ export default function App() {
         )}
         {tab === 'summary' && <SummaryView sales={data.sales} products={data.products} />}
         {tab === 'settings' && (
-          <SettingsView data={data} dispatch={dispatch} onToast={showToast} />
+          <SettingsView data={data} dispatch={dispatch} />
         )}
       </main>
 
       {checkoutOpen && (
         <CheckoutDialog total={total} onConfirm={confirmCheckout} onCancel={() => setCheckoutOpen(false)} />
       )}
-
-      <div className={`toast${toast ? ' show' : ''}`} role="status" aria-live="polite">
-        {toast}
-      </div>
     </>
   )
 }
