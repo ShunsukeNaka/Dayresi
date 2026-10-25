@@ -57,6 +57,13 @@ describe('cart', () => {
   })
 })
 
+/** 会計できる前提のテストで使う。会計を作れなかったら失敗させる */
+function mustCreateSale(...args: Parameters<typeof createSale>): Sale {
+  const sale = createSale(...args)
+  if (!sale) throw new Error('会計を作れなかった')
+  return sale
+}
+
 describe('sales', () => {
   it('カートを商品順に明細化して合計する', () => {
     const items = cartItems({ b: 2, a: 1 }, products)
@@ -66,16 +73,46 @@ describe('sales', () => {
 
   it('お預かり金額からおつりを計算し、会計番号を振る', () => {
     const items = cartItems({ a: 1 }, products)
-    const first = createSale(items, 1000, [])
+    const first = mustCreateSale(items, 1000, [])
     expect(first).toMatchObject({ no: 1, total: 400, paid: 1000, change: 600, voided: false })
     expect(first).not.toHaveProperty('method')
     expect(first.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
-    const exact = createSale(items, 400, [first])
+    const exact = mustCreateSale(items, 400, [first])
     expect(exact).toMatchObject({ no: 2, paid: 400, change: 0 })
     // 取り消した会計も番号を持ち続けるので、番号を詰めない
-    expect(createSale(items, 400, [first, { ...exact, voided: true }]).no).toBe(3)
+    expect(mustCreateSale(items, 400, [first, { ...exact, voided: true }]).no).toBe(3)
     // 全データ消去で会計がなくなると 1 に戻る
-    expect(createSale(items, 400, []).no).toBe(1)
+    expect(mustCreateSale(items, 400, []).no).toBe(1)
+  })
+
+  it('お預かりが未入力なら「ちょうど」として、お預かりを合計と同じにする', () => {
+    const sale = mustCreateSale(cartItems({ a: 1, b: 1 }, products), null, [])
+    expect(sale).toMatchObject({ total: 550, paid: 550, change: 0 })
+  })
+
+  it('お預かりが合計より少ないときは、会計を作らない', () => {
+    expect(createSale(cartItems({ a: 1 }, products), 399, [])).toBeNull()
+    expect(createSale(cartItems({ a: 1 }, products), 400, [])).not.toBeNull()
+  })
+
+  it('空の明細や、合計が0円未満のときは、会計を作らない', () => {
+    const withDiscount: Product[] = [...products, { id: 'd', name: '割引', price: -50 }]
+    expect(createSale([], null, [])).toBeNull()
+    expect(createSale(cartItems({ d: 1 }, withDiscount), null, [])).toBeNull()
+    expect(createSale(cartItems({ b: 1, d: 3 }, withDiscount), null, [])).toMatchObject({ total: 0, paid: 0, change: 0 })
+  })
+
+  it('整数でない番号の会計が残っていても、次の番号は整数の番号から振る', () => {
+    const items = cartItems({ a: 1 }, products)
+    const first = mustCreateSale(items, null, [])
+    const broken = { ...first, id: 'x', no: 'abc' as unknown as number }
+    expect(mustCreateSale(items, null, [first, broken]).no).toBe(2)
+    expect(mustCreateSale(items, null, [broken]).no).toBe(1)
+  })
+
+  it('日時は渡した時刻の ISO 8601 の文字列にする', () => {
+    const now = new Date(2026, 9, 25, 9, 5, 30)
+    expect(mustCreateSale(cartItems({ a: 1 }, products), null, [], now).at).toBe(now.toISOString())
   })
 
   it('マイナス価格の商品を含めて合計し、合計が0円以上なら会計できる', () => {
@@ -99,9 +136,9 @@ describe('sales', () => {
   })
 
   it('取消済みを除いて集計し、商品の一覧にない商品は末尾に置く', () => {
-    const s1 = createSale([{ productId: 'x', name: '一覧にない商品', price: 100, qty: 1 }, ...cartItems({ b: 1 }, products)], 250, [])
-    const s2 = createSale(cartItems({ a: 2, b: 1 }, products), 950, [s1])
-    const s3 = { ...createSale(cartItems({ a: 5 }, products), 2000, [s1, s2]), voided: true }
+    const s1 = mustCreateSale([{ productId: 'x', name: '一覧にない商品', price: 100, qty: 1 }, ...cartItems({ b: 1 }, products)], 250, [])
+    const s2 = mustCreateSale(cartItems({ a: 2, b: 1 }, products), 950, [s1])
+    const s3 = { ...mustCreateSale(cartItems({ a: 5 }, products), 2000, [s1, s2]), voided: true }
     const summary = summarize([s1, s2, s3], products)
     expect(summary.total).toBe(250 + 950)
     expect(summary.count).toBe(2)
@@ -114,8 +151,8 @@ describe('sales', () => {
 
   it('マイナス価格の商品も、商品ごとの集計に数量と金額が出る', () => {
     const withDiscount: Product[] = [...products, { id: 'd', name: '割引', price: -50 }]
-    const s1 = createSale(cartItems({ a: 1, d: 1 }, withDiscount), 350, [])
-    const s2 = createSale(cartItems({ b: 1, d: 1 }, withDiscount), 100, [s1])
+    const s1 = mustCreateSale(cartItems({ a: 1, d: 1 }, withDiscount), 350, [])
+    const s2 = mustCreateSale(cartItems({ b: 1, d: 1 }, withDiscount), 100, [s1])
     const summary = summarize([s1, s2], withDiscount)
     expect(summary.total).toBe(450)
     expect(summary.count).toBe(2)
@@ -127,8 +164,8 @@ describe('sales', () => {
   })
 
   it('取り消した会計は、売上合計・件数・商品ごとの集計のどれにも入らない', () => {
-    const s1 = createSale(cartItems({ a: 1 }, products), 400, [])
-    const s2 = { ...createSale(cartItems({ b: 3 }, products), 450, [s1]), voided: true }
+    const s1 = mustCreateSale(cartItems({ a: 1 }, products), 400, [])
+    const s2 = { ...mustCreateSale(cartItems({ b: 3 }, products), 450, [s1]), voided: true }
     const summary = summarize([s1, s2], products)
     expect(summary.total).toBe(400)
     expect(summary.count).toBe(1)
@@ -137,14 +174,14 @@ describe('sales', () => {
 
   it('会計がないときは 0 円・0 件・空の一覧になる', () => {
     expect(summarize([], products)).toEqual({ total: 0, count: 0, byProduct: [] })
-    const voided = { ...createSale(cartItems({ a: 1 }, products), 400, []), voided: true }
+    const voided = { ...mustCreateSale(cartItems({ a: 1 }, products), 400, []), voided: true }
     expect(summarize([voided], products)).toEqual({ total: 0, count: 0, byProduct: [] })
   })
 })
 
 describe('voidSale', () => {
-  const s1 = createSale(cartItems({ a: 2 }, products), 1000, [])
-  const s2 = createSale(cartItems({ b: 1 }, products), 150, [s1])
+  const s1 = mustCreateSale(cartItems({ a: 2 }, products), 1000, [])
+  const s2 = mustCreateSale(cartItems({ b: 1 }, products), 150, [s1])
   const sales = [s1, s2]
 
   it('指定した会計だけを取消済みにし、番号や明細は変えない', () => {
@@ -199,7 +236,7 @@ describe('csv', () => {
   })
 
   it('カンマや改行を含む商品名は「"」で囲む', () => {
-    const sale = createSale([{ productId: 'a', name: '焼きそば,大盛り', price: 500, qty: 1 }, { productId: 'b', name: 'ラムネ\r\n冷', price: 150, qty: 1 }], 650, [])
+    const sale = mustCreateSale([{ productId: 'a', name: '焼きそば,大盛り', price: 500, qty: 1 }, { productId: 'b', name: 'ラムネ\r\n冷', price: 150, qty: 1 }], 650, [])
     const csv = salesToCsv([sale])
     expect(csv).toContain(',"焼きそば,大盛り",500,')
     expect(csv).toContain(',"ラムネ\r\n冷",150,')
@@ -210,12 +247,12 @@ describe('csv', () => {
   })
 
   it('1 行に会計の値をすべて出し、日時は PC の時刻で書く', () => {
-    const sale = createSale([{ productId: 'a', name: '焼きそば', price: 400, qty: 2 }], 1000, [], new Date(2026, 9, 25, 9, 5, 30))
+    const sale = mustCreateSale([{ productId: 'a', name: '焼きそば', price: 400, qty: 2 }], 1000, [], new Date(2026, 9, 25, 9, 5, 30))
     expect(salesToCsv([sale]).split('\r\n')[1]).toBe('1,2026-10-25 09:05:30,焼きそば,400,2,800,800,1000,200,')
   })
 
   it('マイナス価格は数値のまま出力する', () => {
-    const sale = createSale([{ productId: 'd', name: '割引', price: -50, qty: 2 }, { productId: 'a', name: '焼きそば', price: 400, qty: 1 }], 300, [])
+    const sale = mustCreateSale([{ productId: 'd', name: '割引', price: -50, qty: 2 }, { productId: 'a', name: '焼きそば', price: 400, qty: 1 }], 300, [])
     const rows = salesToCsv([sale]).split('\r\n')
     expect(rows[1].split(',').slice(2, 6)).toEqual(['割引', '-50', '2', '-100'])
   })
@@ -327,7 +364,7 @@ describe('reducer', () => {
   it('商品の追加と会計の取消ができる', () => {
     let state = reducer({ products, sales: [] }, { type: 'addProduct', name: '割引', price: -50 })
     expect(state.products.map((p) => p.name)).toEqual(['焼きそば', 'ラムネ', '割引'])
-    const sale = createSale(cartItems({ a: 1 }, products), 400, [])
+    const sale = mustCreateSale(cartItems({ a: 1 }, products), 400, [])
     state = reducer(state, { type: 'recordSale', sale })
     state = reducer(state, { type: 'voidSale', id: sale.id })
     expect(state.sales[0].voided).toBe(true)
