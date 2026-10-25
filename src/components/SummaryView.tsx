@@ -7,6 +7,13 @@ type Props = {
   products: Product[]
 }
 
+/**
+ * 集計画面（SPEC「集計」）
+ * - 売上合計と会計件数。取り消した会計は入れず、取消の件数は出さない
+ * - 商品ごとの数量と金額を、商品の登録順に表で出す。マイナス価格の商品も出る
+ * - 会計がない（取り消した会計だけのときも）ときは、表に「まだ売上はありません」と出す
+ * - 売上 CSV の保存ボタンは設定画面にだけ置き、ここには置かない（#50）
+ */
 export function SummaryView({ sales, products }: Props) {
   const summary = summarize(sales, products)
 
