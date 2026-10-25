@@ -62,3 +62,4 @@
 | [0028](0028-spec-is-mvp-goal.md) | SPEC は MVP の目標として扱う | 採用 |
 | [0029](0029-record-tech-choices.md) | 選んだ技術のメリットを docs/tech-choices.md に書き足していく | 採用 |
 | [0030](0030-one-purpose-per-pr.md) | 1 つの PR には 1 つの目的だけ持たせる | 採用 |
+| [0031](0031-rebuild-issues-from-design-doc.md) | 作り直しの Issue を Design Doc に合わせて立て直し、SPEC にない機能は作らない | 採用 |
