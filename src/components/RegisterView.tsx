@@ -1,5 +1,6 @@
 import type { Product, SaleItem } from '../types'
 import { formatYen } from '../lib/format'
+import { canCheckout } from '../lib/sales'
 
 type Props = {
   products: Product[]
@@ -32,6 +33,11 @@ export function RegisterView({ products, items, total, onAddItem, onChangeQty, o
         ))}
       </div>
 
+      {/*
+        カート。明細（商品名・数量・小計）は商品の登録順に並べ、合計を出す
+        数量は「−」「＋」で変え、0 にするとカートから消える（999 で止まる）。消すときは一括の「クリア」だけで、行ごとの削除はしない（ADR 0016）
+        合計が 0 円未満のときは会計に進めず、理由を出す（ADR 0011）
+      */}
       <aside className="cart">
         <ul className="cart-list">
           {items.length === 0 && <li className="cart-empty">商品を選んでください</li>}
@@ -54,7 +60,7 @@ export function RegisterView({ products, items, total, onAddItem, onChangeQty, o
         {total < 0 && <p className="cart-warning">合計が0円未満のため、会計できません</p>}
         <div className="cart-actions">
           <button className="secondary" onClick={onClear} disabled={items.length === 0}>クリア</button>
-          <button className="primary" onClick={onCheckout} disabled={items.length === 0 || total < 0}>会計</button>
+          <button className="primary" onClick={onCheckout} disabled={!canCheckout(items)}>会計</button>
         </div>
       </aside>
     </section>
