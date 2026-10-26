@@ -11,7 +11,7 @@ type Props = {
 /**
  * 集計画面（SPEC「集計」）
  * - 売上合計と会計件数。取り消した会計は入れず、取消の件数は出さない
- * - 商品ごとの数量と金額を、商品の登録順に表で出す。マイナス価格の商品も出る
+ * - 商品ごとの数量と金額を、商品の登録順に「商品」の見出しを付けた表で出す。マイナス価格の商品も出る
  * - 商品ごとに、売上に占める割合を横棒と % で出す。マイナス価格の商品には出さない
  * - 会計がない（取り消した会計だけのときも）ときは、表に「まだ売上はありません」と出す
  * - 割引券を使った会計があれば、割引券ごとの枚数と引いた金額の表を出す（docs/design/dayresi.pen の K-05・K-14）
@@ -38,6 +38,7 @@ export function SummaryView({ sales, products, coupons }: Props) {
           </div>
         </div>
 
+        <h3 className="section-title">商品</h3>
         <div className="table-box">
         <table className="table">
           <thead>

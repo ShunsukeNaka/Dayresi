@@ -48937,233 +48937,67 @@
                   "gap": 16,
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "c599R",
+                      "id": "SB4nL",
+                      "type": "ref",
+                      "ref": "ROCXd",
                       "name": "割引券 50円引き",
-                      "width": 190,
-                      "height": 72,
-                      "fill": "$accent-soft",
-                      "cornerRadius": "$radius",
-                      "stroke": "$selected-line",
-                      "strokeWidth": 3,
-                      "strokeAlignment": "inner",
-                      "gap": 12,
-                      "padding": [
-                        0,
-                        16
-                      ],
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "icon",
-                          "id": "m5qSu",
-                          "name": "アイコン",
-                          "width": 24,
-                          "height": 24,
-                          "icon": "ticket",
-                          "library": "lucide",
-                          "fill": "$ink"
+                      "descendants": {
+                        "LFebD": {
+                          "icon": "ticket"
                         },
-                        {
-                          "type": "frame",
-                          "id": "AYWm1",
-                          "name": "文",
-                          "layout": "vertical",
-                          "gap": 2,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "b6RjW5",
-                              "name": "名前",
-                              "fill": "$text",
-                              "content": "50円引き",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 16,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "X5OXft",
-                              "name": "値",
-                              "fill": "$minus",
-                              "content": "−¥50",
-                              "fontFamily": "$font-num",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
-                            }
-                          ]
+                        "in2Jg": {
+                          "content": "50円引き"
                         },
-                        {
-                          "type": "frame",
-                          "id": "PUcZG",
-                          "layoutPosition": "absolute",
-                          "x": -1,
-                          "y": -1,
-                          "name": "数量バッジ",
-                          "width": 26,
-                          "height": 26,
-                          "fill": "$badge",
-                          "cornerRadius": "$badge-radius",
-                          "justifyContent": "center",
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "P75xW",
-                              "name": "数",
-                              "fill": "$on-badge",
-                              "content": "1",
-                              "fontFamily": "$font-num",
-                              "fontSize": 13,
-                              "fontWeight": "700"
-                            }
-                          ]
+                        "IZGqY": {
+                          "content": "−¥50"
+                        },
+                        "h4gvvz/CMuy6": {
+                          "content": "1"
                         }
-                      ]
+                      }
                     },
                     {
-                      "type": "frame",
-                      "id": "gdkPs",
+                      "id": "Qw2X1",
+                      "type": "ref",
+                      "ref": "ROCXd",
                       "name": "割引券 1割引き",
-                      "width": 190,
-                      "height": 72,
-                      "fill": "$accent-soft",
-                      "cornerRadius": "$radius",
-                      "stroke": "$selected-line",
-                      "strokeWidth": 3,
-                      "strokeAlignment": "inner",
-                      "gap": 12,
-                      "padding": [
-                        0,
-                        16
-                      ],
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "icon",
-                          "id": "zJLYv",
-                          "name": "アイコン",
-                          "width": 24,
-                          "height": 24,
-                          "icon": "percent",
-                          "library": "lucide",
-                          "fill": "$ink"
+                      "descendants": {
+                        "LFebD": {
+                          "icon": "percent"
                         },
-                        {
-                          "type": "frame",
-                          "id": "tnypO",
-                          "name": "文",
-                          "layout": "vertical",
-                          "gap": 2,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "HmQTe",
-                              "name": "名前",
-                              "fill": "$text",
-                              "content": "1割引き",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 16,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "D7WBM2",
-                              "name": "値",
-                              "fill": "$minus",
-                              "content": "10%引き",
-                              "fontFamily": "$font-num",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
-                            }
-                          ]
+                        "in2Jg": {
+                          "content": "1割引き"
                         },
-                        {
-                          "type": "frame",
-                          "id": "Axswi",
-                          "layoutPosition": "absolute",
-                          "x": -1,
-                          "y": -1,
-                          "name": "数量バッジ",
-                          "width": 26,
-                          "height": 26,
-                          "fill": "$badge",
-                          "cornerRadius": "$badge-radius",
-                          "justifyContent": "center",
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "zTIdT",
-                              "name": "数",
-                              "fill": "$on-badge",
-                              "content": "✓",
-                              "fontFamily": "$font-num",
-                              "fontSize": 13,
-                              "fontWeight": "700"
-                            }
-                          ]
+                        "IZGqY": {
+                          "content": "10%引き"
+                        },
+                        "h4gvvz/CMuy6": {
+                          "content": "✓"
                         }
-                      ]
+                      }
                     },
                     {
-                      "type": "frame",
-                      "id": "BFa8K",
+                      "id": "qOW4N",
+                      "type": "ref",
+                      "ref": "ROCXd",
                       "name": "割引券 100円引き",
-                      "width": 190,
-                      "height": 72,
                       "fill": "$surface",
-                      "cornerRadius": "$radius",
                       "stroke": "$line",
                       "strokeWidth": "$stroke",
-                      "strokeAlignment": "inner",
-                      "gap": 12,
-                      "padding": [
-                        0,
-                        16
-                      ],
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "icon",
-                          "id": "ffflt",
-                          "name": "アイコン",
-                          "width": 24,
-                          "height": 24,
-                          "icon": "ticket",
-                          "library": "lucide",
-                          "fill": "$ink"
+                      "descendants": {
+                        "LFebD": {
+                          "icon": "ticket"
                         },
-                        {
-                          "type": "frame",
-                          "id": "QODrr",
-                          "name": "文",
-                          "layout": "vertical",
-                          "gap": 2,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "nbDxI",
-                              "name": "名前",
-                              "fill": "$text",
-                              "content": "100円引き",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 16,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "C0kI6n",
-                              "name": "値",
-                              "fill": "$minus",
-                              "content": "−¥100",
-                              "fontFamily": "$font-num",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
-                            }
-                          ]
+                        "in2Jg": {
+                          "content": "100円引き"
+                        },
+                        "IZGqY": {
+                          "content": "−¥100"
+                        },
+                        "h4gvvz": {
+                          "enabled": false
                         }
-                      ]
+                      }
                     }
                   ]
                 }
@@ -54210,6 +54044,12 @@
                   ]
                 },
                 {
+                  "id": "v8cl6",
+                  "type": "ref",
+                  "ref": "n6clyi",
+                  "name": "商品の見出し"
+                },
+                {
                   "type": "frame",
                   "id": "e62qj9",
                   "name": "商品別",
@@ -54332,42 +54172,19 @@
                           "fontWeight": "500"
                         },
                         {
-                          "type": "frame",
-                          "id": "laUrr",
+                          "id": "TAmsn",
+                          "type": "ref",
+                          "ref": "maTDZ",
                           "name": "割合",
                           "width": "fill_container",
-                          "gap": 12,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "O8Tl4O",
-                              "name": "棒の地",
-                              "width": 300,
-                              "height": 12,
-                              "fill": "$key",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "pzxst",
-                                  "name": "棒",
-                                  "width": 299,
-                                  "height": 12,
-                                  "fill": "$accent"
-                                }
-                              ]
+                          "descendants": {
+                            "pf3hI": {
+                              "width": 299
                             },
-                            {
-                              "type": "text",
-                              "id": "H5r91w",
-                              "name": "％",
-                              "fill": "$muted",
-                              "content": "29.9%",
-                              "fontFamily": "$font-num",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
+                            "Ygx1L": {
+                              "content": "29.9%"
                             }
-                          ]
+                          }
                         },
                         {
                           "type": "text",
@@ -54428,42 +54245,19 @@
                           "fontWeight": "500"
                         },
                         {
-                          "type": "frame",
-                          "id": "FLwj7",
+                          "id": "LBMCq",
+                          "type": "ref",
+                          "ref": "maTDZ",
                           "name": "割合",
                           "width": "fill_container",
-                          "gap": 12,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "Y0mgx",
-                              "name": "棒の地",
-                              "width": 300,
-                              "height": 12,
-                              "fill": "$key",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "A014P",
-                                  "name": "棒",
-                                  "width": 236,
-                                  "height": 12,
-                                  "fill": "$accent"
-                                }
-                              ]
+                          "descendants": {
+                            "pf3hI": {
+                              "width": 236
                             },
-                            {
-                              "type": "text",
-                              "id": "L1Xnx",
-                              "name": "％",
-                              "fill": "$muted",
-                              "content": "23.6%",
-                              "fontFamily": "$font-num",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
+                            "Ygx1L": {
+                              "content": "23.6%"
                             }
-                          ]
+                          }
                         },
                         {
                           "type": "text",
@@ -54524,42 +54318,19 @@
                           "fontWeight": "500"
                         },
                         {
-                          "type": "frame",
-                          "id": "Urizl",
+                          "id": "yuifu",
+                          "type": "ref",
+                          "ref": "maTDZ",
                           "name": "割合",
                           "width": "fill_container",
-                          "gap": 12,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "JIgCw",
-                              "name": "棒の地",
-                              "width": 300,
-                              "height": 12,
-                              "fill": "$key",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "A8mXW",
-                                  "name": "棒",
-                                  "width": 152,
-                                  "height": 12,
-                                  "fill": "$accent"
-                                }
-                              ]
+                          "descendants": {
+                            "pf3hI": {
+                              "width": 152
                             },
-                            {
-                              "type": "text",
-                              "id": "vOHKp",
-                              "name": "％",
-                              "fill": "$muted",
-                              "content": "15.2%",
-                              "fontFamily": "$font-num",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
+                            "Ygx1L": {
+                              "content": "15.2%"
                             }
-                          ]
+                          }
                         },
                         {
                           "type": "text",
@@ -54620,42 +54391,19 @@
                           "fontWeight": "500"
                         },
                         {
-                          "type": "frame",
-                          "id": "qxCyI",
+                          "id": "CHxjt",
+                          "type": "ref",
+                          "ref": "maTDZ",
                           "name": "割合",
                           "width": "fill_container",
-                          "gap": 12,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "JSej9",
-                              "name": "棒の地",
-                              "width": 300,
-                              "height": 12,
-                              "fill": "$key",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "tzzWD",
-                                  "name": "棒",
-                                  "width": 106,
-                                  "height": 12,
-                                  "fill": "$accent"
-                                }
-                              ]
+                          "descendants": {
+                            "pf3hI": {
+                              "width": 106
                             },
-                            {
-                              "type": "text",
-                              "id": "sZYJL",
-                              "name": "％",
-                              "fill": "$muted",
-                              "content": "10.6%",
-                              "fontFamily": "$font-num",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
+                            "Ygx1L": {
+                              "content": "10.6%"
                             }
-                          ]
+                          }
                         },
                         {
                           "type": "text",
@@ -54716,42 +54464,19 @@
                           "fontWeight": "500"
                         },
                         {
-                          "type": "frame",
-                          "id": "Z7nghm",
+                          "id": "GNKzV",
+                          "type": "ref",
+                          "ref": "maTDZ",
                           "name": "割合",
                           "width": "fill_container",
-                          "gap": 12,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "AdgGT",
-                              "name": "棒の地",
-                              "width": 300,
-                              "height": 12,
-                              "fill": "$key",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "qMTUI",
-                                  "name": "棒",
-                                  "width": 79,
-                                  "height": 12,
-                                  "fill": "$accent"
-                                }
-                              ]
+                          "descendants": {
+                            "pf3hI": {
+                              "width": 79
                             },
-                            {
-                              "type": "text",
-                              "id": "w0zvf2",
-                              "name": "％",
-                              "fill": "$muted",
-                              "content": "7.9%",
-                              "fontFamily": "$font-num",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
+                            "Ygx1L": {
+                              "content": "7.9%"
                             }
-                          ]
+                          }
                         },
                         {
                           "type": "text",
@@ -54812,42 +54537,19 @@
                           "fontWeight": "500"
                         },
                         {
-                          "type": "frame",
-                          "id": "vOft3",
+                          "id": "bCXnt",
+                          "type": "ref",
+                          "ref": "maTDZ",
                           "name": "割合",
                           "width": "fill_container",
-                          "gap": 12,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "z0Gu6q",
-                              "name": "棒の地",
-                              "width": 300,
-                              "height": 12,
-                              "fill": "$key",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "FgX9e",
-                                  "name": "棒",
-                                  "width": 67,
-                                  "height": 12,
-                                  "fill": "$accent"
-                                }
-                              ]
+                          "descendants": {
+                            "pf3hI": {
+                              "width": 67
                             },
-                            {
-                              "type": "text",
-                              "id": "OEIcE",
-                              "name": "％",
-                              "fill": "$muted",
-                              "content": "6.7%",
-                              "fontFamily": "$font-num",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
+                            "Ygx1L": {
+                              "content": "6.7%"
                             }
-                          ]
+                          }
                         },
                         {
                           "type": "text",
@@ -54908,42 +54610,19 @@
                           "fontWeight": "500"
                         },
                         {
-                          "type": "frame",
-                          "id": "CVIJw",
+                          "id": "ShPjw",
+                          "type": "ref",
+                          "ref": "maTDZ",
                           "name": "割合",
                           "width": "fill_container",
-                          "gap": 12,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "UOTcP",
-                              "name": "棒の地",
-                              "width": 300,
-                              "height": 12,
-                              "fill": "$key",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "klotb",
-                                  "name": "棒",
-                                  "width": 62,
-                                  "height": 12,
-                                  "fill": "$accent"
-                                }
-                              ]
+                          "descendants": {
+                            "pf3hI": {
+                              "width": 62
                             },
-                            {
-                              "type": "text",
-                              "id": "b5oPK",
-                              "name": "％",
-                              "fill": "$muted",
-                              "content": "6.2%",
-                              "fontFamily": "$font-num",
-                              "fontSize": 14,
-                              "fontWeight": "normal"
+                            "Ygx1L": {
+                              "content": "6.2%"
                             }
-                          ]
+                          }
                         },
                         {
                           "type": "text",
@@ -54976,14 +54655,11 @@
                   ]
                 },
                 {
-                  "type": "text",
-                  "id": "fd0M7",
+                  "id": "gH4eH",
+                  "type": "ref",
+                  "ref": "n6clyi",
                   "name": "割引券の見出し",
-                  "fill": "$text",
-                  "content": "割引券",
-                  "fontFamily": "$font-ui",
-                  "fontSize": 20,
-                  "fontWeight": "800"
+                  "content": "割引券"
                 },
                 {
                   "type": "frame",
@@ -55840,172 +55516,80 @@
                   "gap": 10,
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "O4oCi",
+                      "id": "WqBB9",
+                      "type": "ref",
+                      "ref": "ROCXd",
                       "name": "割引券 50円引き",
                       "width": "fill_container",
                       "height": 60,
-                      "fill": "$accent-soft",
-                      "cornerRadius": "$radius",
-                      "stroke": "$selected-line",
-                      "strokeWidth": 3,
-                      "strokeAlignment": "inner",
                       "gap": 10,
                       "padding": [
                         0,
-                        12
+                        12,
+                        0,
+                        28
                       ],
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "icon",
-                          "id": "Aj7qe",
-                          "name": "アイコン",
-                          "width": 20,
-                          "height": 20,
+                      "descendants": {
+                        "LFebD": {
                           "icon": "ticket",
-                          "library": "lucide",
-                          "fill": "$ink"
+                          "width": 20,
+                          "height": 20
                         },
-                        {
-                          "type": "frame",
-                          "id": "gqTcH",
-                          "name": "文",
-                          "layout": "vertical",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "BblYg",
-                              "name": "名前",
-                              "fill": "$text",
-                              "content": "50円引き",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 15,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "Ub7H1",
-                              "name": "値",
-                              "fill": "$minus",
-                              "content": "−¥50",
-                              "fontFamily": "$font-num",
-                              "fontSize": 13,
-                              "fontWeight": "normal"
-                            }
-                          ]
+                        "in2Jg": {
+                          "content": "50円引き",
+                          "fontSize": 15
                         },
-                        {
-                          "type": "frame",
-                          "id": "xEk8g",
-                          "layoutPosition": "absolute",
-                          "x": -1,
-                          "y": -1,
-                          "name": "数量バッジ",
+                        "IZGqY": {
+                          "content": "−¥50",
+                          "fontSize": 13
+                        },
+                        "h4gvvz": {
                           "width": 24,
-                          "height": 24,
-                          "fill": "$badge",
-                          "cornerRadius": "$badge-radius",
-                          "justifyContent": "center",
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "xnBRo",
-                              "name": "数",
-                              "fill": "$on-badge",
-                              "content": "1",
-                              "fontFamily": "$font-num",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            }
-                          ]
+                          "height": 24
+                        },
+                        "h4gvvz/CMuy6": {
+                          "content": "1",
+                          "fontSize": 12
                         }
-                      ]
+                      }
                     },
                     {
-                      "type": "frame",
-                      "id": "qhx2F",
+                      "id": "XkprE",
+                      "type": "ref",
+                      "ref": "ROCXd",
                       "name": "割引券 1割引き",
                       "width": "fill_container",
                       "height": 60,
-                      "fill": "$accent-soft",
-                      "cornerRadius": "$radius",
-                      "stroke": "$selected-line",
-                      "strokeWidth": 3,
-                      "strokeAlignment": "inner",
                       "gap": 10,
                       "padding": [
                         0,
-                        12
+                        12,
+                        0,
+                        28
                       ],
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "icon",
-                          "id": "fXLZl",
-                          "name": "アイコン",
-                          "width": 20,
-                          "height": 20,
+                      "descendants": {
+                        "LFebD": {
                           "icon": "percent",
-                          "library": "lucide",
-                          "fill": "$ink"
+                          "width": 20,
+                          "height": 20
                         },
-                        {
-                          "type": "frame",
-                          "id": "TXi6n",
-                          "name": "文",
-                          "layout": "vertical",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "Jh4s0",
-                              "name": "名前",
-                              "fill": "$text",
-                              "content": "1割引き",
-                              "fontFamily": "$font-ui",
-                              "fontSize": 15,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "WWXKu",
-                              "name": "値",
-                              "fill": "$minus",
-                              "content": "10%引き",
-                              "fontFamily": "$font-num",
-                              "fontSize": 13,
-                              "fontWeight": "normal"
-                            }
-                          ]
+                        "in2Jg": {
+                          "content": "1割引き",
+                          "fontSize": 15
                         },
-                        {
-                          "type": "frame",
-                          "id": "hg5IR",
-                          "layoutPosition": "absolute",
-                          "x": -1,
-                          "y": -1,
-                          "name": "数量バッジ",
+                        "IZGqY": {
+                          "content": "10%引き",
+                          "fontSize": 13
+                        },
+                        "h4gvvz": {
                           "width": 24,
-                          "height": 24,
-                          "fill": "$badge",
-                          "cornerRadius": "$badge-radius",
-                          "justifyContent": "center",
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "i7rPFd",
-                              "name": "数",
-                              "fill": "$on-badge",
-                              "content": "✓",
-                              "fontFamily": "$font-num",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            }
-                          ]
+                          "height": 24
+                        },
+                        "h4gvvz/CMuy6": {
+                          "content": "✓",
+                          "fontSize": 12
                         }
-                      ]
+                      }
                     }
                   ]
                 }
@@ -59288,6 +58872,13 @@
               ]
             },
             {
+              "id": "p7NXio",
+              "type": "ref",
+              "ref": "n6clyi",
+              "name": "商品の見出し",
+              "fontSize": 18
+            },
+            {
               "type": "frame",
               "id": "Zyftu",
               "name": "商品別",
@@ -59723,14 +59314,12 @@
               ]
             },
             {
-              "type": "text",
-              "id": "HkcJ4",
+              "id": "w0axk3",
+              "type": "ref",
+              "ref": "n6clyi",
               "name": "割引券の見出し",
-              "fill": "$text",
               "content": "割引券",
-              "fontFamily": "$font-ui",
-              "fontSize": 18,
-              "fontWeight": "800"
+              "fontSize": 18
             },
             {
               "type": "frame",
@@ -60010,6 +59599,656 @@
                   "fontWeight": "500"
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "kT29b",
+      "x": 0,
+      "y": -1100,
+      "name": "コンポーネント（#179）",
+      "width": 1280,
+      "fill": "$bg",
+      "layout": "vertical",
+      "gap": 40,
+      "padding": 48,
+      "children": [
+        {
+          "type": "text",
+          "id": "w7pmY",
+          "name": "題",
+          "fill": "$text",
+          "content": "コンポーネント",
+          "fontFamily": "$font-ui",
+          "fontSize": 28,
+          "fontWeight": "800"
+        },
+        {
+          "type": "frame",
+          "id": "ZlJsh",
+          "name": "節 数量バッジ",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "J00vih",
+              "name": "節名",
+              "fill": "$muted",
+              "content": "数量バッジ",
+              "fontFamily": "$font-ui",
+              "fontSize": 15,
+              "fontWeight": "800"
+            },
+            {
+              "type": "frame",
+              "id": "b7wbk",
+              "name": "並び",
+              "gap": 24,
+              "alignItems": "end",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "v33nF",
+                  "name": "例 コンポーネント",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "q3ciuq",
+                      "name": "説明",
+                      "fill": "$muted",
+                      "content": "コンポーネント",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ZiAlX",
+                      "name": "数量バッジ",
+                      "reusable": true,
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$badge",
+                      "cornerRadius": "$badge-radius",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "CMuy6",
+                          "name": "数",
+                          "fill": "$on-badge",
+                          "content": "1",
+                          "fontFamily": "$font-num",
+                          "fontSize": 13,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "JzyZC",
+                  "name": "例 ✓（% 引き）",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "B0m0Z",
+                      "name": "説明",
+                      "fill": "$muted",
+                      "content": "✓（% 引き）",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "zTUGB",
+                      "type": "ref",
+                      "ref": "ZiAlX",
+                      "name": "数量バッジ ✓",
+                      "descendants": {
+                        "CMuy6": {
+                          "content": "✓"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "N9s5XT",
+                  "name": "例 スマホ",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "OdCBz",
+                      "name": "説明",
+                      "fill": "$muted",
+                      "content": "スマホ",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "ydCMI",
+                      "type": "ref",
+                      "ref": "ZiAlX",
+                      "name": "数量バッジ スマホ",
+                      "width": 24,
+                      "height": 24,
+                      "descendants": {
+                        "CMuy6": {
+                          "fontSize": 12
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "UsQaC",
+          "name": "節 割引券ボタン",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "ewghM",
+              "name": "節名",
+              "fill": "$muted",
+              "content": "割引券ボタン",
+              "fontFamily": "$font-ui",
+              "fontSize": 15,
+              "fontWeight": "800"
+            },
+            {
+              "type": "frame",
+              "id": "rCuvN",
+              "name": "並び PC",
+              "gap": 24,
+              "alignItems": "end",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "SOVLz",
+                  "name": "例 コンポーネント（選んだ）",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "UDeQH",
+                      "name": "説明",
+                      "fill": "$muted",
+                      "content": "コンポーネント（選んだ）",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ROCXd",
+                      "name": "割引券ボタン",
+                      "reusable": true,
+                      "width": 190,
+                      "height": 72,
+                      "fill": "$accent-soft",
+                      "cornerRadius": "$radius",
+                      "stroke": "$selected-line",
+                      "strokeWidth": 3,
+                      "strokeAlignment": "inner",
+                      "gap": 12,
+                      "padding": [
+                        0,
+                        16,
+                        0,
+                        32
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "LFebD",
+                          "name": "アイコン",
+                          "width": 24,
+                          "height": 24,
+                          "icon": "ticket",
+                          "library": "lucide",
+                          "fill": "$ink"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "uRlBC",
+                          "name": "文",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "in2Jg",
+                              "name": "名前",
+                              "fill": "$text",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "50円引き",
+                              "fontFamily": "$font-ui",
+                              "fontSize": 16,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "IZGqY",
+                              "name": "値",
+                              "fill": "$minus",
+                              "content": "−¥50",
+                              "fontFamily": "$font-num",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "h4gvvz",
+                          "type": "ref",
+                          "ref": "ZiAlX",
+                          "name": "数量バッジ",
+                          "layoutPosition": "absolute",
+                          "x": -1,
+                          "y": -1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "HFH0b",
+                  "name": "例 選んでいない",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "l5k6pB",
+                      "name": "説明",
+                      "fill": "$muted",
+                      "content": "選んでいない",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "z3XPOQ",
+                      "type": "ref",
+                      "ref": "ROCXd",
+                      "name": "割引券ボタン 未選択",
+                      "fill": "$surface",
+                      "stroke": "$line",
+                      "strokeWidth": "$stroke",
+                      "descendants": {
+                        "in2Jg": {
+                          "content": "100円引き"
+                        },
+                        "IZGqY": {
+                          "content": "−¥100"
+                        },
+                        "h4gvvz": {
+                          "enabled": false
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "UNsKS",
+                  "name": "例 % 引きを選んだ",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "J3Oj1B",
+                      "name": "説明",
+                      "fill": "$muted",
+                      "content": "% 引きを選んだ",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "y6Z5p9",
+                      "type": "ref",
+                      "ref": "ROCXd",
+                      "name": "割引券ボタン %",
+                      "descendants": {
+                        "LFebD": {
+                          "icon": "percent"
+                        },
+                        "in2Jg": {
+                          "content": "1割引き"
+                        },
+                        "IZGqY": {
+                          "content": "10%引き"
+                        },
+                        "h4gvvz/CMuy6": {
+                          "content": "✓"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "eoUVB",
+                  "name": "例 長い名前・2 枚",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bCRhW",
+                      "name": "説明",
+                      "fill": "$muted",
+                      "content": "長い名前・2 枚",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "JZSg3",
+                      "type": "ref",
+                      "ref": "ROCXd",
+                      "name": "割引券ボタン 長い名前",
+                      "height": "fit_content",
+                      "padding": [
+                        14,
+                        16,
+                        14,
+                        32
+                      ],
+                      "descendants": {
+                        "in2Jg": {
+                          "content": "学生証提示で100円引き"
+                        },
+                        "IZGqY": {
+                          "content": "−¥100"
+                        },
+                        "h4gvvz/CMuy6": {
+                          "content": "2"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "PRciH",
+              "name": "並び スマホ",
+              "gap": 24,
+              "alignItems": "end",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "s74Gqb",
+                  "name": "例 スマホ・選んだ",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "M7h91J",
+                      "name": "説明",
+                      "fill": "$muted",
+                      "content": "スマホ・選んだ",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "jb26h",
+                      "type": "ref",
+                      "ref": "ROCXd",
+                      "name": "割引券ボタン スマホ",
+                      "width": 178,
+                      "height": 60,
+                      "gap": 10,
+                      "padding": [
+                        0,
+                        12,
+                        0,
+                        28
+                      ],
+                      "descendants": {
+                        "LFebD": {
+                          "width": 20,
+                          "height": 20
+                        },
+                        "in2Jg": {
+                          "fontSize": 15
+                        },
+                        "IZGqY": {
+                          "fontSize": 13
+                        },
+                        "h4gvvz": {
+                          "width": 24,
+                          "height": 24
+                        },
+                        "h4gvvz/CMuy6": {
+                          "fontSize": 12
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "U9VMdV",
+                  "name": "例 スマホ・選んでいない",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "cbDy8",
+                      "name": "説明",
+                      "fill": "$muted",
+                      "content": "スマホ・選んでいない",
+                      "fontFamily": "$font-ui",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "kxw4I",
+                      "type": "ref",
+                      "ref": "ROCXd",
+                      "name": "割引券ボタン スマホ 未選択",
+                      "width": 178,
+                      "height": 60,
+                      "gap": 10,
+                      "padding": [
+                        0,
+                        12,
+                        0,
+                        28
+                      ],
+                      "fill": "$surface",
+                      "stroke": "$line",
+                      "strokeWidth": "$stroke",
+                      "descendants": {
+                        "LFebD": {
+                          "width": 20,
+                          "height": 20
+                        },
+                        "in2Jg": {
+                          "fontSize": 15,
+                          "content": "100円引き"
+                        },
+                        "IZGqY": {
+                          "fontSize": 13,
+                          "content": "−¥100"
+                        },
+                        "h4gvvz": {
+                          "enabled": false
+                        },
+                        "h4gvvz/CMuy6": {
+                          "fontSize": 12
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "P8T7Pk",
+          "name": "節 集計の割合",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "i5Aq0",
+              "name": "節名",
+              "fill": "$muted",
+              "content": "集計の割合",
+              "fontFamily": "$font-ui",
+              "fontSize": 15,
+              "fontWeight": "800"
+            },
+            {
+              "type": "frame",
+              "id": "N1PgEh",
+              "name": "並び",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "maTDZ",
+                  "name": "割合",
+                  "reusable": true,
+                  "width": 420,
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "A2bwx",
+                      "name": "棒の地",
+                      "width": 300,
+                      "height": 12,
+                      "fill": "$key",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "pf3hI",
+                          "name": "棒",
+                          "width": 90,
+                          "height": 12,
+                          "fill": "$accent"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "Ygx1L",
+                      "name": "％",
+                      "fill": "$muted",
+                      "textGrowth": "fixed-width",
+                      "width": 52,
+                      "content": "29.9%",
+                      "textAlign": "right",
+                      "fontFamily": "$font-num",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "id": "UUe7H",
+                  "type": "ref",
+                  "ref": "maTDZ",
+                  "name": "割合 6.7%",
+                  "descendants": {
+                    "pf3hI": {
+                      "width": 20
+                    },
+                    "Ygx1L": {
+                      "content": "6.7%"
+                    }
+                  }
+                },
+                {
+                  "id": "nl3pw",
+                  "type": "ref",
+                  "ref": "maTDZ",
+                  "name": "割合 100.0%",
+                  "descendants": {
+                    "pf3hI": {
+                      "width": 300
+                    },
+                    "Ygx1L": {
+                      "content": "100.0%"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "VK82a",
+          "name": "節 節の見出し",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "S56Ef",
+              "name": "節名",
+              "fill": "$muted",
+              "content": "節の見出し",
+              "fontFamily": "$font-ui",
+              "fontSize": 15,
+              "fontWeight": "800"
+            },
+            {
+              "type": "text",
+              "id": "n6clyi",
+              "name": "節の見出し",
+              "reusable": true,
+              "fill": "$text",
+              "content": "商品",
+              "fontFamily": "$font-ui",
+              "fontSize": 20,
+              "fontWeight": "800"
             }
           ]
         }

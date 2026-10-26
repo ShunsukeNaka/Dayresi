@@ -105,10 +105,10 @@ main { flex: 1; min-height: 0; }
 .product-btn .price.minus { color: var(--minus); }
 /* カートに入っている商品（SPEC「会計」）。色を変え、左上にカート内の数量を出す */
 .product-btn.in-cart, .coupon-btn.in-cart { background: var(--accent-soft); border: 3px solid var(--accent); }
-/* 割引券のボタン（docs/design/dayresi.pen の K-01）。商品の下に並べる */
+/* 割引券のボタン（docs/design/dayresi.pen の K-01・コンポーネント「割引券ボタン」）。商品の下に並べる。左の余白は数量バッジの分だけ広げ、アイコンに重ならないようにする */
 .coupon-head { grid-column: 1 / -1; margin-top: 8px; font-size: 15px; font-weight: 800; color: var(--muted); }
 .coupon-btn {
-  position: relative; min-height: 72px; display: flex; align-items: center; gap: 12px; padding: 8px 16px; text-align: left;
+  position: relative; min-height: 72px; display: flex; align-items: center; gap: 12px; padding: 8px 16px 8px 32px; text-align: left;
   background: var(--surface); border: var(--stroke) solid var(--line);
 }
 .coupon-btn:hover { background: var(--subtle); }
@@ -165,7 +165,7 @@ main { flex: 1; min-height: 0; }
   .product-btn .name { font-size: 15px; }
   .product-btn .price { font-size: 14px; }
   .qty-badge { min-width: 26px; height: 26px; font-size: 13px; }
-  .coupon-btn { min-height: 60px; padding: 6px 12px; gap: 10px; }
+  .coupon-btn { min-height: 60px; padding: 6px 12px 6px 28px; gap: 10px; }
   .coupon-text .name { font-size: 15px; }
   .coupon-text .price { font-size: 13px; }
   .cart-subtotal { padding: 10px 16px 0; }
@@ -260,7 +260,7 @@ main { flex: 1; min-height: 0; }
 .card .label { color: var(--muted); font-size: 14px; font-weight: 700; }
 .card .value { font-size: 44px; line-height: 1.2; font-weight: 800; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
 /* 表は枠で包んで角を丸める（table の枠は角が丸まらないため） */
-/* 集計の割引券の表の見出し（docs/design/dayresi.pen の K-05） */
+/* 集計の商品と割引券の表の見出し（docs/design/dayresi.pen の K-05・コンポーネント「節の見出し」） */
 .section-title { margin: 28px 0 12px; font-size: 20px; font-weight: 800; }
 .table-box { background: var(--surface); border: var(--stroke) solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
 .table { width: 100%; border-collapse: collapse; }
@@ -270,12 +270,12 @@ main { flex: 1; min-height: 0; }
 .table .num { text-align: right; font-variant-numeric: tabular-nums; }
 .table td.num:last-child { font-weight: 700; }
 .table .minus { color: var(--minus); }
-/* 割合の横棒（SPEC「集計」）。割合が一番大きい商品を目いっぱいの長さにする */
+/* 割合の横棒（SPEC「集計」）。割合が一番大きい商品を目いっぱいの長さにする。% の幅をそろえ、行ごとに棒の長さが変わらないようにする */
 .table td.share { width: 40%; }
 .share-cell { display: flex; align-items: center; gap: 12px; }
 .share-bar { flex: 0 1 300px; height: 12px; background: var(--key); }
 .share-bar span { display: block; height: 100%; background: var(--accent); }
-.share-num { font-family: var(--font-num); font-size: 14px; line-height: 1; color: var(--muted); font-variant-numeric: tabular-nums; }
+.share-num { flex: none; width: 52px; text-align: right; font-family: var(--font-num); font-size: 14px; line-height: 1; color: var(--muted); font-variant-numeric: tabular-nums; }
 .share-none { color: var(--disabled-text); }
 
 /* スマホの集計（docs/design/dayresi.pen の M-04）。合計は横に並べ、商品ごとに 2 行（商品・数量・金額／割合）にする */
@@ -307,7 +307,7 @@ main { flex: 1; min-height: 0; }
   .coupon-table td:nth-child(3) { grid-area: amount; font-size: 15px; color: var(--minus); }
   .coupon-table td:nth-child(3)::before { content: none; }
   .share-bar { flex: 1 1 auto; height: 8px; }
-  .share-num { width: 40px; text-align: right; font-size: 12px; }
+  .share-num { width: 40px; font-size: 12px; }
 }
 .table .empty-cell { color: var(--muted); text-align: center; }
 
