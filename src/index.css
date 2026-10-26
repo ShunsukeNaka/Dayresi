@@ -89,19 +89,20 @@ main { flex: 1; min-height: 0; }
 .register { display: grid; grid-template-columns: 1fr 400px; gap: 24px; padding: 24px; overflow: hidden; }
 .product-grid {
   overflow: auto; align-content: start; padding: 2px;
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px;
 }
 .product-grid .empty { grid-column: 1 / -1; }
 .product-grid .empty button { margin-top: 8px; padding: 16px 24px; }
+/* 商品ボタン（docs/design/dayresi.pen のコンポーネント「商品ボタン」、#180 の案B）。値札のように、商品名は左上、価格は右下に大きく出す。上は数量バッジの分を空ける */
 .product-btn {
-  position: relative; min-height: 120px; background: var(--surface); border: var(--stroke) solid var(--line);
-  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
-  text-align: center; word-break: break-word; padding: 16px;
+  position: relative; min-height: 140px; background: var(--surface); border: var(--stroke) solid var(--line);
+  display: flex; flex-direction: column; justify-content: space-between; gap: 6px;
+  text-align: left; word-break: break-word; padding: 40px 16px 14px;
 }
 .product-btn:hover { background: var(--subtle); }
 .product-btn:active { transform: scale(.97); }
-.product-btn .name { font-size: 18px; font-weight: 700; }
-.product-btn .price { font-size: 16px; font-weight: 500; color: var(--muted); }
+.product-btn .name { font-size: 19px; font-weight: 700; }
+.product-btn .price { align-self: flex-end; font-family: var(--font-num); font-size: 26px; font-weight: 800; line-height: 1.1; }
 .product-btn .price.minus { color: var(--minus); }
 /* カートに入っている商品（SPEC「会計」）。色を変え、左上にカート内の数量を出す */
 .product-btn.in-cart, .coupon-btn.in-cart { background: var(--accent-soft); border: 3px solid var(--accent); }
@@ -154,6 +155,8 @@ main { flex: 1; min-height: 0; }
 
 @media (max-width: 860px) {
   .register { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+  /* カートが下に回る幅（タブレットなど）でも 3 列にする */
+  .product-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
   .cart-list { max-height: 30vh; flex: none; }
 }
 
@@ -161,9 +164,9 @@ main { flex: 1; min-height: 0; }
 @media (max-width: 600px) {
   .register { display: flex; flex-direction: column; padding: 0; gap: 0; }
   .product-grid { flex: 1; min-height: 0; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
-  .product-btn { min-height: 72px; padding: 8px 10px; gap: 2px; }
+  .product-btn { min-height: 88px; padding: 32px 10px 8px; gap: 2px; }
   .product-btn .name { font-size: 15px; }
-  .product-btn .price { font-size: 14px; }
+  .product-btn .price { font-size: 20px; }
   .qty-badge { min-width: 26px; height: 26px; font-size: 13px; }
   .coupon-btn { min-height: 60px; padding: 6px 12px 6px 28px; gap: 10px; }
   .coupon-text .name { font-size: 15px; }
